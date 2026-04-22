@@ -1,0 +1,109 @@
+<div class="perfil-wrapper">
+  <div class="perfil-container">
+
+    <!-- Left Panel: User Info & Actions -->
+    <div class="panel-left">
+      <div class="user-main-info">
+        <div class="avatar-display">
+          <img [src]="currentUser?.profilePicture" alt="Avatar">
+        </div>
+
+        <div class="info-group">
+          <label>Nombre de jugador</label>
+          <div class="value-row">
+            <span class="value">{{ currentUser?.username }}</span>
+            <button class="btn-text-action" (click)="abrirModalNombre()">Cambiar nombre</button>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Contraseña</label>
+          <div class="value-row">
+            <span class="value">********</span>
+            <button class="btn-text-action" (click)="abrirModalPass()">Cambiar contraseña</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="avatar-selection">
+        <h3>Elige tu Icono</h3>
+        <div class="avatars-grid">
+          @for (avatar of availableAvatars; track avatar) {
+          <div class="avatar-option" (click)="cambiarAvatar(avatar)"
+            [class.selected]="currentUser?.profilePicture === avatar">
+            <img [src]="avatar" alt="Avatar option">
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="btn-regresar" (click)="regresar()">Regresar</button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Statistics -->
+    <div class="panel-right">
+      <div class="stats-box">
+        <h3>Estadísticas del Guerrero</h3>
+        <div class="stats-content">
+          <div class="stat-item">
+            <span class="stat-label">Partidas Ganadas</span>
+            <span class="stat-value">{{ stats?.partidasGanadas }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Impactos Acertados</span>
+            <span class="stat-value">{{ stats?.impactosAcertados }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Impactos Fallados</span>
+            <span class="stat-value">{{ stats?.impactosFallados }}</span>
+          </div>
+          <div class="stat-punteria">
+            <span class="label">Puntería Total</span>
+            <div class="punteria-val">{{ stats?.punteria }}</div>
+          </div>
+
+          <p class="stats-footer">
+            "La gloria solo se alcanza con sangre y acero."
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Cambiar Nombre -->
+  @if (showNameModal) {
+  <div class="modal-backdrop" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="cerrarModales()">×</button>
+      <h3>Cambiar Nombre</h3>
+      <p>Introduce tu nuevo nombre de guerrero.</p>
+
+      <div class="modal-input">
+        <input type="text" [(ngModel)]="editName" placeholder="Nuevo nombre">
+      </div>
+
+      <button class="btn-modal-confirm" (click)="confirmarNombre()">Confirmar nombre</button>
+    </div>
+  </div>
+  }
+
+  <!-- Modal Cambiar Contraseña -->
+  @if (showPassModal) {
+  <div class="modal-backdrop" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="cerrarModales()">×</button>
+      <h3>Nueva Contraseña</h3>
+      <p>Asegúrate de que sea una clave difícil de descifrar.</p>
+
+      <div class="modal-input">
+        <input type="password" [(ngModel)]="editPass" placeholder="Nueva contraseña (min 6 car.)">
+      </div>
+
+      <button class="btn-modal-confirm" (click)="confirmarPass()">Actualizar clave</button>
+    </div>
+  </div>
+  }
+</div>

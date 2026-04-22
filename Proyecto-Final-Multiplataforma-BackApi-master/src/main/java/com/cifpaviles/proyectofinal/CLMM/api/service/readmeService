@@ -1,0 +1,4 @@
+Define las capacidades del sistema mediante interfaces.
+
+Se encarga de:
+Actuar como un contrato. Aquí solo se listan los métodos que el juego puede realizar (ej: finalizarPartida()), separando la definición de la lógica real.

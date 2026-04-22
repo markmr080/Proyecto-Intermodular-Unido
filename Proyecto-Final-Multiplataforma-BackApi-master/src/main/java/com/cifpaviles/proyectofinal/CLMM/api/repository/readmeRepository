@@ -1,0 +1,7 @@
+Capa de persistencia y acceso a datos.
+
+Se encarga de: Hablar con las bases de datos.
+
+Sub-paquete mysql: Guarda lo que está pasando ahora (usuarios, planetas actuales).
+
+Sub-paquete mongo: Guarda el histórico y estadísticas de partidas terminadas.

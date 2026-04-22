@@ -1,0 +1,78 @@
+<div class="menu-wrapper">
+  <div class="background-overlay"></div>
+
+  <!-- Top Navbar -->
+  <nav class="top-navbar">
+    <!-- Left: Logo/Title -->
+    <div class="nav-left">
+      <h1 class="logo-text">Titulo de juego</h1>
+    </div>
+
+    <!-- Center: Play Button (Smite Style) -->
+    <div class="nav-center">
+      <button class="btn-play-massive" (click)="abrirModalJugar()">
+        JUGAR
+      </button>
+    </div>
+
+    <!-- Right: User Profile -->
+    <div class="nav-right">
+      <div class="user-profile" (click)="abrirModalPerfil()">
+        <img [src]="currentUser?.profilePicture" alt="Avatar" class="avatar-img" />
+        <span class="username">{{ currentUser?.username }}</span>
+      </div>
+      <button class="menu-btn btn-salir-nav" (click)="logout()">
+        Salir
+      </button>
+    </div>
+  </nav>
+
+  <div class="menu-container">
+    <!-- Main Content Area: Character List -->
+    <div class="character-gallery">
+      <div class="characters-grid">
+        <button class="carousel-nav-btn prev" (click)="prevChar()">&#10094;</button>
+        <button class="carousel-nav-btn next" (click)="nextChar()">&#10095;</button>
+
+        @for (char of characters; track char.name; let i = $index) {
+        <div class="character-card" [class.mobile-active]="i === currentMobileIndex">
+          <div class="card-image-wrapper">
+            <img [src]="char.img" [alt]="char.name">
+            <div class="card-overlay">
+              <div class="overlay-content">
+                <div class="stats-mini">
+                  <div class="stat">
+                    <span class="label">ATAQUE</span>
+                    <span class="value">{{ char.atk }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">SALUD</span>
+                    <span class="value">{{ char.hp }}</span>
+                  </div>
+                </div>
+                <div class="abilities-container">
+                  @for (ability of char.abilities; track ability.name) {
+                  <div class="ability-group">
+                    <div class="ability-circle" [class.offensive]="ability.type === 'offensive'"
+                      [class.defensive]="ability.type === 'defensive'">
+                      <img [src]="ability.icon" [alt]="ability.name" class="ability-img-icon" />
+                    </div>
+                    <div class="ability-tooltip">
+                      <strong class="ability-name">{{ ability.name }}</strong>
+                      <span class="ability-desc">{{ ability.desc }}</span>
+                    </div>
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="char-name">{{ char.name }}</span>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

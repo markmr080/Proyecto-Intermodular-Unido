@@ -1,0 +1,10 @@
+### Prueba de Registro de Usuario
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Marcos",
+  "email": "markmr080@gmail.com",
+  "password": "prueba123"
+}
+

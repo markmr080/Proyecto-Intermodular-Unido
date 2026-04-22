@@ -1,0 +1,71 @@
+<div class="crear-partida-wrapper">
+  <div class="timer">
+    <span>&#8987; {{ timeRemaining }}</span>
+  </div>
+  
+  <div class="partida-container">
+    <div class="panel-left">
+      <!-- Player 1 Slot -->
+      <div class="slot card-primary">
+        <h3>{{ player1.name }}</h3>
+        <p>{{ player1.role }}</p>
+      </div>
+      
+      <!-- Player 2 Slot -->
+      @if (player2) {
+        <div class="slot card-secondary">
+          <div class="slot-info">
+            <h3>{{ player2.name }}</h3>
+            <p>{{ player2.role }}</p>
+          </div>
+          <button class="btn-expulsar" (click)="expulsar()" title="Expulsar">
+             &#10006;
+          </button>
+        </div>
+      } @else {
+        <div class="slot card-empty">
+          <p>Esperando jugador...</p>
+        </div>
+      }
+      
+      <!-- Pending Requests -->
+      <div class="pending-list">
+        @for (p of pendingPlayers; track p.id) {
+          <div class="pending-item">
+            <span class="pending-name">{{ p.name }}</span>
+            <div class="pending-actions">
+              <button class="btn-accept" (click)="aceptarJugador(p)" title="Aceptar" [disabled]="player2">&#10004;</button>
+              <button class="btn-reject" (click)="rechazarJugador(p)" title="Rechazar">&#10006;</button>
+            </div>
+          </div>
+        }
+        @if (pendingPlayers.length === 0) {
+          <div class="pending-item empty">
+            <span>No hay solicitudes...</span>
+          </div>
+        }
+      </div>
+
+      <!-- Action Bottom Left -->
+      <button class="btn-salir" (click)="salir()">Salir</button>
+    </div>
+
+    <div class="panel-right">
+      <!-- Code Box -->
+      <div class="codigo-box">
+        Código: <span class="highlight">{{ roomCode }}</span>
+      </div>
+      
+      <!-- Settings Box -->
+      <div class="ajustes-box">
+        <h3>Ajustes de la partida</h3>
+        <p class="ajustes-content">
+          Aquí van todas las configuraciones de los dioses, mapas, etc...
+        </p>
+      </div>
+      
+      <!-- Action Bottom Right -->
+      <button class="btn-empezar" (click)="empezar()" [disabled]="!player2">Empezar</button>
+    </div>
+  </div>
+</div>

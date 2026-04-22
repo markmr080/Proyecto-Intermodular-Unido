@@ -1,0 +1,75 @@
+<div class="login-wrapper">
+  <!-- Fondo con animación -->
+  <div class="background-overlay"></div>
+
+  <div class="login-card">
+    <div class="login-header" style="display: none;">
+      <h2>Crear Cuenta</h2>
+      <p>Únete a la aventura</p>
+    </div>
+
+    <!-- The user's image shows a simple beige box with username, email, etc. without headers. 
+         But we leave the styling of the card mostly intact. -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Usuario -->
+      <div class="input-group">
+        <label for="username">username</label>
+        <input id="username" type="text" formControlName="username" placeholder="username"
+          [class.is-invalid]="isSubmitted && registerForm.get('username')?.invalid">
+        @if (isSubmitted && registerForm.get('username')?.hasError('required')) {
+        <span class="error-text">Username obligatorio</span>
+        }
+      </div>
+
+      <!-- Correo -->
+      <div class="input-group">
+        <label for="email">correo electronico</label>
+        <input id="email" type="email" formControlName="email" placeholder="correo electronico"
+          [class.is-invalid]="isSubmitted && registerForm.get('email')?.invalid">
+        @if (isSubmitted && (registerForm.get('email')?.hasError('required') ||
+        registerForm.get('email')?.hasError('email'))) {
+        <span class="error-text">Correo no válido</span>
+        }
+        @if (isSubmitted && registerForm.get('email')?.hasError('authError')) {
+        <span class="error-text">Este correo ya tiene una cuenta.</span>
+        }
+      </div>
+
+      <!-- Contraseña -->
+      <div class="input-group">
+        <label for="password">contraseña</label>
+        <input id="password" type="password" formControlName="password" placeholder="contraseña"
+          [class.is-invalid]="isSubmitted && registerForm.get('password')?.invalid">
+        @if (isSubmitted && registerForm.get('password')?.invalid) {
+        <span class="error-text">Contraseña no válida</span>
+        }
+      </div>
+
+      <!-- Verificar Contraseña -->
+      <div class="input-group">
+        <label for="confirmPassword">verificar contraseña</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="verificar contraseña"
+          [class.is-invalid]="isSubmitted && registerForm.hasError('passwordsMismatch')">
+        @if (isSubmitted && registerForm.hasError('passwordsMismatch')) {
+        <span class="error-text">Las contraseñas no coinciden</span>
+        }
+      </div>
+
+      @if (registerError) {
+      <div class="error-text text-center">
+        {{ registerError }}
+      </div>
+      }
+
+      <!-- Botones de Acción -->
+      <div class="buttons-row layout-buttons">
+        <button type="button" class="cancel-btn" (click)="cancelar()">
+          Cancelar
+        </button>
+        <button type="submit" class="submit-btn" [class.shake]="isSubmitted && registerForm.invalid">
+          Registrarse
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

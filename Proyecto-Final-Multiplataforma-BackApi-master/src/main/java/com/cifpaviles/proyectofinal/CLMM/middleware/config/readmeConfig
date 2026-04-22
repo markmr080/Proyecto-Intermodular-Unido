@@ -1,0 +1,4 @@
+Contiene las clases de configuración técnica del sistema.
+
+Se encarga de: Levantar el servidor de Socket.io, configurar la conexión simultánea a MySQL y MongoDB, 
+y establecer las reglas de CORS para que Angular pueda conectarse.

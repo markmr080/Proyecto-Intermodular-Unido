@@ -1,0 +1,72 @@
+<div class="login-wrapper">
+  <!-- Fondo con animación -->
+  <div class="background-overlay"></div>
+
+  <!-- Contenedor Principal (Tarjeta estilo glassmorphism con tono cálido como en el diseño) -->
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Iniciar Sesión</h2>
+      <p>Bienvenido de vuelta</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Usuario -->
+      <div class="input-group">
+        <label for="username">Usuario</label>
+        <input id="username" type="text" formControlName="username" placeholder="Ingresa tu usuario"
+          [class.is-invalid]="isSubmitted && loginForm.get('username')?.invalid">
+        @if (isSubmitted && loginForm.get('username')?.hasError('required')) {
+        <span class="error-text">El usuario es requerido</span>
+        }
+      </div>
+
+      <!-- Contraseña -->
+      <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" formControlName="password" placeholder="Ingresa tu contraseña"
+          [class.is-invalid]="isSubmitted && loginForm.get('password')?.invalid">
+        @if (isSubmitted && loginForm.get('password')?.hasError('required')) {
+        <span class="error-text">La contraseña es requerida</span>
+        }
+      </div>
+
+      <!-- Enlaces -->
+      <div class="links-row">
+        <a routerLink="/registro" class="link-btn">Registrarse</a>
+        <a href="#" (click)="openRecoveryModal($event)" class="link-btn forgot-pwd">Olvidé la contraseña</a>
+      </div>
+
+      <!-- Error Global -->
+      @if (loginError) {
+      <div class="global-error">
+        {{ loginError }}
+      </div>
+      }
+
+      <!-- Botón Entrar -->
+      <button type="submit" class="submit-btn" [class.shake]="isSubmitted && loginForm.invalid">
+        Entrar
+      </button>
+    </form>
+  </div>
+
+  <!-- Modal Recuperar Contraseña -->
+  @if (showForgotPasswordModal) {
+  <div class="modal-backdrop" (click)="closeRecoveryModal()">
+    <div class="modal-content" (click)="onModalClick($event)">
+      <button class="close-btn" (click)="closeRecoveryModal()">×</button>
+      <h3>Recuperar Contraseña</h3>
+      <p>Introduce tu correo electrónico para reestablecer tu contraseña.</p>
+
+      <div class="input-group modal-input">
+        <input type="email" placeholder="tucorreo@ejemplo.com" [formControl]="recoveryEmail">
+      </div>
+      @if(recoveryMessage) {
+      <p style="color: #a67b4b; font-weight: bold; margin-bottom: 0;">{{ recoveryMessage }}</p>
+      }
+
+      <button class="submit-btn modal-btn" (click)="sendRecoveryEmail()">Enviar Enlace</button>
+    </div>
+  </div>
+  }
+</div>

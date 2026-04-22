@@ -1,0 +1,4 @@
+Protección del Middleware.
+
+Se encarga de: Validar el Token JWT. 
+Verifica que sean transacciones autorizadas.

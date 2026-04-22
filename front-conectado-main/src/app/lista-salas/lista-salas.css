@@ -1,0 +1,353 @@
+.lista-salas-wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #e5d3b3;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.lista-salas-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(20, 25, 45, 0.7), rgba(8, 11, 22, 0.9));
+  z-index: 1;
+}
+
+.salas-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 600px;
+  background: rgba(20, 15, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #b89158;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.salas-header {
+  border-bottom: 2px solid #b89158;
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px 12px 0 0;
+}
+
+.salas-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.salas-top-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 25px;
+}
+
+.btn-refresh {
+  width: 45px;
+  height: 45px;
+  background: rgba(184, 145, 88, 0.1);
+  border: 2px solid #b89158;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  transition: all 0.3s;
+}
+.btn-refresh:hover {
+  background: rgba(184, 145, 88, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(184, 145, 88, 0.4);
+}
+.btn-refresh svg {
+  width: 100%;
+  height: 100%;
+  stroke: #d4af37;
+}
+
+.btn-crear {
+  background: linear-gradient(to bottom, #d4af37, #aa7c11);
+  border: 2px solid #ffd700;
+  color: #1f1209;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.btn-crear:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.2);
+}
+
+.salas-list {
+  padding: 10px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.salas-list::-webkit-scrollbar {
+  width: 8px;
+}
+.salas-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+.salas-list::-webkit-scrollbar-thumb {
+  background: #b89158;
+  border-radius: 4px;
+}
+
+.sala-card {
+  border: 2px solid #5a4b3c;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  display: flex;
+  padding: 15px;
+  justify-content: space-between;
+  transition: border-color 0.3s, background 0.3s;
+}
+.sala-card:hover {
+  border-color: #b89158;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sala-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.sala-profile-pic {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #b89158;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111;
+  overflow: hidden;
+}
+
+.sala-profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foto-label {
+  display: none;
+}
+
+.btn-unirse {
+  background: #d4af37;
+  color: #111;
+  border: none;
+  padding: 6px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+.btn-unirse:hover {
+  background: #f1c40f;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
+}
+
+.btn-llena {
+  background: transparent;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  padding: 6px 15px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: not-allowed;
+  border-radius: 4px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.sala-card-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  font-size: 16px;
+  width: 100%;
+  margin-left: 15px;
+}
+
+.sala-name {
+  font-weight: 700;
+  font-size: 20px;
+  color: #d4af37;
+}
+
+.sala-info {
+  display: flex;
+  flex-direction: column;
+  color: #c9bca7;
+  gap: 5px;
+}
+
+.no-salas {
+  text-align: center;
+  font-size: 18px;
+  color: #b0a390;
+  padding: 40px;
+}
+
+.salas-bottom-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 2px solid #b89158;
+  border-radius: 0 0 12px 12px;
+}
+
+.input-search {
+  border: 2px solid #5a4b3c;
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #e5d3b3;
+  font-size: 16px;
+  border-radius: 6px;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-search::placeholder {
+  color: #887a66;
+}
+
+.input-search:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.btn-salir {
+  background: transparent;
+  color: #e5d3b3;
+  border: 1px solid #b89158;
+  padding: 12px 30px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+
+.btn-salir:hover {
+  background: rgba(220, 53, 69, 0.8);
+  border-color: #dc3545;
+  color: white;
+}
+
+/* Responsive / Mobile styles */
+@media (max-width: 600px) {
+  .lista-salas-wrapper {
+    padding: 15px;
+  }
+  
+  .salas-container {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .salas-header h2 {
+    font-size: 20px;
+  }
+
+  .salas-top-actions {
+    padding: 15px;
+  }
+
+  .btn-crear {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+  
+  .salas-list {
+    padding: 10px 15px;
+  }
+
+  .sala-card {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .sala-card-left {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sala-card-right {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .sala-name {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .salas-bottom-actions {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .input-search {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .btn-salir {
+    width: 100%;
+  }
+}

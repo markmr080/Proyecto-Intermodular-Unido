@@ -1,0 +1,9 @@
+Definición de los objetos de datos del proyecto.
+
+Se encarga de:
+
+entity: Mapeo de tablas de MySQL.
+
+document: Mapeo de colecciones de MongoDB.
+
+dto: Objetos temporales para mover datos entre Angular y Java de forma segura.
