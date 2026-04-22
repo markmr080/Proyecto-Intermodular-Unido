@@ -17,7 +17,8 @@ public class UsuarioService implements IUsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final IEmailService emailService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, IEmailService emailService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+            IEmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
@@ -32,6 +33,8 @@ public class UsuarioService implements IUsuarioService {
             admin.setEmail("admin@sistema.internal");
             // Esta clave es la que usará el furgón (Angular) para identificarse
             admin.setPassword(passwordEncoder.encode("clave_secreta_del_middleware_2026"));
+            admin.setRole("ADMIN");
+
             usuarioRepository.save(admin);
             System.out.println("✅ Entidad 'middleware_admin' creada en MySQL (Persistencia transaccional).");
         }
@@ -48,12 +51,14 @@ public class UsuarioService implements IUsuarioService {
         UsuarioEntity user = new UsuarioEntity(
                 datos.getNickname(),
                 datos.getEmail(),
-                passwordEncoder.encode(datos.getPassword())
-        );
+                passwordEncoder.encode(datos.getPassword()));
+        
+        user.setRole("USER");
 
         usuarioRepository.save(user);
 
-        // El email es opcional según el flujo, pero lo mantenemos si lo tienes configurado
+        // El email es opcional según el flujo, pero lo mantenemos si lo tienes
+        // configurado
         if (user.getEmail() != null) {
             emailService.enviarCorreoBienvenida(user.getEmail(), user.getNickname());
         }

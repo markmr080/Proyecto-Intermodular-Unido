@@ -1,6 +1,5 @@
 package com.cifpaviles.proyectofinal.CLMM.api.model.entity;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +18,7 @@ public class UsuarioEntity {
     @Column(nullable = false)
     private String password;
 
+    private String role;
 
     public UsuarioEntity() {
 
@@ -37,7 +37,6 @@ public class UsuarioEntity {
     public void setId(Long id) {
         this.id = id;
     }
-
 
     public String getEmail() {
         return email;
@@ -61,5 +60,13 @@ public class UsuarioEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
