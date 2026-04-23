@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, switchMap } from 'rxjs';
 
-// RE-AÑADIMOS LA INTERFAZ: Los componentes como Menu y Perfil la necesitan para compilar
+// -------------------------------------------------------
+//  INTERFACES EXPORTADAS (usadas por Menu, Perfil, etc.)
+// -------------------------------------------------------
+
 export interface UserDB {
   email: string;
   username: string;
@@ -13,11 +16,20 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface StatsDTO {
+  nickname: string;
+  partidasGanadas: number;
+  impactosAcertados: number;
+  impactosFallados: number;
+  punteria: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly STATS_URL = 'http://localhost:8080/api/estadisticas';
 
   // TOKEN en sessionStorage: se borra al cerrar la pestaña
   private readonly TOKEN_KEY = 'auth_token';
@@ -75,7 +87,34 @@ export class AuthService {
   }
 
   // -------------------------------------------------------
-  //  GESTIÓN DEL TOKEN — ahora en sessionStorage
+  //  HELPER PRIVADO: obtener token de middleware con fingerprint
+  //  Centraliza la lógica repetida en todos los métodos protegidos
+  // -------------------------------------------------------
+
+  private withMiddlewareToken<T>(
+    fn: (token: string, fp: string) => Observable<T>
+  ): Observable<T> {
+    return from(this.generarFingerprint()).pipe(
+      switchMap(fp =>
+        new Observable<T>(observer => {
+          this.http.post<AuthResponse>(`${this.API_URL}/login`, this.MIDDLEWARE_CREDS, {
+            headers: { 'X-Fingerprint': fp }
+          }).subscribe({
+            next: (res) => {
+              fn(res.token, fp).subscribe({
+                next: (val) => { observer.next(val); observer.complete(); },
+                error: (err) => observer.error(err)
+              });
+            },
+            error: (err) => observer.error(err)
+          });
+        })
+      )
+    );
+  }
+
+  // -------------------------------------------------------
+  //  GESTIÓN DEL TOKEN — sessionStorage
   // -------------------------------------------------------
 
   saveToken(token: string): void {
@@ -108,30 +147,10 @@ export class AuthService {
 
   register(username: string, email: string, password: string): Observable<any> {
     const body = { nickname: username, email, password };
-
-    return from(this.generarFingerprint()).pipe(
-      switchMap(fp =>
-        new Observable(observer => {
-          // Obtenemos token de middleware solo para autorizar la llamada
-          this.http.post<AuthResponse>(`${this.API_URL}/login`, this.MIDDLEWARE_CREDS, {
-            headers: { 'X-Fingerprint': fp }
-          }).subscribe({
-            next: (res) => {
-              // NOTA: NO guardamos este token — es del middleware_admin, no del usuario
-              this.http.post(`${this.API_URL}/register`, body, {
-                headers: {
-                  'Authorization': `Bearer ${res.token}`,
-                  'X-Fingerprint': fp
-                }
-              }).subscribe({
-                next: (regRes) => { observer.next(regRes); observer.complete(); },
-                error: (err) => observer.error(err)
-              });
-            },
-            error: (err) => observer.error(err)
-          });
-        })
-      )
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/register`, body, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
     );
   }
 
@@ -176,7 +195,86 @@ export class AuthService {
   }
 
   // -------------------------------------------------------
-  //  MÉTODOS COMPATIBLES
+  //  RECUPERACIÓN / RESET DE CONTRASEÑA
+  // -------------------------------------------------------
+
+  forgotPassword(email: string): Observable<any> {
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/forgot-password`, { email }, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
+  }
+
+  resetPasswordWithToken(resetToken: string, newPassword: string): Observable<any> {
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/reset-password`, { token: resetToken, newPassword }, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
+  }
+
+  // -------------------------------------------------------
+  //  ACTUALIZACIÓN DE DATOS DE USUARIO
+  // -------------------------------------------------------
+
+  /**
+   * Cambia la contraseña de un usuario en el backend.
+   */
+  updatePassword(nickname: string, newPassword: string): Observable<any> {
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/update-password`, { nickname, newPassword }, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
+  }
+
+  /**
+   * Cambia el nickname de un usuario en el backend.
+   */
+  updateNickname(nicknamActual: string, nuevoNickname: string): Observable<any> {
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/update-nickname`, { nicknamActual, nuevoNickname }, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
+  }
+
+  /**
+   * Actualiza el nombre de usuario almacenado en sessionStorage
+   * (se llama después de un updateNickname exitoso).
+   */
+  updateUsername(newName: string): void {
+    sessionStorage.setItem(this.USER_KEY, newName);
+  }
+
+  /**
+   * Stub para actualización de foto de perfil.
+   * Actualmente la foto se genera dinámicamente con DiceBear.
+   */
+  updateProfilePicture(url: string): void {
+    console.log('Update foto de perfil:', url);
+  }
+
+  // -------------------------------------------------------
+  //  ESTADÍSTICAS — consulta a MySQL vía backend
+  // -------------------------------------------------------
+
+  /**
+   * Obtiene las estadísticas del jugador desde el backend (MySQL).
+   * Devuelve un Observable<StatsDTO> para que el componente pueda
+   * reaccionar cuando lleguen los datos.
+   */
+  getUserStats(nickname: string): Observable<StatsDTO> {
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.get<StatsDTO>(`${this.STATS_URL}/jugador/${nickname}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
+  }
+
+  // -------------------------------------------------------
+  //  MÉTODOS DE SESIÓN ACTUALES
   // -------------------------------------------------------
 
   getCurrentUsername(): string {
@@ -185,68 +283,11 @@ export class AuthService {
 
   getCurrentUser(): UserDB | undefined {
     if (!this.isLoggedIn()) return undefined;
+    const username = this.getCurrentUsername();
     return {
-      username: this.getCurrentUsername(),
+      username,
       email: 'usuario@ejemplo.com',
-      profilePicture: 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + this.getCurrentUsername()
+      profilePicture: 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + username
     };
-  }
-
-  forgotPassword(email: string): Observable<any> {
-    const body = { email };
-    return new Observable(observer => {
-      this.http.post<AuthResponse>(`${this.API_URL}/login`, this.MIDDLEWARE_CREDS).subscribe({
-        next: (res) => {
-          this.http.post(`${this.API_URL}/forgot-password`, body, {
-            headers: { 'Authorization': `Bearer ${res.token}` }
-          }).subscribe({
-            next: (val) => { observer.next(val); observer.complete(); },
-            error: (err) => observer.error(err)
-          });
-        },
-        error: (err) => observer.error(err)
-      });
-    });
-  }
-
-  resetPasswordWithToken(token: string, newPassword: string): Observable<any> {
-    const body = { token, newPassword };
-    return new Observable(observer => {
-      this.http.post<AuthResponse>(`${this.API_URL}/login`, this.MIDDLEWARE_CREDS).subscribe({
-        next: (res) => {
-          this.http.post(`${this.API_URL}/reset-password`, body, {
-            headers: { 'Authorization': `Bearer ${res.token}` }
-          }).subscribe({
-            next: (val) => { observer.next(val); observer.complete(); },
-            error: (err) => observer.error(err)
-          });
-        },
-        error: (err) => observer.error(err)
-      });
-    });
-  }
-
-  updateProfilePicture(url: string): void { console.log('Update foto:', url); }
-  updateUsername(newName: string): void { console.log('Update nombre:', newName); }
-
-  updatePassword(nickname: string, newPassword: string): Observable<any> {
-    const body = { nickname, newPassword };
-    return new Observable(observer => {
-      this.http.post<AuthResponse>(`${this.API_URL}/login`, this.MIDDLEWARE_CREDS).subscribe({
-        next: (res) => {
-          this.http.post(`${this.API_URL}/update-password`, body, {
-            headers: { 'Authorization': `Bearer ${res.token}` }
-          }).subscribe({
-            next: (val) => { observer.next(val); observer.complete(); },
-            error: (err) => observer.error(err)
-          });
-        },
-        error: (err) => observer.error(err)
-      });
-    });
-  }
-
-  getUserStats() {
-    return { partidasGanadas: 0, impactosAcertados: 0, impactosFallados: 0, punteria: '0%' };
   }
 }
