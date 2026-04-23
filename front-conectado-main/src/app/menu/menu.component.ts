@@ -131,6 +131,7 @@ export class MenuComponent {
   }
 
   logout() {
+    this.authService.logout();   // borra token, usuario y fingerprint de sessionStorage
     this.router.navigate(['/login']);
   }
 

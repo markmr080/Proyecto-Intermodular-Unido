@@ -20,7 +20,7 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public String login(LoginDTO loginDTO) {
+    public String login(LoginDTO loginDTO, String fingerprint) {
         // --- REGLA DE ORO DEL PDF (RN-01.1) ---
         // Si el nickname no es "middleware_admin", ni siquiera preguntamos a la base de datos
         if (!"middleware_admin".equals(loginDTO.getNickname())) {
@@ -28,10 +28,13 @@ public class AuthService implements IAuthService {
         }
 
         // 1. Validamos las credenciales contra MySQL (usando el servicio de la API)
-        // Esto lanzará excepción si la contraseña de admin es incorrecta
         UsuarioEntity admin = usuarioService.validarCredenciales(loginDTO);
 
-        // 2. Si todo es correcto, generamos el "Anillo del Rey" (Token)
+        // 2. Si todo es correcto, generamos el token con el fingerprint incrustado
+        if (fingerprint != null && !fingerprint.isBlank()) {
+            return jwtProvider.generarToken(admin.getNickname(), fingerprint);
+        }
+        // Fallback sin fingerprint (ej.: herramientas de prueba sin cabecera)
         return jwtProvider.generarToken(admin.getNickname());
     }
 

@@ -3,10 +3,11 @@ package com.cifpaviles.proyectofinal.CLMM.middleware.controller;
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.service.interfaces.IAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map; // Cambiamos Collections por Map para mayor claridad
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200") // ¡No olvides esto para Angular!
 @RestController
@@ -21,11 +22,11 @@ public class AuthController {
 
     // RF-01: Endpoint de Login de administrador
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
-        // El service ya se encarga de lanzar 401 si no es 'middleware_admin'
-        String token = authService.login(loginDTO);
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO, HttpServletRequest request) {
+        // Recogemos el fingerprint del navegador (si lo envía el frontend)
+        String fingerprint = request.getHeader("X-Fingerprint");
+        String token = authService.login(loginDTO, fingerprint);
 
-        // Ajustamos la salida al ejemplo exacto del PDF
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "message", "Middleware authenticated successfully"

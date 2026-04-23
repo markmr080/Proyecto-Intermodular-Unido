@@ -10,10 +10,12 @@ public interface IAuthService {
     void registrar(RegistroDTO dto);
 
     /**
-     * Orquesta el login: valida con la API y genera el Token JWT.
+     * Orquesta el login: valida con la API y genera el Token JWT con fingerprint.
+     * @param dto         credenciales
+     * @param fingerprint hash SHA-256 del navegador (puede ser null para tokens internos)
      * @return String con el Token JWT generado.
      */
-    String login(LoginDTO dto);
+    String login(LoginDTO dto, String fingerprint);
 
     /**
      * Valida las credenciales de un usuario final.
