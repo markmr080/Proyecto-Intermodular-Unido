@@ -18,25 +18,23 @@
     </div>
 
     <div class="salas-list">
-      @for (room of filteredRooms; track room.id) {
+      @for (room of filteredRooms; track room.codigoSala) {
       <div class="sala-card">
         <div class="sala-card-left">
           <div class="sala-profile-pic">
-            <img [src]="room.ownerPic" alt="Foto perfil">
+            <img [src]="room.avatarJugador1" alt="Foto perfil">
             <span class="foto-label">foto<br>perfil</span>
           </div>
 
-          @if (room.currentPlayers < room.maxPlayers) { <button class="btn-unirse" (click)="unirse(room)">
-            Unirse</button>
-            } @else {
-            <button class="btn-llena" disabled>Sala llena</button>
-            }
+          <button class="btn-unirse" (click)="unirse(room)" [disabled]="solicitandoUnirse">
+            {{ solicitandoUnirse ? 'Solicitando...' : 'Unirse' }}
+          </button>
         </div>
         <div class="sala-card-right">
-          <span class="sala-name">{{ room.name }}</span>
+          <span class="sala-name">Partida de {{ room.nombreJugador1 }}</span>
           <div class="sala-info">
-            <span>Codigo de sala: {{ room.code }}</span>
-            <span>jugadores {{ room.currentPlayers }}/{{ room.maxPlayers }}</span>
+            <span>Codigo de sala: {{ room.codigoSala }}</span>
+            <span>Estado: {{ room.estado }}</span>
           </div>
         </div>
       </div>

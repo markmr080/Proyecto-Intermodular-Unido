@@ -50,7 +50,10 @@ export class AuthService {
     password: 'clave_secreta_del_middleware_2026'
   };
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Iniciamos el cálculo del fingerprint lo antes posible
+    this.generarFingerprint().then(fp => console.log('Fingerprint inicializado:', fp));
+  }
 
   // -------------------------------------------------------
   //  FINGERPRINTING: huella del navegador (SHA-256)

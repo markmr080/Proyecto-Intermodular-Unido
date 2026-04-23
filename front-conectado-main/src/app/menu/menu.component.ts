@@ -2,16 +2,20 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserDB } from '../services/auth.service';
+//import { SocketService } from '../services/socket.service(prueba)';
+
 @Component({
   selector: 'app-menu',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './menu.component.html',
-  styleUrl: './menu.component.css'
+  styleUrl: './menu.component.css',
+  //providers: [SocketService]
 })
 export class MenuComponent {
   router = inject(Router);
   authService = inject(AuthService);
+  //socketService = inject(SocketService);
 
   currentUser: UserDB | undefined;
 

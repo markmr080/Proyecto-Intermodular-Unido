@@ -3,6 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoomService, Room } from '../services/room.service';
 import { AuthService } from '../services/auth.service';
+import { SocketService } from '../services/socket.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-partida',
@@ -16,98 +18,105 @@ export class Partida implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
   roomService = inject(RoomService);
   authService = inject(AuthService);
+  socketService = inject(SocketService);
+
+  private destroy$ = new Subject<void>();
 
   isOwner = false;
-
-  timeRemaining = '15:00';
-  private totalSeconds = 0;
-  private timerInterval: any;
-
   roomCode = '';
   currentRoom: Room | undefined;
 
-  player1 = { name: 'Jugador 1', role: 'Owner' };
-  player2: { name: string, role: string } | null = null;
+  player1 = { name: 'Jugador 1', role: 'Owner', avatar: '' };
+  player2: { name: string, role: string, avatar: string } | null = null;
 
   pendingPlayers: any[] = [];
 
   ngOnInit() {
     this.roomCode = this.route.snapshot.paramMap.get('code') || '';
-    this.currentRoom = this.roomService.getRoomByCode(this.roomCode);
-
-    if (this.currentRoom) {
-      if (this.currentRoom.ownerName) {
-        this.player1.name = this.currentRoom.ownerName;
-      }
-      const user = this.authService.getCurrentUser();
-      if (user && this.currentRoom.ownerName === user.username) {
-        this.isOwner = true;
-      }
-
-      this.totalSeconds = this.roomService.getTimeLeftSeconds(this.currentRoom);
-      this.updateTimeString();
-      this.startTimer();
-    } else {
-      // Si la sala no existe o ha expirado, volvemos a la lista
-      this.router.navigate(['/lista-salas']);
+    
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.socketService.registrarUsuario(user.username);
     }
+
+    this.roomService.getRoomByCode(this.roomCode)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(room => {
+        this.currentRoom = room;
+
+        if (this.currentRoom) {
+          this.player1.name = this.currentRoom.nombreJugador1;
+          this.player1.avatar = this.currentRoom.avatarJugador1;
+
+          if (user && this.currentRoom.jugador1 === user.username) {
+            this.isOwner = true;
+          }
+
+          if (this.currentRoom.jugador2) {
+            this.player2 = { 
+              name: this.currentRoom.nombreJugador2 || '', 
+              role: 'Jugador', 
+              avatar: this.currentRoom.avatarJugador2 || '' 
+            };
+          }
+        } else {
+          this.router.navigate(['/lista-salas']);
+        }
+      });
+
+    // Escuchar nuevas solicitudes (Solo si soy owner)
+    this.socketService.nuevaSolicitud$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        if (this.isOwner) {
+          if (!this.pendingPlayers.find(p => p.requesterId === data.requesterId)) {
+            this.pendingPlayers.push(data);
+          }
+        }
+      });
+
+    // Escuchar cuando un jugador se une oficialmente
+    this.socketService.jugadorUnido$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.player2 = {
+          name: data.requesterName,
+          role: 'Jugador',
+          avatar: data.requesterAvatar
+        };
+        this.pendingPlayers = [];
+      });
+
+    // Escuchar si la sala se cierra
+    this.socketService.salaCerrada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(msg => {
+        alert(msg);
+        this.router.navigate(['/lista-salas']);
+      });
   }
 
   ngOnDestroy() {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
+    // Si soy el owner y salgo, cerramos la sala en el servidor/DB
+    if (this.isOwner && this.roomCode) {
+      this.socketService.cerrarSala(this.roomCode);
     }
-  }
-
-  startTimer() {
-    this.timerInterval = setInterval(() => {
-      if (this.totalSeconds > 0) {
-        this.totalSeconds--;
-        this.updateTimeString();
-      } else {
-        this.cerrarSalaAutomatica();
-      }
-    }, 1000);
-  }
-
-  updateTimeString() {
-    const minutes = Math.floor(this.totalSeconds / 60);
-    const seconds = this.totalSeconds % 60;
-    this.timeRemaining = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  cerrarSalaAutomatica() {
-    clearInterval(this.timerInterval);
-    console.log('Tiempo agotado. Cerrando sala...');
-    this.router.navigate(['/lista-salas']);
-  }
-
-  expulsar() {
-    console.log('Expulsando jugador');
-    this.player2 = null;
+    
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   aceptarJugador(player: any) {
     if (this.player2) return;
-
-    console.log('Aceptando jugador', player.name);
-    this.player2 = { name: player.name, role: 'Jugador que se une a la sala' };
-    this.pendingPlayers = this.pendingPlayers.filter(p => p.id !== player.id);
+    this.socketService.aceptarSolicitud(this.roomCode, player);
   }
 
   rechazarJugador(player: any) {
-    console.log('Rechazando jugador', player.name);
-    this.pendingPlayers = this.pendingPlayers.filter(p => p.id !== player.id);
+    this.pendingPlayers = this.pendingPlayers.filter(p => p.requesterId !== player.requesterId);
+    this.socketService.rechazarSolicitud(player.requesterId);
   }
 
   salir() {
-    if (this.isOwner) {
-      if (this.player2) {
-        this.roomService.updateRoomOwner(this.roomCode, this.player2.name);
-      } else {
-        this.roomService.deleteRoom(this.roomCode);
-      }
-    }
     this.router.navigate(['/lista-salas']);
   }
 
