@@ -41,84 +41,39 @@ export class MenuComponent {
 
   characters = [
     {
-      name: 'Thor', atk: 95, hp: 120, img: 'https://placehold.co/400x500/1A1512/B89158?text=Thor',
+      name: 'Wulfrik', atk: 95, hp: 120, img: 'https://placehold.co/400x500/1A1512/B89158?text=Wulfrik',
       abilities: [
-        { name: 'Mjolnir', desc: 'Golpea con su martillo causando un gran daño eléctrico.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Mjolnir&backgroundColor=1A1512' },
-        { name: 'Ira del Trueno', desc: 'Invoca un rayo que daña a los enemigos cercanos.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Trueno&backgroundColor=1A1512' },
-        { name: 'Piel de Dios', desc: 'Se escuda con energía divina reduciendo el daño recibido.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Piel&backgroundColor=1A1512' }
+        { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra en este turno inmediatamente.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Hunter&backgroundColor=1A1512' },
+        { name: 'Desafío del Errante', desc: 'Disparo preciso que de impactar en agua, fuerza al rival a revelar la posición aleatoria de un barco.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Espada&backgroundColor=1A1512' },
+        { name: 'Colmillo de los Mares', desc: 'Impacta un área en línea horizontal abarcando 3 casillas consecutivas.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Barco&backgroundColor=1A1512' },
+        { name: 'Favor Ruinoso', desc: 'Escuda una de tus casillas. Si el enemigo dispara ahí en el próximo turno, fallará automáticamente.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Piel&backgroundColor=1A1512' }
       ]
     },
     {
-      name: 'Odin', atk: 85, hp: 150, img: 'https://placehold.co/400x500/1A1512/B89158?text=Odin',
+      name: 'Ayslinn', atk: 90, hp: 100, img: 'https://placehold.co/400x500/1A1512/B89158?text=Ayslinn',
       abilities: [
-        { name: 'Gungnir', desc: 'Arroja su lanza que nunca falla su objetivo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Gungnir&backgroundColor=1A1512' },
-        { name: 'Sabiduría de Mimir', desc: 'Anticipa los ataques enemigos, aumentando su evasión.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Sabiduria&backgroundColor=1A1512' },
-        { name: 'Furia del Valhalla', desc: 'Aumenta temporalmente el ataque de todos los aliados.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Valhalla&backgroundColor=1A1512' },
-        { name: 'Ojo Omnisciente', desc: 'Permite desvelar los movimientos ocultos del enemigo, protegiendo al equipo.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Ojo&backgroundColor=1A1512' }
+        { name: 'Señor del Mar Alto Elfo', desc: 'Tus ataques tácticos tienen un 15% de probabilidad de ignorar los escudos o niebla enemiga.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Tide&backgroundColor=1A1512' },
+        { name: 'Corte de Lothern', desc: 'Realiza dos disparos independientes en dos casillas separadas a tu elección.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Lanza&backgroundColor=1A1512' },
+        { name: 'Ira de Mathlann', desc: 'Golpea en forma de cruz (5 casillas), dañando gravemente formaciones navales juntas.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Tormenta&backgroundColor=1A1512' },
+        { name: 'Bruma Marina', desc: 'Oculta tus casillas en un área de 2x2. Si el enemigo acierta allí, el golpe se anula.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Niebla&backgroundColor=1A1512' }
       ]
     },
     {
-      name: 'Loki', atk: 75, hp: 90, img: 'https://placehold.co/400x500/1A1512/B89158?text=Loki',
+      name: 'Lokhir', atk: 85, hp: 110, img: 'https://placehold.co/400x500/1A1512/B89158?text=Lokhir',
       abilities: [
-        { name: 'Puñalada Trapera', desc: 'Ataca por la espalda causando daño crítico.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Daga&backgroundColor=1A1512' },
-        { name: 'Ilusión', desc: 'Crea clones de sí mismo para confundir al enemigo.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Ilusion&backgroundColor=1A1512' },
-        { name: 'Veneno de Serpiente', desc: 'Aplica veneno al objetivo causando daño continuo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Veneno&backgroundColor=1A1512' }
+        { name: 'Saqueador Especialista', desc: 'Al hundir completamente un barco enemigo, se revela automáticamente una casilla del siguiente.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Raid&backgroundColor=1A1512' },
+        { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas consecutivas pero en posición diagonal.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Daga&backgroundColor=1A1512' },
+        { name: 'Furia Corsaria', desc: 'Lanza bengalas sobre un área de 3x3. Revela barcos enemigos sin causarles daño.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Flechas&backgroundColor=1A1512' },
+        { name: 'Yelmo del Kraken', desc: 'Te permite reubicar uno de tus barcos enteros a una nueva posición vacía.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Tentaculo&backgroundColor=1A1512' }
       ]
     },
     {
-      name: 'Freya', atk: 90, hp: 100, img: 'https://placehold.co/400x500/1A1512/B89158?text=Freya',
+      name: 'Aranessa', atk: 100, hp: 105, img: 'https://placehold.co/400x500/1A1512/B89158?text=Aranessa',
       abilities: [
-        { name: 'Corte de Valkiria', desc: 'Realiza un corte rápido con su espada mágica.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Espada&backgroundColor=1A1512' },
-        { name: 'Manto de Plumas', desc: 'Genera un escudo de plumas que bloquea un ataque.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Plumas&backgroundColor=1A1512' },
-        { name: 'Luz de Folkvangr', desc: 'Ciega a los enemigos con una luz divina.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Luz&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Fenrir', atk: 110, hp: 80, img: 'https://placehold.co/400x500/1A1512/B89158?text=Fenrir',
-      abilities: [
-        { name: 'Mordisco Feroz', desc: 'Muerde a su presa causando daño masivo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Mordisco&backgroundColor=1A1512' },
-        { name: 'Aullido Aterrador', desc: 'Reduce la defensa y el ataque de los enemigos.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Aullido&backgroundColor=1A1512' },
-        { name: 'Pelaje de Hierro', desc: 'Endurece su pelaje resistiendo ataques físicos.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Pelaje&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Heimdall', atk: 80, hp: 130, img: 'https://placehold.co/400x500/1A1512/B89158?text=Heimdall',
-      abilities: [
-        { name: 'Gjallarhorn', desc: 'Hace sonar su cuerno para alertar e invulnerabilizar aliados.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Cuerno&backgroundColor=1A1512' },
-        { name: 'Visión Absoluta', desc: 'Detecta y expone el punto débil del enemigo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Vision&backgroundColor=1A1512' },
-        { name: 'Filo Bifrost', desc: 'Corta la realidad, desterrando parte de la energía del rival.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Bifrost&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Tyr', atk: 100, hp: 110, img: 'https://placehold.co/400x500/1A1512/B89158?text=Tyr',
-      abilities: [
-        { name: 'Justicia Ciega', desc: 'Golpea con furia impartiendo daño aumentado según la vida que le falte.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Justicia&backgroundColor=1A1512' },
-        { name: 'Sacrificio Honorífico', desc: 'Pierde salud para absorber un ataque letal destinado a un aliado.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Sangre&backgroundColor=1A1512' },
-        { name: 'Golpe Implacable', desc: 'Golpea con fuerza bruta destrozando escudos enemigos.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Guantelete&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Hel', atk: 120, hp: 70, img: 'https://placehold.co/400x500/1A1512/B89158?text=Hel',
-      abilities: [
-        { name: 'Toque Fúnebre', desc: 'Merma el alma del oponente reduciendo su capacidad de daño.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Alma&backgroundColor=1A1512' },
-        { name: 'Aura del Helheim', desc: 'Congela los ataques físicos mitigando el daño.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Congelar&backgroundColor=1A1512' },
-        { name: 'Ejército Muerto', desc: 'Invoca guerreros caídos que golpean múltiples veces al objetivo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Calavera&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Baldur', atk: 90, hp: 140, img: 'https://placehold.co/400x500/1A1512/B89158?text=Baldur',
-      abilities: [
-        { name: 'Luz Pura', desc: 'Deslumbra al enemigo reduciendo severamente su destreza en combate.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=LuzPura&backgroundColor=1A1512' },
-        { name: 'Inmunidad Bélica', desc: 'Hace ignorar todo el daño recibido temporalmente.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Invulnerable&backgroundColor=1A1512' },
-        { name: 'Golpe Solar', desc: 'Desata la energía solar concentrada quemando a su objetivo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Sol&backgroundColor=1A1512' }
-      ]
-    },
-    {
-      name: 'Skadi', atk: 105, hp: 85, img: 'https://placehold.co/400x500/1A1512/B89158?text=Skadi',
-      abilities: [
-        { name: 'Flecha Gélida', desc: 'Dispara un virote de puro hielo que ralentiza e infringe daño agudo.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Flecha&backgroundColor=1A1512' },
-        { name: 'Muro Helado', desc: 'Levanta un muro de viento y nieve gruesa que detiene proyectiles.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Ventisca&backgroundColor=1A1512' },
-        { name: 'Avalancha', desc: 'Baja las temperaturas enterrando y paralizando a los atacantes.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Avalancha&backgroundColor=1A1512' }
+        { name: 'Casco Reforzado', desc: 'El barco más pequeño de tu flota requiere de dos impactos en lugar de uno para hundirse.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Queen&backgroundColor=1A1512' },
+        { name: 'Pólvora Vampírica', desc: 'Elige una casilla. Si impacta en un barco, su fuego se propaga extendiéndose en área 2x2.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Sable&backgroundColor=1A1512' },
+        { name: 'Disparo de Saloma', desc: 'Dispara con la legendaria Reina Bess, destruyendo forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Explosion&backgroundColor=1A1512' },
+        { name: 'Hija de Stromfels', desc: 'Invoca un remolino mágico. Anula por un turno completo cualquier disparo que intente dañar a tu flota.', type: 'defensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Tiburon&backgroundColor=1A1512' }
       ]
     }
   ];

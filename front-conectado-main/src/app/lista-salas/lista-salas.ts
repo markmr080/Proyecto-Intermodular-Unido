@@ -50,8 +50,8 @@ export class ListaSalas implements OnInit {
     const user = this.authService.getCurrentUser();
     const ownerName = user ? user.username : 'Jugador';
     const ownerPic = user ? user.profilePicture || '' : 'https://api.dicebear.com/7.x/adventurer/svg?seed=Guest';
-    
-    const newRoom = this.roomService.createRoom(`Partida de ${ownerName}`, ownerPic);
+
+    const newRoom = this.roomService.createRoom(`Partida de ${ownerName}`, ownerPic, ownerName);
     this.router.navigate(['/partida', newRoom.code]);
   }
 

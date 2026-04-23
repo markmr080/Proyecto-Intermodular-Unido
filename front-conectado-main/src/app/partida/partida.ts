@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoomService, Room } from '../services/room.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-partida',
@@ -14,6 +15,9 @@ export class Partida implements OnInit, OnDestroy {
   router = inject(Router);
   route = inject(ActivatedRoute);
   roomService = inject(RoomService);
+  authService = inject(AuthService);
+
+  isOwner = false;
 
   timeRemaining = '15:00';
   private totalSeconds = 0;
@@ -22,20 +26,24 @@ export class Partida implements OnInit, OnDestroy {
   roomCode = '';
   currentRoom: Room | undefined;
 
-  player1 = { name: 'Jugador 1', role: 'Creador de la sala' };
-  player2: { name: string, role: string } | null = { name: 'Jugador 2', role: 'Jugador que se une a la sala' };
+  player1 = { name: 'Jugador 1', role: 'Owner' };
+  player2: { name: string, role: string } | null = null;
 
-  pendingPlayers = [
-    { id: 1, name: 'Jugador 3' },
-    { id: 2, name: 'Jugador 4' },
-    { id: 3, name: 'Jugador 5' }
-  ];
+  pendingPlayers: any[] = [];
 
   ngOnInit() {
     this.roomCode = this.route.snapshot.paramMap.get('code') || '';
     this.currentRoom = this.roomService.getRoomByCode(this.roomCode);
 
     if (this.currentRoom) {
+      if (this.currentRoom.ownerName) {
+        this.player1.name = this.currentRoom.ownerName;
+      }
+      const user = this.authService.getCurrentUser();
+      if (user && this.currentRoom.ownerName === user.username) {
+        this.isOwner = true;
+      }
+
       this.totalSeconds = this.roomService.getTimeLeftSeconds(this.currentRoom);
       this.updateTimeString();
       this.startTimer();
@@ -93,6 +101,13 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   salir() {
+    if (this.isOwner) {
+      if (this.player2) {
+        this.roomService.updateRoomOwner(this.roomCode, this.player2.name);
+      } else {
+        this.roomService.deleteRoom(this.roomCode);
+      }
+    }
     this.router.navigate(['/lista-salas']);
   }
 

@@ -22,6 +22,11 @@ export class LoginComponent {
   isSubmitted = false;
   showForgotPasswordModal = false;
   loginError = '';
+  showPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
   
   recoveryEmail = new FormControl('', [Validators.required, Validators.email]);
   recoveryMessage = '';

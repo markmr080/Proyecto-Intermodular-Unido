@@ -316,6 +316,14 @@
   background: rgba(30, 144, 255, 0.4);
 }
 
+.ability-circle.passive {
+  border-color: #a0a0a0;
+}
+
+.ability-group:hover .ability-circle.passive {
+  background: rgba(160, 160, 160, 0.4);
+}
+
 .ability-group:hover .ability-circle {
   transform: scale(1.15);
 }

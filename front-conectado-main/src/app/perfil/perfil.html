@@ -82,10 +82,20 @@
       <p>Introduce tu nuevo nombre de guerrero.</p>
 
       <div class="modal-input">
-        <input type="text" [(ngModel)]="editName" placeholder="Nuevo nombre">
+        <input type="text" [(ngModel)]="editName" placeholder="Nuevo nombre (mín. 3 caracteres)"
+               [disabled]="isLoadingName">
       </div>
 
-      <button class="btn-modal-confirm" (click)="confirmarNombre()">Confirmar nombre</button>
+      @if (nameError) {
+        <div class="modal-alert modal-alert--error">⚠ {{ nameError }}</div>
+      }
+      @if (nameSuccess) {
+        <div class="modal-alert modal-alert--success">✔ {{ nameSuccess }}</div>
+      }
+
+      <button class="btn-modal-confirm" (click)="confirmarNombre()" [disabled]="isLoadingName">
+        @if (isLoadingName) { Guardando... } @else { Confirmar nombre }
+      </button>
     </div>
   </div>
   }
@@ -99,10 +109,35 @@
       <p>Asegúrate de que sea una clave difícil de descifrar.</p>
 
       <div class="modal-input">
-        <input type="password" [(ngModel)]="editPass" placeholder="Nueva contraseña (min 6 car.)">
+        <div class="password-field">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="editPass"
+                 placeholder="Nueva contraseña (min 6 car.)" [disabled]="isLoadingPass">
+          <button class="toggle-pass-btn" type="button" (click)="togglePasswordVisibility()">
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
       </div>
 
-      <button class="btn-modal-confirm" (click)="confirmarPass()">Actualizar clave</button>
+      <div class="modal-input" style="margin-top: 12px;">
+        <div class="password-field">
+          <input [type]="showPasswordConfirm ? 'text' : 'password'" [(ngModel)]="editPassConfirm"
+                 placeholder="Confirmar contraseña" [disabled]="isLoadingPass">
+          <button class="toggle-pass-btn" type="button" (click)="togglePasswordConfirmVisibility()">
+            {{ showPasswordConfirm ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      @if (passError) {
+        <div class="modal-alert modal-alert--error">⚠ {{ passError }}</div>
+      }
+      @if (passSuccess) {
+        <div class="modal-alert modal-alert--success">✔ {{ passSuccess }}</div>
+      }
+
+      <button class="btn-modal-confirm" (click)="confirmarPass()" [disabled]="isLoadingPass">
+        @if (isLoadingPass) { Guardando... } @else { Actualizar clave }
+      </button>
     </div>
   </div>
   }

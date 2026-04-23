@@ -14,7 +14,10 @@
 .crear-partida-wrapper::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(135deg, rgba(20, 25, 45, 0.7), rgba(8, 11, 22, 0.9));
   z-index: 1;
 }
@@ -34,7 +37,7 @@
   backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .partida-container {
@@ -48,11 +51,19 @@
 }
 
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.panel-left, .panel-right {
+.panel-left,
+.panel-right {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -70,7 +81,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .slot h3 {
@@ -169,6 +180,7 @@
   color: #17b949;
   border-color: #17b949;
 }
+
 .btn-accept:hover {
   background: #17b949;
   color: #111;
@@ -186,6 +198,7 @@
   color: #dc3545;
   border-color: #dc3545;
 }
+
 .btn-reject:hover {
   background: #dc3545;
   color: white;

@@ -7,7 +7,8 @@
     <div class="salas-top-actions">
       <button class="btn-refresh" (click)="recargarSalas()" title="Recargar salas">
         <!-- SVG Icon using a reload sync icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -18,31 +19,31 @@
 
     <div class="salas-list">
       @for (room of filteredRooms; track room.id) {
-        <div class="sala-card">
-          <div class="sala-card-left">
-            <div class="sala-profile-pic">
-              <img [src]="room.ownerPic" alt="Foto perfil">
-              <span class="foto-label">foto<br>perfil</span>
-            </div>
-            
-            @if (room.currentPlayers < room.maxPlayers) {
-              <button class="btn-unirse" (click)="unirse(room)">Unirse</button>
-            } @else {
-              <button class="btn-llena" disabled>Sala llena</button>
-            }
+      <div class="sala-card">
+        <div class="sala-card-left">
+          <div class="sala-profile-pic">
+            <img [src]="room.ownerPic" alt="Foto perfil">
+            <span class="foto-label">foto<br>perfil</span>
           </div>
-          <div class="sala-card-right">
-            <span class="sala-name">{{ room.name }}</span>
-            <div class="sala-info">
-              <span>Codigo de sala: {{ room.code }}</span>
-              <span>jugadores {{ room.currentPlayers }}/{{ room.maxPlayers }}</span>
-            </div>
+
+          @if (room.currentPlayers < room.maxPlayers) { <button class="btn-unirse" (click)="unirse(room)">
+            Unirse</button>
+            } @else {
+            <button class="btn-llena" disabled>Sala llena</button>
+            }
+        </div>
+        <div class="sala-card-right">
+          <span class="sala-name">{{ room.name }}</span>
+          <div class="sala-info">
+            <span>Codigo de sala: {{ room.code }}</span>
+            <span>jugadores {{ room.currentPlayers }}/{{ room.maxPlayers }}</span>
           </div>
         </div>
+      </div>
       }
-      
+
       @if (filteredRooms.length === 0) {
-        <div class="no-salas">No se encontraron salas.</div>
+      <div class="no-salas">No se encontraron salas.</div>
       }
     </div>
 

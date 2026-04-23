@@ -5,6 +5,7 @@ export interface Room {
   name: string;
   code: string;
   ownerPic: string;
+  ownerName?: string;
   currentPlayers: number;
   maxPlayers: number;
   createdAt: number; // Timestamp
@@ -21,7 +22,7 @@ export class RoomService {
   constructor() {
     this.loadRooms();
     this.cleanExpiredRooms();
-    
+
     // Si no hay salas, creamos las salas iniciales de ejemplo
     if (this.rooms.length === 0) {
       this.initDefaultRooms();
@@ -49,12 +50,13 @@ export class RoomService {
     return this.rooms.find(r => r.code === code);
   }
 
-  createRoom(name: string, ownerPic: string): Room {
+  createRoom(name: string, ownerPic: string, ownerName: string): Room {
     const newRoom: Room = {
       id: Math.random().toString(36).substring(2, 9),
       name: name,
       code: Math.random().toString(36).substring(2, 8).toUpperCase(),
       ownerPic: ownerPic,
+      ownerName: ownerName,
       currentPlayers: 1,
       maxPlayers: 2,
       createdAt: Date.now()
@@ -64,11 +66,25 @@ export class RoomService {
     return newRoom;
   }
 
+  deleteRoom(code: string) {
+    this.rooms = this.rooms.filter(r => r.code !== code);
+    this.saveRooms();
+  }
+
+  updateRoomOwner(code: string, newOwnerName: string) {
+    const room = this.rooms.find(r => r.code === code);
+    if (room) {
+      room.ownerName = newOwnerName;
+      room.name = `Partida de ${newOwnerName}`;
+      this.saveRooms();
+    }
+  }
+
   cleanExpiredRooms() {
     const now = Date.now();
     const initialCount = this.rooms.length;
     this.rooms = this.rooms.filter(room => (now - room.createdAt) < this.MAX_ROOM_LIFE_MS);
-    
+
     if (this.rooms.length !== initialCount) {
       this.saveRooms();
     }
@@ -88,6 +104,7 @@ export class RoomService {
         name: 'Partida de Thor',
         code: 'A1B2',
         ownerPic: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Thor',
+        ownerName: 'Thor',
         currentPlayers: 1,
         maxPlayers: 2,
         createdAt: Date.now()
@@ -97,6 +114,7 @@ export class RoomService {
         name: 'Sala Vacia',
         code: 'X9Y8',
         ownerPic: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Loki',
+        ownerName: 'Loki',
         currentPlayers: 2,
         maxPlayers: 2,
         createdAt: Date.now() - (5 * 60 * 1000) // Creada hace 5 mins para probar
@@ -106,6 +124,7 @@ export class RoomService {
         name: 'Odins hall',
         code: 'O3D4',
         ownerPic: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Odin',
+        ownerName: 'Odin',
         currentPlayers: 1,
         maxPlayers: 2,
         createdAt: Date.now() - (10 * 60 * 1000) // Creada hace 10 mins para probar
