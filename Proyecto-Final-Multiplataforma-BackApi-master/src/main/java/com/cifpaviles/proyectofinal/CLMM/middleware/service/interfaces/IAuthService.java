@@ -2,6 +2,7 @@ package com.cifpaviles.proyectofinal.CLMM.middleware.service.interfaces;
 
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 
 public interface IAuthService {
     /**
@@ -20,7 +21,7 @@ public interface IAuthService {
     /**
      * Valida las credenciales de un usuario final.
      */
-    void validateUser(LoginDTO dto);
+    UsuarioEntity validateUser(LoginDTO dto);
 
     /**
      * Inicia el proceso de recuperación de contraseña.
@@ -36,4 +37,14 @@ public interface IAuthService {
      * Actualiza directamente la contraseña desde el perfil.
      */
     void updatePassword(String nickname, String newPassword);
+
+    /**
+     * Actualiza el nickname de un usuario.
+     */
+    void updateNickname(String currentNickname, String newNickname);
+
+    /**
+     * Actualiza la foto de perfil de un usuario.
+     */
+    void updateProfilePicture(String nickname, String profilePicture);
 }

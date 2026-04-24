@@ -19,25 +19,23 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class SocketService {
 
-    private SocketIOServer server;
-
-    @Autowired
-    private PartidaRepository partidaRepository;
+    private final SocketIOServer server;
+    private final PartidaRepository partidaRepository;
 
     // Mapa para asociar userId con socketId (y viceversa para limpieza)
     private final Map<String, UUID> userSockets = new ConcurrentHashMap<>();
     private final Map<UUID, String> socketUsers = new ConcurrentHashMap<>();
 
+    @Autowired
+    public SocketService(SocketIOServer server, PartidaRepository partidaRepository) {
+        this.server = server;
+        this.partidaRepository = partidaRepository;
+    }
+
     @PostConstruct
-    public void iniciarServidor() {
-        Configuration config = new Configuration();
-        config.setHostname("localhost");
-        config.setPort(8085);
-
-        server = new SocketIOServer(config);
-
+    public void registrarListeners() {
         server.addConnectListener(cliente -> {
-            System.out.println("Cliente conectado: " + cliente.getSessionId());
+            System.out.println("Lobby: Cliente conectado: " + cliente.getSessionId());
         });
 
         server.addDisconnectListener(cliente -> {
@@ -45,13 +43,13 @@ public class SocketService {
             if (userId != null) {
                 userSockets.remove(userId);
                 socketUsers.remove(cliente.getSessionId());
-                System.out.println("Usuario desconectado: " + userId);
+                System.out.println("Lobby: Usuario desconectado: " + userId);
 
                 // Limpieza automática: si el usuario era dueño de alguna sala abierta, la borramos
                 partidaRepository.findAll().stream()
                     .filter(p -> userId.equals(p.getJugador1()))
                     .forEach(p -> {
-                        System.out.println("Limpiando sala fantasma del usuario " + userId + ": " + p.getCodigoSala());
+                        System.out.println("Lobby: Limpiando sala fantasma del usuario " + userId + ": " + p.getCodigoSala());
                         String j2 = p.getJugador2();
                         if (j2 != null) {
                             UUID j2Socket = userSockets.get(j2);
@@ -68,7 +66,7 @@ public class SocketService {
         server.addEventListener("registrar-usuario", String.class, (cliente, userId, ackRequest) -> {
             userSockets.put(userId, cliente.getSessionId());
             socketUsers.put(cliente.getSessionId(), userId);
-            System.out.println("Usuario registrado: " + userId + " -> " + cliente.getSessionId());
+            System.out.println("Lobby: Usuario registrado: " + userId + " -> " + cliente.getSessionId());
         });
 
         // Jugador solicita unirse a una sala
@@ -129,16 +127,8 @@ public class SocketService {
                     }
                 }
                 partidaRepository.delete(partida);
-                System.out.println("Sala cerrada manualmente: " + codigoSala);
+                System.out.println("Lobby: Sala cerrada manualmente: " + codigoSala);
             }
         });
-
-        server.start();
-    }
-
-    public void stopServidor() {
-        if (server != null) {
-            server.stop();
-        }
     }
 }

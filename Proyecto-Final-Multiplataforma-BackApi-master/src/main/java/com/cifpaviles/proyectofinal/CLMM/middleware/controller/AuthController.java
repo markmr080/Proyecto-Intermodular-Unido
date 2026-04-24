@@ -2,6 +2,7 @@ package com.cifpaviles.proyectofinal.CLMM.middleware.controller;
 
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
+import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UpdateProfilePictureDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.service.interfaces.IAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -46,10 +47,11 @@ public class AuthController {
     // Endpoint para que el middleware valide las credenciales de un usuario final
     @PostMapping("/validate-user")
     public ResponseEntity<?> validateUser(@Valid @RequestBody LoginDTO loginDTO) {
-        authService.validateUser(loginDTO);
+        com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity user = authService.validateUser(loginDTO);
         return ResponseEntity.ok(Map.of(
                 "message", "User credentials valid",
-                "nickname", loginDTO.getNickname()
+                "nickname", user.getNickname(),
+                "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : ""
         ));
     }
 
@@ -69,5 +71,17 @@ public class AuthController {
     public ResponseEntity<?> updatePassword(@Valid @RequestBody com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UpdatePasswordDTO dto) {
         authService.updatePassword(dto.getNickname(), dto.getNewPassword());
         return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
+    }
+
+    @PostMapping("/update-nickname")
+    public ResponseEntity<?> updateNickname(@Valid @RequestBody com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UpdateNicknameDTO dto) {
+        authService.updateNickname(dto.getCurrentNickname(), dto.getNewNickname());
+        return ResponseEntity.ok(Map.of("message", "Nickname actualizado correctamente"));
+    }
+
+    @PostMapping("/update-profile-picture")
+    public ResponseEntity<?> updateProfilePicture(@Valid @RequestBody UpdateProfilePictureDTO dto) {
+        authService.updateProfilePicture(dto.getNickname(), dto.getProfilePicture());
+        return ResponseEntity.ok(Map.of("message", "Foto de perfil actualizada correctamente"));
     }
 }

@@ -34,7 +34,10 @@ export class ListaSalas implements OnInit, OnDestroy {
     }
 
     this.refreshRoomList();
-    this.refreshInterval = setInterval(() => this.refreshRoomList(), 10000);
+    // Refrescar cada 10 segundos
+    this.refreshInterval = setInterval(() => {
+      this.refreshRoomList();
+    }, 10000);
 
     // Escuchar respuestas de solicitudes
     this.socketService.solicitudAceptada$

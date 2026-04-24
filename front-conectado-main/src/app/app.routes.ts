@@ -21,6 +21,14 @@ export const routes: Routes = [
     path: 'partida/:code',
     loadComponent: () => import('./partida/partida').then(m => m.Partida)
   },
+  {
+    path: 'partida-activa/:code',
+    loadComponent: () => import('./partida-activa/partida-activa.component').then(m => m.PartidaActivaComponent)
+  },
+  {
+    path: 'seleccion-personajes',
+    loadComponent: () => import('./seleccion-personajes/seleccion-personajes.component').then(m => m.SeleccionPersonajesComponent)
+  },
 
   {
     path: 'perfil',

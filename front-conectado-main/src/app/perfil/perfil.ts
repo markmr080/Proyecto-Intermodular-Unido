@@ -42,6 +42,9 @@ export class Perfil implements OnInit {
   passSuccess = '';
   showPassword = false;
   showPasswordConfirm = false;
+  
+  isSavingAvatar = false;
+  avatarSuccess = false;
 
   availableAvatars = [
     'https://api.dicebear.com/7.x/adventurer/svg?seed=Thor',
@@ -52,11 +55,15 @@ export class Perfil implements OnInit {
   ];
 
   ngOnInit() {
-    this.currentUser = this.authService.getCurrentUser();
-    if (!this.currentUser) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      if (!user) {
+        this.router.navigate(['/login']);
+        return;
+      }
+    });
+
+    if (!this.currentUser) return;
 
     // Cargamos las estadísticas reales desde MySQL
     const nickname = this.currentUser.username;
@@ -72,9 +79,23 @@ export class Perfil implements OnInit {
   }
 
   cambiarAvatar(url: string) {
-    if (this.currentUser) {
-      this.authService.updateProfilePicture(url);
-      this.currentUser.profilePicture = url;
+    if (this.currentUser && this.currentUser.profilePicture !== url) {
+      const nickname = this.currentUser.username;
+      this.isSavingAvatar = true;
+      this.avatarSuccess = false;
+
+      this.authService.updateProfilePicture(nickname, url).subscribe({
+        next: () => {
+          this.isSavingAvatar = false;
+          this.avatarSuccess = true;
+          console.log('Foto de perfil sincronizada con el servidor');
+          setTimeout(() => this.avatarSuccess = false, 2000);
+        },
+        error: (err) => {
+          this.isSavingAvatar = false;
+          console.error('Error al sincronizar la foto de perfil:', err);
+        }
+      });
     }
   }
 

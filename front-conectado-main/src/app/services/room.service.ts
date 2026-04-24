@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
 
 export interface Room {
   id?: number;
@@ -36,13 +35,14 @@ export class RoomService {
   }
 
   getRoomByCode(code: string): Observable<Room | undefined> {
-    // Podríamos añadir un endpoint específico en el backend, 
-    // pero por ahora filtramos del listado o asumimos que el componente lo maneja
     return new Observable(observer => {
-      this.getRooms().subscribe(rooms => {
-        const room = rooms.find(r => r.codigoSala === code);
-        observer.next(room);
-        observer.complete();
+      this.getRooms().subscribe({
+        next: (rooms) => {
+          const room = rooms.find(r => r.codigoSala === code);
+          observer.next(room);
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
       });
     });
   }

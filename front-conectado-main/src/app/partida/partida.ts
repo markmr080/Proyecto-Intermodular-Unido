@@ -94,16 +94,25 @@ export class Partida implements OnInit, OnDestroy {
         alert(msg);
         this.router.navigate(['/lista-salas']);
       });
+    
+    // Escuchar si se acepta mi solicitud (en caso de que estuviera esperando en esta pantalla, aunque normalmente se hace desde la lista)
+    this.socketService.solicitudAceptada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(codigo => {
+        if (codigo === this.roomCode) {
+          // Ya estamos aquí, pero por si acaso refrescamos
+        }
+      });
   }
 
   ngOnDestroy() {
-    // Si soy el owner y salgo, cerramos la sala en el servidor/DB
-    if (this.isOwner && this.roomCode) {
-      this.socketService.cerrarSala(this.roomCode);
-    }
-    
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  expulsar() {
+    console.log('Expulsando jugador');
+    this.player2 = null;
   }
 
   aceptarJugador(player: any) {
@@ -117,11 +126,19 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   salir() {
+    if (this.isOwner && this.roomCode) {
+      this.socketService.cerrarSala(this.roomCode);
+    }
     this.router.navigate(['/lista-salas']);
   }
 
   empezar() {
-    console.log('Enviando a selección de personaje');
+    console.log('Enviando a selección de personajes');
+    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode } });
+  }
+
+  testPartida() {
+    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode } });
   }
 }
 

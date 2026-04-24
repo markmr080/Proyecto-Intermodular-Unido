@@ -103,4 +103,25 @@ public class UsuarioService implements IUsuarioService {
         user.setPassword(passwordEncoder.encode(newPassword));
         usuarioRepository.save(user);
     }
+
+    @Override
+    public void actualizarNickname(String currentNickname, String newNickname) {
+        // Verificar que el nuevo nickname no esté en uso
+        if (usuarioRepository.existsByNickname(newNickname)) {
+            throw new RuntimeException("NICKNAME_DUPLICADO");
+        }
+
+        UsuarioEntity user = usuarioRepository.findByNickname(currentNickname)
+                .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
+        user.setNickname(newNickname);
+        usuarioRepository.save(user);
+    }
+
+    @Override
+    public void actualizarProfilePicture(String nickname, String profilePicture) {
+        UsuarioEntity user = usuarioRepository.findByNickname(nickname)
+                .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
+        user.setProfilePicture(profilePicture);
+        usuarioRepository.save(user);
+    }
 }

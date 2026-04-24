@@ -46,9 +46,9 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public void validateUser(LoginDTO dto) {
+    public UsuarioEntity validateUser(LoginDTO dto) {
         // Validar credenciales del usuario final a través del servicio de API
-        usuarioService.validarCredenciales(dto);
+        return usuarioService.validarCredenciales(dto);
     }
 
     @Override
@@ -72,5 +72,15 @@ public class AuthService implements IAuthService {
     @Override
     public void updatePassword(String nickname, String newPassword) {
         usuarioService.actualizarPasswordByNickname(nickname, newPassword);
+    }
+
+    @Override
+    public void updateNickname(String currentNickname, String newNickname) {
+        usuarioService.actualizarNickname(currentNickname, newNickname);
+    }
+
+    @Override
+    public void updateProfilePicture(String nickname, String profilePicture) {
+        usuarioService.actualizarProfilePicture(nickname, profilePicture);
     }
 }
