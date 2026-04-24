@@ -1,65 +1,68 @@
 import { Injectable } from '@angular/core';
-import io from 'socket.io-client';
 import { Subject } from 'rxjs';
+import * as io from 'socket.io-client';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class SocketService {
-    private socket: SocketIOClient.Socket;
+  private socket!: any;
+  
+  // Observable para emitir el estado de la partida cuando llegue del backend
+  public gameState$ = new Subject<any>();
 
-    // Subjects para notificar a los componentes
-    public nuevaSolicitud$ = new Subject<any>();
-    public solicitudAceptada$ = new Subject<string>();
-    public solicitudRechazada$ = new Subject<string>();
-    public jugadorUnido$ = new Subject<any>();
-    public salaCerrada$ = new Subject<string>();
+  constructor() { }
 
-    constructor() {
-        // Apuntamos al puerto 8085 del backend
-        this.socket = io('http://localhost:8085');
+  public connect() {
+    if (!this.socket) {
+      // Conectamos al backend Netty de WebSockets (puerto 8081)
+      this.socket = io.connect('http://localhost:8081', {
+        transports: ['websocket'],
+        autoConnect: true
+      });
 
-        // Escuchar eventos globales
-        this.socket.on('nueva-solicitud', (data: any) => this.nuevaSolicitud$.next(data));
-        this.socket.on('solicitud-aceptada', (codigo: string) => this.solicitudAceptada$.next(codigo));
-        this.socket.on('solicitud-rechazada', (msg: string) => this.solicitudRechazada$.next(msg));
-        this.socket.on('jugador-unido', (data: any) => this.jugadorUnido$.next(data));
-        this.socket.on('sala-cerrada', (msg: string) => this.salaCerrada$.next(msg));
+      this.socket.on('connect', () => {
+        console.log('Conectado al servidor de juego SocketIO');
+      });
 
-        this.socket.on('respuesta-servidor', (data: any) => {
-            console.log('Mensaje del servidor:', data);
-        });
+      this.socket.on('gameState', (state: any) => {
+        console.log('Nuevo estado recibido:', state);
+        this.gameState$.next(state);
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('Desconectado del servidor de juego');
+      });
     }
+  }
 
-    registrarUsuario(userId: string) {
-        this.socket.emit('registrar-usuario', userId);
+  public joinRoom(jugadorId: string, jugadorNombre: string, roomCode: string) {
+    if (this.socket) {
+      this.socket.emit('join-room', { jugadorId, jugadorNombre, roomCode });
     }
+  }
 
-    solicitarUnirse(codigoSala: string, user: any) {
-        this.socket.emit('solicitar-unirse', {
-            codigoSala,
-            requesterId: user.username,
-            requesterName: user.username,
-            requesterAvatar: user.profilePicture
-        });
+  public colocarBarcos(jugadorId: string, roomCode: string, tablero: string[][]) {
+    if (this.socket) {
+      this.socket.emit('colocar-barcos', { jugadorId, roomCode, tablero });
     }
+  }
 
-    aceptarSolicitud(codigoSala: string, requester: any) {
-        this.socket.emit('aceptar-solicitud', {
-            codigoSala,
-            requesterId: requester.requesterId,
-            requesterName: requester.requesterName,
-            requesterAvatar: requester.requesterAvatar
-        });
+  public atacar(jugadorId: string, roomCode: string, x: number, y: number) {
+    if (this.socket) {
+      this.socket.emit('atacar', { jugadorId, roomCode, x, y });
     }
+  }
 
-    rechazarSolicitud(requesterId: string) {
-        this.socket.emit('rechazar-solicitud', requesterId);
+  public usarHabilidad(jugadorId: string, roomCode: string, habilidadId: string) {
+    if (this.socket) {
+      this.socket.emit('usar-habilidad', { jugadorId, roomCode, habilidadId });
     }
+  }
 
-    cerrarSala(codigoSala: string) {
-        this.socket.emit('cerrar-sala', codigoSala);
+  public disconnect() {
+    if (this.socket) {
+      this.socket.disconnect();
     }
-
-    enviarPrueba(mensaje: string) {
-        this.socket.emit('prueba-cliente', mensaje);
-    }
+  }
 }

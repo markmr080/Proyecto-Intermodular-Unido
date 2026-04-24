@@ -1,11 +1,12 @@
 <div class="crear-partida-wrapper">
+  <div class="timer">
+    <span>&#8987; {{ timeRemaining }}</span>
+  </div>
+
   <div class="partida-container">
     <div class="panel-left">
       <!-- Player 1 Slot -->
       <div class="slot card-primary">
-        <div class="player-avatar" *ngIf="player1.avatar">
-          <img [src]="player1.avatar" alt="Avatar Owner">
-        </div>
         <h3>{{ player1.name }}</h3>
         <p>{{ player1.role }}</p>
       </div>
@@ -13,13 +14,15 @@
       <!-- Player 2 Slot -->
       @if (player2) {
       <div class="slot card-secondary">
-        <div class="player-avatar">
-          <img [src]="player2.avatar" alt="Avatar Player">
-        </div>
         <div class="slot-info">
           <h3>{{ player2.name }}</h3>
           <p>{{ player2.role }}</p>
         </div>
+        @if (isOwner) {
+        <button class="btn-expulsar" (click)="expulsar()" title="Expulsar">
+          &#10006;
+        </button>
+        }
       </div>
       } @else {
       <div class="slot card-empty">
@@ -28,17 +31,16 @@
       }
 
       <!-- Pending Requests -->
-      <div class="pending-list" *ngIf="isOwner && !player2">
-        <h4>Solicitudes de unión</h4>
-        @for (p of pendingPlayers; track p.requesterId) {
+      <div class="pending-list">
+        @for (p of pendingPlayers; track p.id) {
         <div class="pending-item">
-          <div class="pending-user-info">
-            <img [src]="p.requesterAvatar" class="mini-avatar" alt="Avatar">
-            <span class="pending-name">{{ p.requesterName }}</span>
-          </div>
+          <span class="pending-name">{{ p.name }}</span>
           <div class="pending-actions">
-            <button class="btn-accept" (click)="aceptarJugador(p)" title="Aceptar">&#10004;</button>
+            @if (isOwner) {
+            <button class="btn-accept" (click)="aceptarJugador(p)" title="Aceptar"
+              [disabled]="player2">&#10004;</button>
             <button class="btn-reject" (click)="rechazarJugador(p)" title="Rechazar">&#10006;</button>
+            }
           </div>
         </div>
         }
@@ -62,16 +64,18 @@
       <!-- Settings Box -->
       <div class="ajustes-box">
         <h3>Ajustes de la partida</h3>
-        <div class="ajustes-content">
+        <p class="ajustes-content">
           @if (isOwner) {
-          <p>Configuración de la partida habilitada para el administrador.</p>
+          Aquí van todas las configuraciones de los dioses, mapas, etc...
           } @else {
-          <p>Solo el creador puede modificar los ajustes de la partida.</p>
+          Solo el creador puede modificar los ajustes de la partida.
           }
-        </div>
+        </p>
       </div>
 
       <!-- Action Bottom Right -->
+      <button class="btn-empezar" (click)="testPartida()" style="background-color: #ff9800; margin-bottom: 10px;">[TEST] Ver Partida</button>
+
       @if (isOwner) {
       <button class="btn-empezar" (click)="empezar()" [disabled]="!player2">Empezar</button>
       }

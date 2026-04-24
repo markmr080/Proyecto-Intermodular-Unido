@@ -4,8 +4,18 @@
     <!-- Left Panel: User Info & Actions -->
     <div class="panel-left">
       <div class="user-main-info">
-        <div class="avatar-display">
+        <div class="avatar-display" [class.is-saving]="isSavingAvatar">
           <img [src]="currentUser?.profilePicture" alt="Avatar">
+          @if (isSavingAvatar) {
+            <div class="avatar-overlay">
+              <div class="spinner"></div>
+            </div>
+          }
+          @if (avatarSuccess) {
+            <div class="avatar-overlay success">
+              <span>✔</span>
+            </div>
+          }
         </div>
 
         <div class="info-group">
@@ -61,7 +71,7 @@
           </div>
           <div class="stat-punteria">
             <span class="label">Puntería Total</span>
-            <div class="punteria-val">{{ stats?.punteria }}</div>
+            <div class="punteria-val">{{ stats.punteria }}</div>
           </div>
 
           <p class="stats-footer">

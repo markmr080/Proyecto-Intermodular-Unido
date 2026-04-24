@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, switchMap } from 'rxjs';
+import { Observable, from, switchMap, BehaviorSubject, tap } from 'rxjs';
 
 // -------------------------------------------------------
 //  INTERFACES EXPORTADAS (usadas por Menu, Perfil, etc.)
@@ -31,11 +31,15 @@ export class AuthService {
   private readonly API_URL = 'http://localhost:8080/api/auth';
   private readonly STATS_URL = 'http://localhost:8080/api/estadisticas';
 
+  private userSubject = new BehaviorSubject<UserDB | undefined>(undefined);
+  public user$ = this.userSubject.asObservable();
+
   // TOKEN en sessionStorage: se borra al cerrar la pestaña
   private readonly TOKEN_KEY = 'auth_token';
 
   // Usuario en sessionStorage
   private readonly USER_KEY = 'current_user';
+  private readonly PIC_KEY = 'current_user_pic';
 
   /**
    * El fingerprint se guarda SOLO en memoria (variable privada).
@@ -51,8 +55,11 @@ export class AuthService {
   };
 
   constructor(private http: HttpClient) {
-    // Iniciamos el cálculo del fingerprint lo antes posible
-    this.generarFingerprint().then(fp => console.log('Fingerprint inicializado:', fp));
+    this.refreshUser();
+  }
+
+  private refreshUser(): void {
+    this.userSubject.next(this.getCurrentUser());
   }
 
   // -------------------------------------------------------
@@ -141,7 +148,9 @@ export class AuthService {
   logout(): void {
     sessionStorage.removeItem(this.TOKEN_KEY);
     sessionStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem(this.PIC_KEY);
     this.cachedFingerprint = null; // Limpiamos también la memoria
+    this.refreshUser();
   }
 
   // -------------------------------------------------------
@@ -182,8 +191,12 @@ export class AuthService {
                   'X-Fingerprint': fp
                 }
               }).subscribe({
-                next: (valRes) => {
+                next: (valRes: any) => {
                   sessionStorage.setItem(this.USER_KEY, username);
+                  if (valRes.profilePicture) {
+                    sessionStorage.setItem(this.PIC_KEY, valRes.profilePicture);
+                  }
+                  this.refreshUser();
                   observer.next(valRes);
                   observer.complete();
                 },
@@ -235,9 +248,9 @@ export class AuthService {
   /**
    * Cambia el nickname de un usuario en el backend.
    */
-  updateNickname(nicknamActual: string, nuevoNickname: string): Observable<any> {
+  updateNickname(currentNickname: string, newNickname: string): Observable<any> {
     return this.withMiddlewareToken((token, fp) =>
-      this.http.post(`${this.API_URL}/update-nickname`, { nicknamActual, nuevoNickname }, {
+      this.http.post(`${this.API_URL}/update-nickname`, { currentNickname, newNickname }, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
       })
     );
@@ -249,14 +262,20 @@ export class AuthService {
    */
   updateUsername(newName: string): void {
     sessionStorage.setItem(this.USER_KEY, newName);
+    this.refreshUser();
   }
 
   /**
-   * Stub para actualización de foto de perfil.
-   * Actualmente la foto se genera dinámicamente con DiceBear.
+   * Actualiza la foto de perfil en el backend y en sessionStorage.
    */
-  updateProfilePicture(url: string): void {
-    console.log('Update foto de perfil:', url);
+  updateProfilePicture(nickname: string, url: string): Observable<any> {
+    sessionStorage.setItem(this.PIC_KEY, url);
+    this.refreshUser();
+    return this.withMiddlewareToken((token, fp) =>
+      this.http.post(`${this.API_URL}/update-profile-picture`, { nickname, profilePicture: url }, {
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
+      })
+    );
   }
 
   // -------------------------------------------------------
@@ -287,10 +306,12 @@ export class AuthService {
   getCurrentUser(): UserDB | undefined {
     if (!this.isLoggedIn()) return undefined;
     const username = this.getCurrentUsername();
+    const storedPic = sessionStorage.getItem(this.PIC_KEY);
+    
     return {
       username,
       email: 'usuario@ejemplo.com',
-      profilePicture: 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + username
+      profilePicture: storedPic ?? ('https://api.dicebear.com/7.x/adventurer/svg?seed=' + username)
     };
   }
 }

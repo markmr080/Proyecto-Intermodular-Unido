@@ -2,20 +2,16 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserDB } from '../services/auth.service';
-//import { SocketService } from '../services/socket.service(prueba)';
-
 @Component({
   selector: 'app-menu',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './menu.component.html',
-  styleUrl: './menu.component.css',
-  //providers: [SocketService]
+  styleUrl: './menu.component.css'
 })
 export class MenuComponent {
   router = inject(Router);
   authService = inject(AuthService);
-  //socketService = inject(SocketService);
 
   currentUser: UserDB | undefined;
 
@@ -83,10 +79,13 @@ export class MenuComponent {
   ];
 
   constructor() {
-    this.currentUser = this.authService.getCurrentUser();
-    if (!this.currentUser) {
-      this.router.navigate(['/login']);
-    }
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      if (!user && this.router.url !== '/login') {
+        // Opcional: solo redirigir si no estamos ya en login
+        // this.router.navigate(['/login']);
+      }
+    });
   }
 
   logout() {

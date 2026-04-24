@@ -1,11 +1,9 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RoomService, Room } from '../services/room.service';
 import { AuthService } from '../services/auth.service';
-import { SocketService } from '../services/socket.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-lista-salas',
@@ -14,99 +12,58 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.css',
 })
-export class ListaSalas implements OnInit, OnDestroy {
+export class ListaSalas implements OnInit {
   router = inject(Router);
   roomService = inject(RoomService);
   authService = inject(AuthService);
-  socketService = inject(SocketService);
-
-  private destroy$ = new Subject<void>();
 
   searchCode: string = '';
   allRooms: Room[] = [];
-  solicitandoUnirse: boolean = false;
   private refreshInterval: any;
 
   ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.socketService.registrarUsuario(user.username);
-    }
-
     this.refreshRoomList();
-    this.refreshInterval = setInterval(() => this.refreshRoomList(), 10000);
-
-    // Escuchar respuestas de solicitudes
-    this.socketService.solicitudAceptada$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(codigo => {
-        this.solicitandoUnirse = false;
-        this.router.navigate(['/partida', codigo]);
-      });
-
-    this.socketService.solicitudRechazada$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(msg => {
-        this.solicitandoUnirse = false;
-        alert(msg);
-      });
+    // Refrescar cada 10 segundos para ver si expiran salas
+    this.refreshInterval = setInterval(() => {
+      this.refreshRoomList();
+    }, 10000);
   }
 
   ngOnDestroy() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   refreshRoomList() {
-    this.roomService.getRooms()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (rooms) => {
-          this.allRooms = rooms.filter(r => r.estado === 'ESPERANDO');
-        },
-        error: (err) => {
-          console.error('Error cargando salas:', err);
-        }
-      });
+    this.allRooms = this.roomService.getRooms();
   }
 
   get filteredRooms(): Room[] {
     if (!this.searchCode) {
       return this.allRooms;
     }
-    return this.allRooms.filter(room => room.codigoSala.toLowerCase().includes(this.searchCode.toLowerCase()));
+    return this.allRooms.filter(room => room.code.toLowerCase().includes(this.searchCode.toLowerCase()));
   }
 
   crearSala() {
     const user = this.authService.getCurrentUser();
-    if (!user) return;
+    const ownerName = user ? user.username : 'Jugador';
+    const ownerPic = user ? user.profilePicture || '' : 'https://api.dicebear.com/7.x/adventurer/svg?seed=Guest';
 
-    const newRoom: Room = {
-      jugador1: user.username,
-      nombreJugador1: user.username,
-      avatarJugador1: user.profilePicture || '',
-      estado: 'ESPERANDO',
-      codigoSala: Math.random().toString(36).substring(2, 8).toUpperCase()
-    };
-
-    this.roomService.createRoom(newRoom).subscribe(createdRoom => {
-      this.router.navigate(['/partida', createdRoom.codigoSala]);
-    });
+    const newRoom = this.roomService.createRoom(`Partida de ${ownerName}`, ownerPic, ownerName);
+    this.router.navigate(['/partida', newRoom.code]);
   }
 
   recargarSalas() {
     this.refreshRoomList();
+    // window.location.reload(); // Opcional, pero refreshRoomList es más SPA-friendly
   }
 
   unirse(room: Room) {
-    const user = this.authService.getCurrentUser();
-    if (!user) return;
-
-    this.solicitandoUnirse = true;
-    this.socketService.solicitarUnirse(room.codigoSala, user);
+    if (room.currentPlayers < room.maxPlayers) {
+      this.router.navigate(['/partida', room.code]);
+    }
   }
 
   salir() {
