@@ -15,8 +15,14 @@
     
     <!-- COLUMNA IZQUIERDA: STATS JUGADORES -->
     <div class="column-left">
-      <!-- Mi Jugador -->
-      <div class="player-card my-player">
+      
+      <div class="skills-top-group">
+        <div class="skills-warning" *ngIf="gameState.fase === 'COMBATE'">
+          <p class="skill-note-warning">Al clicar en una casilla se atacará a esa casilla. El otro jugador dispondrá de 20s para reaccionar. Tiempo máximo de turno: 60s.</p>
+        </div>
+
+        <!-- Mi Jugador -->
+        <div class="player-card my-player">
         <h3>TÚ: {{ miJugador?.nombre }}</h3>
         <div class="avatar-container">
           <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + miJugador?.nombre" alt="Mi Avatar">
@@ -29,6 +35,7 @@
             <span class="tooltip">{{miJugador?.personaje?.habilidadPasiva?.descripcion}}</span>
           </div>
         </div>
+      </div>
       </div>
 
       <!-- Enemigo -->
@@ -82,7 +89,6 @@
 
       <!-- FASE DE COMBATE -->
       <ng-container *ngIf="gameState.fase === 'COMBATE'">
-        <h2 class="board-title">ATACA AL ENEMIGO</h2>
         <div class="board enemigo-tablero">
           <ng-container *ngFor="let fila of enemyBoard; let x = index">
             <div 
@@ -96,10 +102,6 @@
             </div>
           </ng-container>
         </div>
-        <p class="board-instructions">
-          Al clicar en una casilla se atacará a esa casilla. El otro jugador dispondrá de 20s para reaccionar. 
-          Tiempo máximo de turno: 60s.
-        </p>
       </ng-container>
       
     </div>
@@ -107,41 +109,54 @@
     <!-- COLUMNA DERECHA: HABILIDADES -->
     <div class="column-right">
       
-      <!-- Habilidades Ofensivas -->
-      <div class="skills-box offensive">
+      <div class="skills-top-group">
+        <div class="skills-warning">
+          <p class="skill-note-warning">Solo se podrá utilizar una habilidad por turno, ya sea ofensiva o defensiva.</p>
+        </div>
+
+        <!-- Habilidades Ofensivas -->
+        <div class="skills-box offensive">
         <h3>Habilidades Ofensivas</h3>
-        <div class="skill-list">
-          <button 
-            *ngFor="let hab of habilidadesOfensivas"
-            class="skill-btn"
-            [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
-            (click)="usarHabilidad(hab.id)"
-          >
-            {{hab.nombre}} 
-            <span class="cd" *ngIf="hab.cooldownActual > 0">⏳ {{hab.cooldownActual}}</span>
-            <div class="tooltip">{{hab.descripcion}} (Cooldown: {{hab.cooldownMax}} turnos)</div>
-          </button>
+        <div class="abilities-container">
+          <div *ngFor="let hab of habilidadesOfensivas" class="ability-group">
+            <button 
+              class="ability-circle offensive"
+              [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
+              (click)="usarHabilidad(hab.id)"
+            >
+              <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre" class="ability-img-icon" />
+              <span class="cd-overlay" *ngIf="hab.cooldownActual > 0">{{hab.cooldownActual}}</span>
+            </button>
+            <div class="ability-tooltip">
+              <strong class="ability-name">{{ hab.nombre }}</strong>
+              <span class="ability-desc">{{ hab.descripcion }} (CD: {{hab.cooldownMax}})</span>
+            </div>
+          </div>
           <p *ngIf="habilidadesOfensivas.length === 0">Sin habilidades ofensivas.</p>
         </div>
+      </div>
       </div>
 
       <!-- Habilidades Defensivas -->
       <div class="skills-box defensive">
         <h3>Habilidades Defensivas</h3>
-        <div class="skill-list">
-          <button 
-            *ngFor="let hab of habilidadesDefensivas"
-            class="skill-btn"
-            [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
-            (click)="usarHabilidad(hab.id)"
-          >
-            {{hab.nombre}}
-            <span class="cd" *ngIf="hab.cooldownActual > 0">⏳ {{hab.cooldownActual}}</span>
-            <div class="tooltip">{{hab.descripcion}} (Cooldown: {{hab.cooldownMax}} turnos)</div>
-          </button>
+        <div class="abilities-container">
+          <div *ngFor="let hab of habilidadesDefensivas" class="ability-group">
+            <button 
+              class="ability-circle defensive"
+              [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
+              (click)="usarHabilidad(hab.id)"
+            >
+              <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre" class="ability-img-icon" />
+              <span class="cd-overlay" *ngIf="hab.cooldownActual > 0">{{hab.cooldownActual}}</span>
+            </button>
+            <div class="ability-tooltip">
+              <strong class="ability-name">{{ hab.nombre }}</strong>
+              <span class="ability-desc">{{ hab.descripcion }} (CD: {{hab.cooldownMax}})</span>
+            </div>
+          </div>
           <p *ngIf="habilidadesDefensivas.length === 0">Sin habilidades defensivas.</p>
         </div>
-        <p class="skill-note">Solo se podrá utilizar una habilidad por turno, ya sea ofensiva o defensiva.</p>
       </div>
 
     </div>
