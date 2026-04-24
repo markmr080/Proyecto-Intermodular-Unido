@@ -30,6 +30,7 @@ public class GameSocketController {
 
     @PostConstruct
     public void start() {
+        server.addListeners(this);
         server.start();
     }
 

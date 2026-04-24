@@ -34,7 +34,7 @@
       <div class="pending-list">
         @for (p of pendingPlayers; track p.id) {
         <div class="pending-item">
-          <span class="pending-name">{{ p.name }}</span>
+          <span class="pending-name">{{ p.requesterName }}</span>
           <div class="pending-actions">
             @if (isOwner) {
             <button class="btn-accept" (click)="aceptarJugador(p)" title="Aceptar"

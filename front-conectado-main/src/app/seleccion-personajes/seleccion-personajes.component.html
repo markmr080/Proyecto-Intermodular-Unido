@@ -117,9 +117,11 @@
       }
     </button>
 
-    <button class="sj-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
-      ⚔ Empieza la partida
-    </button>
+    @if (jugadorActual === 1) {
+      <button class="sj-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
+        ⚔ Empieza la partida
+      </button>
+    }
   </div>
 
 </div>

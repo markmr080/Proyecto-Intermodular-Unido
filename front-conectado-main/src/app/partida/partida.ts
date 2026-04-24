@@ -26,6 +26,10 @@ export class Partida implements OnInit, OnDestroy {
   roomCode = '';
   currentRoom: Room | undefined;
 
+  timeRemaining = '15:00';
+  private totalSeconds = 15 * 60;
+  private timerInterval: any;
+
   player1 = { name: 'Jugador 1', role: 'Owner', avatar: '' };
   player2: { name: string, role: string, avatar: string } | null = null;
 
@@ -36,6 +40,7 @@ export class Partida implements OnInit, OnDestroy {
     
     const user = this.authService.getCurrentUser();
     if (user) {
+      console.log('Partida: Registrando usuario en el socket:', user.username);
       this.socketService.registrarUsuario(user.username);
     }
 
@@ -59,6 +64,8 @@ export class Partida implements OnInit, OnDestroy {
               avatar: this.currentRoom.avatarJugador2 || '' 
             };
           }
+
+          this.startTimer();
         } else {
           this.router.navigate(['/lista-salas']);
         }
@@ -95,19 +102,42 @@ export class Partida implements OnInit, OnDestroy {
         this.router.navigate(['/lista-salas']);
       });
     
-    // Escuchar si se acepta mi solicitud (en caso de que estuviera esperando en esta pantalla, aunque normalmente se hace desde la lista)
-    this.socketService.solicitudAceptada$
+    // Escuchar si la partida comienza (Sincronización)
+    this.socketService.partidaIniciada$
       .pipe(takeUntil(this.destroy$))
       .subscribe(codigo => {
+        console.log('Partida: Recibido partida-iniciada para sala:', codigo);
         if (codigo === this.roomCode) {
-          // Ya estamos aquí, pero por si acaso refrescamos
+          console.log('Partida: ¡Navegando a selección de personajes!');
+          this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode } });
+        } else {
+          console.warn('Partida: El código recibido no coincide con la sala actual:', codigo, this.roomCode);
         }
       });
   }
 
   ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  startTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.timerInterval = setInterval(() => {
+      if (this.totalSeconds > 0) {
+        this.totalSeconds--;
+        this.updateTimeString();
+      }
+    }, 1000);
+  }
+
+  updateTimeString() {
+    const minutes = Math.floor(this.totalSeconds / 60);
+    const seconds = this.totalSeconds % 60;
+    this.timeRemaining = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   expulsar() {
@@ -133,8 +163,8 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   empezar() {
-    console.log('Enviando a selección de personajes');
-    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode } });
+    console.log('Solicitando inicio de partida...');
+    this.socketService.iniciarPartida(this.roomCode);
   }
 
   testPartida() {

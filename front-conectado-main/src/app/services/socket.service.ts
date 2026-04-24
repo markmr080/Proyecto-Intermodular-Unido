@@ -14,6 +14,9 @@ export class SocketService {
   public solicitudRechazada$ = new Subject<string>();
   public jugadorUnido$ = new Subject<any>();
   public salaCerrada$ = new Subject<string>();
+  public partidaIniciada$ = new Subject<string>();
+  public personajeSeleccionado$ = new Subject<any>();
+  public juegoComenzado$ = new Subject<string>();
 
   // --- Subjects para Juego ---
   public gameState$ = new Subject<any>();
@@ -34,10 +37,13 @@ export class SocketService {
 
       // --- Listeners de Lobby ---
       this.socket.on('nueva-solicitud', (data: any) => this.nuevaSolicitud$.next(data));
-      this.socket.on('solicitud-aceptada', (codigo: string) => this.solicitudAceptada$.next(codigo));
+      this.socket.on('solicitud-aceptada', (codigo: string) => this.solicitadaAceptadaInternal(codigo));
       this.socket.on('solicitud-rechazada', (msg: string) => this.solicitudRechazada$.next(msg));
       this.socket.on('jugador-unido', (data: any) => this.jugadorUnido$.next(data));
       this.socket.on('sala-cerrada', (msg: string) => this.salaCerrada$.next(msg));
+      this.socket.on('partida-iniciada', (codigo: string) => this.partidaIniciada$.next(codigo));
+      this.socket.on('personaje-seleccionado', (data: any) => this.personajeSeleccionado$.next(data));
+      this.socket.on('juego-comenzado', (codigo: string) => this.juegoComenzado$.next(codigo));
 
       // --- Listeners de Juego ---
       this.socket.on('gameState', (state: any) => {
@@ -82,6 +88,22 @@ export class SocketService {
 
   public cerrarSala(codigoSala: string) {
     this.socket.emit('cerrar-sala', codigoSala);
+  }
+
+  public iniciarPartida(codigoSala: string) {
+    this.socket.emit('iniciar-partida', { codigoSala });
+  }
+
+  public seleccionarPersonaje(codigoSala: string, userId: string, personajeId: number) {
+    this.socket.emit('seleccionar-personaje', { codigoSala, userId, personajeId });
+  }
+
+  public comenzarJuego(codigoSala: string) {
+    this.socket.emit('comenzar-juego', codigoSala);
+  }
+
+  private solicitadaAceptadaInternal(codigo: string) {
+    this.solicitudAceptada$.next(codigo);
   }
 
   // --- Métodos de Juego ---

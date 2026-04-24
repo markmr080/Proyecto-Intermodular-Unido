@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { RoomService, Room } from '../services/room.service';
+import { SocketService } from '../services/socket.service';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface Personaje {
   id: number;
@@ -25,11 +27,14 @@ export interface Personaje {
   templateUrl: './seleccion-personajes.component.html',
   styleUrl: './seleccion-personajes.component.css'
 })
-export class SeleccionPersonajesComponent implements OnInit {
+export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   roomService = inject(RoomService);
+  socketService = inject(SocketService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+
+  private destroy$ = new Subject<void>();
 
   personajes: Personaje[] = [
     {
@@ -98,47 +103,73 @@ export class SeleccionPersonajesComponent implements OnInit {
       return;
     }
 
-    // Leer el código de sala enviado desde partida.ts
     this.roomCode = this.route.snapshot.queryParamMap.get('code') || '';
-
-    // ── GUARDIA: sin código de sala → volver a la lista
     if (!this.roomCode) {
       this.router.navigate(['/lista-salas']);
       return;
     }
 
-    this.roomService.getRoomByCode(this.roomCode).subscribe(room => {
-      this.currentRoom = room;
+    // Registrar usuario para asegurar socket activo
+    this.socketService.registrarUsuario(user.username);
 
-      // ── GUARDIA: la sala no existe o ya expiró → volver a la lista
-      if (!this.currentRoom) {
-        this.router.navigate(['/lista-salas']);
-        return;
-      }
+    this.roomService.getRoomByCode(this.roomCode)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(room => {
+        this.currentRoom = room;
 
-      // ── A partir de aquí la sala es válida ──
-      const ownerName = this.currentRoom.nombreJugador1 || 'Jugador 1';
+        if (!this.currentRoom) {
+          this.router.navigate(['/lista-salas']);
+          return;
+        }
 
-      // Jugador 1 = dueño de la sala
-      this.jugador1 = {
-        username: ownerName,
-        avatar: this.currentRoom.avatarJugador1 ||
-          `https://api.dicebear.com/7.x/adventurer/svg?seed=${ownerName}`
-      };
+        const ownerName = this.currentRoom.nombreJugador1 || 'Jugador 1';
+        this.jugador1 = {
+          username: ownerName,
+          avatar: this.currentRoom.avatarJugador1 || `https://api.dicebear.com/7.x/adventurer/svg?seed=${ownerName}`
+        };
 
-      // Jugador 2 = el usuario actual si no es el owner, o un nombre genérico
-      const j2Name = (this.currentRoom.nombreJugador2 && this.currentRoom.nombreJugador2 !== ownerName) 
-                     ? this.currentRoom.nombreJugador2 
-                     : (user.username !== ownerName ? user.username : 'Jugador 2');
-      
-      this.jugador2 = {
-        username: j2Name,
-        avatar: this.currentRoom.avatarJugador2 || `https://api.dicebear.com/7.x/adventurer/svg?seed=${j2Name}`
-      };
+        const j2Name = (this.currentRoom.nombreJugador2 && this.currentRoom.nombreJugador2 !== ownerName) 
+                       ? this.currentRoom.nombreJugador2 
+                       : (user.username !== ownerName ? user.username : 'Jugador 2');
+        
+        this.jugador2 = {
+          username: j2Name,
+          avatar: this.currentRoom.avatarJugador2 || `https://api.dicebear.com/7.x/adventurer/svg?seed=${j2Name}`
+        };
 
-      // Determinar si el usuario logueado es el owner (J1) o el J2
-      this.jugadorActual = user.username === ownerName ? 1 : 2;
-    });
+        this.jugadorActual = user.username === ownerName ? 1 : 2;
+      });
+
+    // Escuchar selecciones del otro jugador
+    this.socketService.personajeSeleccionado$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        console.log('Selección remota recibida:', data);
+        if (data.codigoSala === this.roomCode) {
+          if (this.jugadorActual === 1) {
+            // Soy J1, recibo de J2
+            this.seleccionJugador2 = data.personajeId;
+          } else {
+            // Soy J2, recibo de J1
+            this.seleccionJugador1 = data.personajeId;
+          }
+        }
+      });
+
+    // Escuchar inicio de juego real
+    this.socketService.juegoComenzado$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(codigo => {
+        if (codigo === this.roomCode) {
+          console.log('¡Juego comenzado! Navegando a partida-activa');
+          this.router.navigate(['/partida-activa', this.roomCode]);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get personajeActual(): Personaje {
@@ -154,11 +185,17 @@ export class SeleccionPersonajesComponent implements OnInit {
   }
 
   seleccionar(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+
     if (this.jugadorActual === 1) {
       this.seleccionJugador1 = this.indiceActual;
     } else {
       this.seleccionJugador2 = this.indiceActual;
     }
+
+    // Notificar al otro jugador
+    this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual);
   }
 
   get jugador1Listo(): boolean {
@@ -175,8 +212,12 @@ export class SeleccionPersonajesComponent implements OnInit {
 
   empezarPartida(): void {
     if (!this.ambosProntos) return;
-    // Navegar a la partida real
-    this.router.navigate(['/partida-activa', this.roomCode]);
+    
+    // Solo el admin (J1) dispara el evento de inicio real para evitar duplicados, 
+    // aunque ambos podrían.
+    if (this.jugadorActual === 1) {
+      this.socketService.comenzarJuego(this.roomCode);
+    }
   }
 
   statPorcentaje(valor: number): string {
