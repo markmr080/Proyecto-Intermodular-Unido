@@ -37,4 +37,15 @@ public interface IUsuarioService {
      * Actualiza la contraseña del usuario por nickname.
      */
     void actualizarPasswordByNickname(String nickname, String newPassword);
+
+    /**
+     * Actualiza el nickname de un usuario.
+     * @throws RuntimeException si el nuevo nickname ya está en uso.
+     */
+    void actualizarNickname(String currentNickname, String newNickname);
+
+    /**
+     * Actualiza la foto de perfil de un usuario.
+     */
+    void actualizarProfilePicture(String nickname, String profilePicture);
 }

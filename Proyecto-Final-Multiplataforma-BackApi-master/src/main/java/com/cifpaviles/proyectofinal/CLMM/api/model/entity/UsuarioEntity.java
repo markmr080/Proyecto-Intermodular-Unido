@@ -20,6 +20,9 @@ public class UsuarioEntity {
 
     private String role;
 
+    @Column(name = "profile_picture", length = 512)
+    private String profilePicture;
+
     public UsuarioEntity() {
 
     }
@@ -68,5 +71,13 @@ public class UsuarioEntity {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
