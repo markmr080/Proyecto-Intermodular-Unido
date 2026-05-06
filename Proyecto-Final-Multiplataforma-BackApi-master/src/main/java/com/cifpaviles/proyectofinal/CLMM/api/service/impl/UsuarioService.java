@@ -26,13 +26,13 @@ public class UsuarioService implements IUsuarioService {
 
     @PostConstruct
     public void crearUsuarioSistema() {
-        // RF-01: El nickname debe ser exactamente "middleware_admin"
-        if (!usuarioRepository.existsByNickname("middleware_admin")) {
+        // RF-01: El username debe ser exactamente "middleware_admin"
+        if (!usuarioRepository.existsByUsername("middleware_admin")) {
             UsuarioEntity admin = new UsuarioEntity();
-            admin.setNickname("middleware_admin");
+            admin.setUsername("middleware_admin");
             admin.setEmail("admin@sistema.internal");
             // Esta clave es la que usará el furgón (Angular) para identificarse
-            admin.setPassword(passwordEncoder.encode("clave_secreta_del_middleware_2026"));
+            admin.setPasswordHash(passwordEncoder.encode("clave_secreta_del_middleware_2026"));
             admin.setRole("ADMIN");
 
             usuarioRepository.save(admin);
@@ -45,32 +45,30 @@ public class UsuarioService implements IUsuarioService {
         if (usuarioRepository.existsByEmail(datos.getEmail()))
             throw new RuntimeException("EMAIL_DUPLICADO");
 
-        if (usuarioRepository.existsByNickname(datos.getNickname()))
-            throw new RuntimeException("NICKNAME_DUPLICADO");
+        if (usuarioRepository.existsByUsername(datos.getUsername()))
+            throw new RuntimeException("USERNAME_DUPLICADO");
 
         UsuarioEntity user = new UsuarioEntity(
-                datos.getNickname(),
+                datos.getUsername(),
                 datos.getEmail(),
                 passwordEncoder.encode(datos.getPassword()));
-        
+
         user.setRole("USER");
 
         usuarioRepository.save(user);
 
-        // El email es opcional según el flujo, pero lo mantenemos si lo tienes
-        // configurado
         if (user.getEmail() != null) {
-            emailService.enviarCorreoBienvenida(user.getEmail(), user.getNickname());
+            emailService.enviarCorreoBienvenida(user.getEmail(), user.getUsername());
         }
     }
 
     @Override
     public UsuarioEntity validarCredenciales(LoginDTO datos) {
-        // Buscamos por Nickname (RF-01)
-        UsuarioEntity user = usuarioRepository.findByNickname(datos.getNickname())
+        // Buscamos por username (RF-01)
+        UsuarioEntity user = usuarioRepository.findByUsername(datos.getUsername())
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
 
-        if (!passwordEncoder.matches(datos.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(datos.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("PASSWORD_INCORRECTO");
         }
         return user;
@@ -92,34 +90,33 @@ public class UsuarioService implements IUsuarioService {
     public void actualizarPassword(String email, String newPassword) {
         UsuarioEntity user = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         usuarioRepository.save(user);
     }
 
     @Override
-    public void actualizarPasswordByNickname(String nickname, String newPassword) {
-        UsuarioEntity user = usuarioRepository.findByNickname(nickname)
+    public void actualizarPasswordByUsername(String username, String newPassword) {
+        UsuarioEntity user = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         usuarioRepository.save(user);
     }
 
     @Override
-    public void actualizarNickname(String currentNickname, String newNickname) {
-        // Verificar que el nuevo nickname no esté en uso
-        if (usuarioRepository.existsByNickname(newNickname)) {
-            throw new RuntimeException("NICKNAME_DUPLICADO");
+    public void actualizarUsername(String currentUsername, String newUsername) {
+        if (usuarioRepository.existsByUsername(newUsername)) {
+            throw new RuntimeException("USERNAME_DUPLICADO");
         }
 
-        UsuarioEntity user = usuarioRepository.findByNickname(currentNickname)
+        UsuarioEntity user = usuarioRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
-        user.setNickname(newNickname);
+        user.setUsername(newUsername);
         usuarioRepository.save(user);
     }
 
     @Override
-    public void actualizarProfilePicture(String nickname, String profilePicture) {
-        UsuarioEntity user = usuarioRepository.findByNickname(nickname)
+    public void actualizarProfilePicture(String username, String profilePicture) {
+        UsuarioEntity user = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
         user.setProfilePicture(profilePicture);
         usuarioRepository.save(user);

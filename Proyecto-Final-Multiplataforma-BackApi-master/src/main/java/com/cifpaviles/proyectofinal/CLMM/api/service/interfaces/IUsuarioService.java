@@ -2,10 +2,10 @@ package com.cifpaviles.proyectofinal.CLMM.api.service.interfaces;
 
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
 import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
-
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 
 public interface IUsuarioService {
+
     /**
      * Valida si el usuario existe y si la contraseña coincide.
      * @return El objeto UsuarioEntity si es válido.
@@ -29,23 +29,23 @@ public interface IUsuarioService {
     void enviarCorreoRecuperacion(String email, String token);
 
     /**
-     * Actualiza la contraseña del usuario.
+     * Actualiza la contraseña del usuario por email (flujo reset-password).
      */
     void actualizarPassword(String email, String newPassword);
 
     /**
-     * Actualiza la contraseña del usuario por nickname.
+     * Actualiza la contraseña del usuario por username.
      */
-    void actualizarPasswordByNickname(String nickname, String newPassword);
+    void actualizarPasswordByUsername(String username, String newPassword);
 
     /**
-     * Actualiza el nickname de un usuario.
-     * @throws RuntimeException si el nuevo nickname ya está en uso.
+     * Actualiza el username de un usuario.
+     * @throws RuntimeException si el nuevo username ya está en uso.
      */
-    void actualizarNickname(String currentNickname, String newNickname);
+    void actualizarUsername(String currentUsername, String newUsername);
 
     /**
      * Actualiza la foto de perfil de un usuario.
      */
-    void actualizarProfilePicture(String nickname, String profilePicture);
+    void actualizarProfilePicture(String username, String profilePicture);
 }

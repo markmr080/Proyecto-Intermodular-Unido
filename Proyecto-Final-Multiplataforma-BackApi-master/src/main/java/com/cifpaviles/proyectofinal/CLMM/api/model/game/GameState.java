@@ -23,6 +23,10 @@ public class GameState {
     // Fase general: ESPERANDO, COLOCACION, COMBATE, FIN
     private String fase;
 
+    // Referencia a MySQL
+    private Long idPartidaMysql;
+    private boolean statsGuardadas = false;
+
     public GameState(Player p1, Player p2) {
         this.jugador1 = p1;
         this.jugador2 = p2;
@@ -96,4 +100,10 @@ public class GameState {
 
     public String getFase() { return fase; }
     public void setFase(String fase) { this.fase = fase; }
+
+    public Long getIdPartidaMysql() { return idPartidaMysql; }
+    public void setIdPartidaMysql(Long idPartidaMysql) { this.idPartidaMysql = idPartidaMysql; }
+
+    public boolean isStatsGuardadas() { return statsGuardadas; }
+    public void setStatsGuardadas(boolean statsGuardadas) { this.statsGuardadas = statsGuardadas; }
 }

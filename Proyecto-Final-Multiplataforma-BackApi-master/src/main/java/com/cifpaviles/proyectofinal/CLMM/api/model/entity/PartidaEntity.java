@@ -1,100 +1,84 @@
 package com.cifpaviles.proyectofinal.CLMM.api.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
+/**
+ * Entidad JPA que representa la tabla PARTIDAS (reestructurada).
+ * 
+ * Cambios respecto a la versión anterior:
+ *   - jugador1 (String) → host (ManyToOne FK → USUARIOS)
+ *   - Se eliminan: nombreJugador1, avatarJugador1, jugador2, nombreJugador2, avatarJugador2, codigoSala, turno
+ *   - Se añaden: ganador (ManyToOne FK → USUARIOS), fechaInicio, fechaFin
+ *   - estado: ENUM ampliado con EN_ESPERA y CAIDA_SERVIDOR
+ * 
+ * La gestión de sala (código de sala, turno) es ahora in-memory via GameState/GameRoomManager.
+ * El 2º jugador se referencia desde PARTIDA_STATS (MongoDB).
+ */
 @Entity
 @Table(name = "partidas")
 public class PartidaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "id_partida")
+    private Long id;
 
-    @Column(name = "jugador1")
-    private String jugador1;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_host", nullable = false)
+    private UsuarioEntity host;
 
-    @Column(name = "nombre_jugador1")
-    private String nombreJugador1;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ganador_id")
+    private UsuarioEntity ganador;
 
-    @Column(name = "avatar_jugador1")
-    private String avatarJugador1;
-
-    @Column(name = "jugador2")
-    private String jugador2;
-
-    @Column(name = "nombre_jugador2")
-    private String nombreJugador2;
-
-    @Column(name = "avatar_jugador2")
-    private String avatarJugador2;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
     private EstadoPartida estado;
 
-    @Column(name = "codigo_sala", unique = true)
-    private String codigoSala;
+    @Column(name = "fecha_inicio")
+    private LocalDateTime fechaInicio;
 
-    @Column(name = "turno")
-    private String turno;
+    @Column(name = "fecha_fin")
+    private LocalDateTime fechaFin;
 
-    public long getId() {
+    // -------------------------------------------------------
+    //  Constructores
+    // -------------------------------------------------------
+    public PartidaEntity() {}
+
+    public PartidaEntity(UsuarioEntity host, EstadoPartida estado) {
+        this.host = host;
+        this.estado = estado;
+        this.fechaInicio = LocalDateTime.now();
+    }
+
+    // -------------------------------------------------------
+    //  Getters y Setters
+    // -------------------------------------------------------
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getJugador1() {
-        return jugador1;
+    public UsuarioEntity getHost() {
+        return host;
     }
 
-    public void setJugador1(String jugador1) {
-        this.jugador1 = jugador1;
+    public void setHost(UsuarioEntity host) {
+        this.host = host;
     }
 
-    public String getNombreJugador1() {
-        return nombreJugador1;
+    public UsuarioEntity getGanador() {
+        return ganador;
     }
 
-    public void setNombreJugador1(String nombreJugador1) {
-        this.nombreJugador1 = nombreJugador1;
-    }
-
-    public String getAvatarJugador1() {
-        return avatarJugador1;
-    }
-
-    public void setAvatarJugador1(String avatarJugador1) {
-        this.avatarJugador1 = avatarJugador1;
-    }
-
-    public String getJugador2() {
-        return jugador2;
-    }
-
-    public void setJugador2(String jugador2) {
-        this.jugador2 = jugador2;
-    }
-
-    public String getNombreJugador2() {
-        return nombreJugador2;
-    }
-
-    public void setNombreJugador2(String nombreJugador2) {
-        this.nombreJugador2 = nombreJugador2;
-    }
-
-    public String getAvatarJugador2() {
-        return avatarJugador2;
-    }
-
-    public void setAvatarJugador2(String avatarJugador2) {
-        this.avatarJugador2 = avatarJugador2;
+    public void setGanador(UsuarioEntity ganador) {
+        this.ganador = ganador;
     }
 
     public EstadoPartida getEstado() {
@@ -105,19 +89,19 @@ public class PartidaEntity {
         this.estado = estado;
     }
 
-    public String getCodigoSala() {
-        return codigoSala;
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
     }
 
-    public void setCodigoSala(String codigoSala) {
-        this.codigoSala = codigoSala;
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
     }
 
-    public String getTurno() {
-        return turno;
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
     }
 
-    public void setTurno(String turno) {
-        this.turno = turno;
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
     }
 }

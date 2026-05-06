@@ -17,10 +17,12 @@ export class Perfil implements OnInit {
 
   currentUser: UserDB | undefined;
   stats: StatsDTO = {
-    nickname: '',
+    username: '',
+    partidasJugadas: 0,
     partidasGanadas: 0,
-    impactosAcertados: 0,
-    impactosFallados: 0,
+    hitsAcertados: 0,
+    hitsFallados: 0,
+    barcosHundidos: 0,
     punteria: '0%'
   };
 
@@ -66,8 +68,8 @@ export class Perfil implements OnInit {
     if (!this.currentUser) return;
 
     // Cargamos las estadísticas reales desde MySQL
-    const nickname = this.currentUser.username;
-    this.authService.getUserStats(nickname).subscribe({
+    const username = this.currentUser.username;
+    this.authService.getUserStats(username).subscribe({
       next: (data) => {
         this.stats = data;
       },
@@ -80,11 +82,11 @@ export class Perfil implements OnInit {
 
   cambiarAvatar(url: string) {
     if (this.currentUser && this.currentUser.profilePicture !== url) {
-      const nickname = this.currentUser.username;
+      const username = this.currentUser.username;
       this.isSavingAvatar = true;
       this.avatarSuccess = false;
 
-      this.authService.updateProfilePicture(nickname, url).subscribe({
+      this.authService.updateProfilePicture(username, url).subscribe({
         next: () => {
           this.isSavingAvatar = false;
           this.avatarSuccess = true;

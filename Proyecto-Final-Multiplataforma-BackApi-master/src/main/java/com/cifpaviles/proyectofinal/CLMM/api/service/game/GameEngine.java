@@ -36,9 +36,11 @@ public class GameEngine {
         if (celdaDestino == CellStatus.BARCO) {
             enemigo.getTablero()[x][y] = CellStatus.TOCADO;
             enemigo.recibirDano();
-            state.setMensajeEstado("Â¡Impacto de " + atacante.getNombre() + "!");
+            atacante.incrementarHitsAcertados();
+            state.setMensajeEstado("¡Impacto de " + atacante.getNombre() + "!");
         } else if (celdaDestino == CellStatus.AGUA) {
             enemigo.getTablero()[x][y] = CellStatus.AGUA_GOLPEADA;
+            atacante.incrementarHitsFallados();
             state.setMensajeEstado(atacante.getNombre() + " ha fallado.");
         }
 

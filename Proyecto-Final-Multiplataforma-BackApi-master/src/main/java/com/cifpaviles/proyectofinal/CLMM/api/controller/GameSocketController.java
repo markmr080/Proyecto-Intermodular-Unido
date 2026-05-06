@@ -1,5 +1,11 @@
 package com.cifpaviles.proyectofinal.CLMM.api.controller;
 
+import com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida;
+import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity;
+import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
+import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
+import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
+import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEstadisticasService;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -16,16 +22,31 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
+import java.util.Optional;
+
 @Component
 public class GameSocketController {
 
     private final SocketIOServer server;
     private final GameRoomManager roomManager;
+    private final CharacterFactory characterFactory;
+    private final PartidaRepository partidaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final IEstadisticasService estadisticasService;
 
     @Autowired
-    public GameSocketController(SocketIOServer server, GameRoomManager roomManager) {
+    public GameSocketController(SocketIOServer server, 
+                                GameRoomManager roomManager, 
+                                CharacterFactory characterFactory,
+                                PartidaRepository partidaRepository,
+                                UsuarioRepository usuarioRepository,
+                                IEstadisticasService estadisticasService) {
         this.server = server;
         this.roomManager = roomManager;
+        this.characterFactory = characterFactory;
+        this.partidaRepository = partidaRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.estadisticasService = estadisticasService;
     }
 
     @PostConstruct
@@ -54,10 +75,8 @@ public class GameSocketController {
         
         // Si no hay estado, creamos uno con jugadores dummy (se actualizarán al unirse)
         if (engine.getState() == null) {
-            // Inicialmente creamos dos jugadores vacíos, pero usamos la lógica de CharacterFactory
-            // para asignarles un personaje base.
-            Player p1 = new Player(mensaje.getJugadorId(), mensaje.getJugadorNombre(), CharacterFactory.crearPersonaje("ARTILLERO"));
-            Player p2 = new Player("enemigo-dummy", "Esperando...", CharacterFactory.crearPersonaje("COMANDANTE"));
+            Player p1 = new Player(mensaje.getJugadorId(), mensaje.getJugadorNombre(), characterFactory.crearPersonaje("ARTILLERO"));
+            Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("COMANDANTE"));
             GameState newState = new GameState(p1, p2);
             engine.setState(newState);
         } else {
@@ -78,6 +97,15 @@ public class GameSocketController {
         GameEngine engine = roomManager.getRoom(mensaje.getRoomCode());
         if (engine != null && engine.getState() != null) {
             engine.procesarDisparo(mensaje.getJugadorId(), mensaje.getX(), mensaje.getY());
+            
+            // Verificar si el juego terminó tras el disparo
+            if (!engine.getState().isJuegoActivo() && engine.getState().getIdPartidaMysql() != null && !engine.getState().isStatsGuardadas()) {
+                engine.getState().setStatsGuardadas(true);
+                finalizarPartidaBD(engine.getState());
+                // Removemos la sala de memoria para evitar que se reutilice con datos corruptos si juegan otra vez
+                roomManager.removeRoom(mensaje.getRoomCode());
+            }
+
             difundirEstado(mensaje.getRoomCode(), engine.getState());
         }
     }
@@ -99,7 +127,6 @@ public class GameSocketController {
             Player p = state.getJugador1().getId().equals(mensaje.getJugadorId()) ? state.getJugador1() : state.getJugador2();
             
             if (p != null) {
-                // message contains a 2D array of string, we need to map it to CellStatus
                 com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus[][] newTablero = new com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus[10][10];
                 for(int i=0; i<10; i++) {
                     for(int j=0; j<10; j++) {
@@ -110,13 +137,66 @@ public class GameSocketController {
                 p.setListoParaCombate(true);
             }
             
-            // Si ambos están listos, pasamos a COMBATE
-            if (state.getJugador1().isListoParaCombate() && state.getJugador2().isListoParaCombate()) {
+            // Si ambos están listos, pasamos a COMBATE y persistimos en DB
+            if (state.getJugador1().isListoParaCombate() && state.getJugador2().isListoParaCombate() && !state.getFase().equals("COMBATE")) {
                 state.setFase("COMBATE");
                 state.setMensajeEstado("¡Comienza la batalla! Turno de " + state.getJugadorActivo().getNombre());
+                
+                iniciarPartidaBD(state);
             }
             
             difundirEstado(mensaje.getRoomCode(), state);
+        }
+    }
+
+    private void iniciarPartidaBD(GameState state) {
+        Optional<UsuarioEntity> hostOpt = usuarioRepository.findByUsername(state.getJugador1().getNombre());
+        if (hostOpt.isPresent()) {
+            PartidaEntity partida = new PartidaEntity(hostOpt.get(), EstadoPartida.EN_CURSO);
+            partidaRepository.save(partida);
+            state.setIdPartidaMysql(partida.getId());
+        }
+    }
+
+    private void finalizarPartidaBD(GameState state) {
+        if (state.getIdPartidaMysql() == null) return;
+
+        Optional<PartidaEntity> partidaOpt = partidaRepository.findById(state.getIdPartidaMysql());
+        if (partidaOpt.isPresent()) {
+            PartidaEntity partida = partidaOpt.get();
+            partida.setEstado(EstadoPartida.FINALIZADA);
+            partida.setFechaFin(java.time.LocalDateTime.now());
+
+            // Determinar ganador
+            String ganadorNombre = state.getGanadorId().equals(state.getJugador1().getId()) 
+                                    ? state.getJugador1().getNombre() 
+                                    : state.getJugador2().getNombre();
+            
+            Optional<UsuarioEntity> ganadorOpt = usuarioRepository.findByUsername(ganadorNombre);
+            ganadorOpt.ifPresent(partida::setGanador);
+
+            partidaRepository.save(partida);
+
+            // Guardar stats en MongoDB para Jugador 1
+            guardarStatsJugador(state.getJugador1(), partida.getId());
+            // Guardar stats en MongoDB para Jugador 2
+            guardarStatsJugador(state.getJugador2(), partida.getId());
+        }
+    }
+
+    private void guardarStatsJugador(Player player, Long idPartida) {
+        Optional<UsuarioEntity> userOpt = usuarioRepository.findByUsername(player.getNombre());
+        if (userOpt.isPresent()) {
+            UsuarioEntity user = userOpt.get();
+            estadisticasService.guardarStatsPartida(
+                    idPartida, 
+                    user.getId(), 
+                    null, // idPersonaje (opcional, dejamos null de momento o podríamos buscar el PersonajeEntity)
+                    player.getHitsAcertados(), 
+                    player.getHitsFallados(), 
+                    player.getBarcosHundidos(), 
+                    user.getUsername()
+            );
         }
     }
 
@@ -145,31 +225,12 @@ public class GameSocketController {
         private int x;
         private int y;
         private String roomCode;
-
-        public String getJugadorId() {
-            return jugadorId;
-        }
-
-        public void setJugadorId(String jugadorId) {
-            this.jugadorId = jugadorId;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public void setX(int x) {
-            this.x = x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public void setY(int y) {
-            this.y = y;
-        }
-
+        public String getJugadorId() { return jugadorId; }
+        public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
+        public int getX() { return x; }
+        public void setX(int x) { this.x = x; }
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
         public String getRoomCode() { return roomCode; }
         public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
     }
@@ -178,23 +239,10 @@ public class GameSocketController {
         private String jugadorId;
         private String habilidadId;
         private String roomCode;
-
-        public String getJugadorId() {
-            return jugadorId;
-        }
-
-        public void setJugadorId(String jugadorId) {
-            this.jugadorId = jugadorId;
-        }
-
-        public String getHabilidadId() {
-            return habilidadId;
-        }
-
-        public void setHabilidadId(String habilidadId) {
-            this.habilidadId = habilidadId;
-        }
-
+        public String getJugadorId() { return jugadorId; }
+        public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
+        public String getHabilidadId() { return habilidadId; }
+        public void setHabilidadId(String habilidadId) { this.habilidadId = habilidadId; }
         public String getRoomCode() { return roomCode; }
         public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
     }
@@ -203,7 +251,6 @@ public class GameSocketController {
         private String jugadorId;
         private String roomCode;
         private String[][] tablero; // matriz 10x10 de Strings ("AGUA", "BARCO")
-
         public String getJugadorId() { return jugadorId; }
         public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
         public String getRoomCode() { return roomCode; }

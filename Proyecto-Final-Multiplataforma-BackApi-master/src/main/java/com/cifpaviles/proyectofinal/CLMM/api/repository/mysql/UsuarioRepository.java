@@ -6,13 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
+/**
+ * Repositorio JPA para la entidad UsuarioEntity.
+ * Métodos renombrados: findByNickname → findByUsername, existsByNickname → existsByUsername.
+ */
 @Repository
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
 
-    boolean existsByEmail(String Email);
-    boolean existsByNickname(String nombre);
-    Optional<UsuarioEntity> findByNickname(String nombre);
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
+    Optional<UsuarioEntity> findByUsername(String username);
     Optional<UsuarioEntity> findByEmail(String email);
-
 }

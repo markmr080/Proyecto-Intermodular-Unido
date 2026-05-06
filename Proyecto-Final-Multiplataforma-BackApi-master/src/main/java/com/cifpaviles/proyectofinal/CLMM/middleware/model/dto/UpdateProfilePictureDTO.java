@@ -2,28 +2,31 @@ package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * DTO para actualizar la foto de perfil de un usuario.
+ * Campo renombrado: nickname → username.
+ */
 public class UpdateProfilePictureDTO {
 
-    @NotBlank(message = "El nickname es obligatorio")
-    private String nickname;
+    @NotBlank(message = "El username es obligatorio")
+    private String username;
 
     @NotBlank(message = "La URL de la imagen es obligatoria")
     private String profilePicture;
 
-    public UpdateProfilePictureDTO() {
-    }
+    public UpdateProfilePictureDTO() {}
 
-    public UpdateProfilePictureDTO(String nickname, String profilePicture) {
-        this.nickname = nickname;
+    public UpdateProfilePictureDTO(String username, String profilePicture) {
+        this.username = username;
         this.profilePicture = profilePicture;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getProfilePicture() {

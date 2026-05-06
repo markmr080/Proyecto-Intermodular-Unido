@@ -17,10 +17,12 @@ export interface AuthResponse {
 }
 
 export interface StatsDTO {
-  nickname: string;
+  username: string;
+  partidasJugadas: number;
   partidasGanadas: number;
-  impactosAcertados: number;
-  impactosFallados: number;
+  hitsAcertados: number;
+  hitsFallados: number;
+  barcosHundidos: number;
   punteria: string;
 }
 
@@ -50,7 +52,7 @@ export class AuthService {
   private cachedFingerprint: string | null = null;
 
   private readonly MIDDLEWARE_CREDS = {
-    nickname: 'middleware_admin',
+    username: 'middleware_admin',
     password: 'clave_secreta_del_middleware_2026'
   };
 
@@ -158,7 +160,7 @@ export class AuthService {
   // -------------------------------------------------------
 
   register(username: string, email: string, password: string): Observable<any> {
-    const body = { nickname: username, email, password };
+    const body = { username, email, password };
     return this.withMiddlewareToken((token, fp) =>
       this.http.post(`${this.API_URL}/register`, body, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
@@ -171,7 +173,7 @@ export class AuthService {
   // -------------------------------------------------------
 
   login(username: string, password: string): Observable<any> {
-    const body = { nickname: username, password };
+    const body = { username, password };
 
     return from(this.generarFingerprint()).pipe(
       switchMap(fp =>
@@ -237,9 +239,9 @@ export class AuthService {
   /**
    * Cambia la contraseña de un usuario en el backend.
    */
-  updatePassword(nickname: string, newPassword: string): Observable<any> {
+  updatePassword(username: string, newPassword: string): Observable<any> {
     return this.withMiddlewareToken((token, fp) =>
-      this.http.post(`${this.API_URL}/update-password`, { nickname, newPassword }, {
+      this.http.post(`${this.API_URL}/update-password`, { username, newPassword }, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
       })
     );
@@ -248,9 +250,9 @@ export class AuthService {
   /**
    * Cambia el nickname de un usuario en el backend.
    */
-  updateNickname(currentNickname: string, newNickname: string): Observable<any> {
+  updateNickname(currentUsername: string, newUsername: string): Observable<any> {
     return this.withMiddlewareToken((token, fp) =>
-      this.http.post(`${this.API_URL}/update-nickname`, { currentNickname, newNickname }, {
+      this.http.post(`${this.API_URL}/update-nickname`, { currentUsername, newUsername }, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
       })
     );
@@ -268,11 +270,11 @@ export class AuthService {
   /**
    * Actualiza la foto de perfil en el backend y en sessionStorage.
    */
-  updateProfilePicture(nickname: string, url: string): Observable<any> {
+  updateProfilePicture(username: string, url: string): Observable<any> {
     sessionStorage.setItem(this.PIC_KEY, url);
     this.refreshUser();
     return this.withMiddlewareToken((token, fp) =>
-      this.http.post(`${this.API_URL}/update-profile-picture`, { nickname, profilePicture: url }, {
+      this.http.post(`${this.API_URL}/update-profile-picture`, { username, profilePicture: url }, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
       })
     );
@@ -287,9 +289,9 @@ export class AuthService {
    * Devuelve un Observable<StatsDTO> para que el componente pueda
    * reaccionar cuando lleguen los datos.
    */
-  getUserStats(nickname: string): Observable<StatsDTO> {
+  getUserStats(username: string): Observable<StatsDTO> {
     return this.withMiddlewareToken((token, fp) =>
-      this.http.get<StatsDTO>(`${this.STATS_URL}/jugador/${nickname}`, {
+      this.http.get<StatsDTO>(`${this.STATS_URL}/jugador/${username}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
       })
     );

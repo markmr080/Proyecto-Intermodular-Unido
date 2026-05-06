@@ -18,6 +18,11 @@ public class Player {
     // Nuevo campo para saber si ha terminado de colocar barcos
     private boolean listoParaCombate = false;
 
+    // Estadísticas
+    private int hitsAcertados = 0;
+    private int hitsFallados = 0;
+    private int barcosHundidos = 0;
+
     public Player(String id, String nombre, GameCharacter personaje) {
         this.id = id;
         this.nombre = nombre;
@@ -82,4 +87,13 @@ public class Player {
     public void setHaAtacadoEsteTurno(boolean estado) { 
         this.haAtacadoEsteTurno = estado; 
     }
+
+    public int getHitsAcertados() { return hitsAcertados; }
+    public void incrementarHitsAcertados() { this.hitsAcertados++; }
+
+    public int getHitsFallados() { return hitsFallados; }
+    public void incrementarHitsFallados() { this.hitsFallados++; }
+
+    public int getBarcosHundidos() { return barcosHundidos; }
+    public void incrementarBarcosHundidos() { this.barcosHundidos++; }
 }

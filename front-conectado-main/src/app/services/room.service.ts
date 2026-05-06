@@ -19,7 +19,7 @@ export interface Room {
   providedIn: 'root'
 })
 export class RoomService {
-  private readonly API_URL = 'http://localhost:8080/api/partidas';
+  private readonly API_URL = 'http://localhost:8080/api/lobby';
   private http = inject(HttpClient);
 
   getRooms(): Observable<Room[]> {
@@ -30,7 +30,7 @@ export class RoomService {
     return this.http.post<Room>(this.API_URL, room);
   }
 
-  deleteRoom(id: number): Observable<void> {
+  deleteRoom(id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 

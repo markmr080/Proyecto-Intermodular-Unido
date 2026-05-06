@@ -1,23 +1,27 @@
 package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
+/**
+ * DTO para el login.
+ * Campo renombrado: nickname → username.
+ */
 public class LoginDTO {
 
-    private String nickname;
+    private String username;
     private String password;
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setContrasenia(String contrasenia) {
-        this.password = contrasenia;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

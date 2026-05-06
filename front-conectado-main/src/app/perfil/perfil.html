@@ -58,16 +58,24 @@
         <h3>Estadísticas del Guerrero</h3>
         <div class="stats-content">
           <div class="stat-item">
+            <span class="stat-label">Partidas Jugadas</span>
+            <span class="stat-value">{{ stats?.partidasJugadas }}</span>
+          </div>
+          <div class="stat-item">
             <span class="stat-label">Partidas Ganadas</span>
             <span class="stat-value">{{ stats?.partidasGanadas }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">Impactos Acertados</span>
-            <span class="stat-value">{{ stats?.impactosAcertados }}</span>
+            <span class="stat-value">{{ stats?.hitsAcertados }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">Impactos Fallados</span>
-            <span class="stat-value">{{ stats?.impactosFallados }}</span>
+            <span class="stat-value">{{ stats?.hitsFallados }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Barcos Hundidos</span>
+            <span class="stat-value">{{ stats?.barcosHundidos }}</span>
           </div>
           <div class="stat-punteria">
             <span class="label">Puntería Total</span>

@@ -8,9 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida;
-import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity;
-import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
 import com.corundumstudio.socketio.SocketIOServer;
 
 import jakarta.annotation.PostConstruct;
@@ -19,16 +16,16 @@ import jakarta.annotation.PostConstruct;
 public class SocketService {
 
     private final SocketIOServer server;
-    private final PartidaRepository partidaRepository;
+    private final LobbyManager lobbyManager;
 
     // Mapa para asociar userId con socketId (y viceversa para limpieza)
     private final Map<String, UUID> userSockets = new ConcurrentHashMap<>();
     private final Map<UUID, String> socketUsers = new ConcurrentHashMap<>();
 
     @Autowired
-    public SocketService(SocketIOServer server, PartidaRepository partidaRepository) {
+    public SocketService(SocketIOServer server, LobbyManager lobbyManager) {
         this.server = server;
-        this.partidaRepository = partidaRepository;
+        this.lobbyManager = lobbyManager;
     }
 
     @PostConstruct
@@ -45,9 +42,8 @@ public class SocketService {
                 System.out.println("Lobby: Usuario desconectado: " + userId);
 
                 // Limpieza automática: si el usuario era dueño de alguna sala abierta
-                // (ESPERANDO), la borramos
-                partidaRepository.findAll().stream()
-                        .filter(p -> userId.equals(p.getJugador1()) && p.getEstado() == EstadoPartida.ESPERANDO)
+                lobbyManager.getAllRooms().stream()
+                        .filter(p -> userId.equals(p.getJugador1()) && "ESPERANDO".equals(p.getEstado()))
                         .forEach(p -> {
                             System.out.println(
                                     "Lobby: Limpiando sala fantasma del usuario " + userId + ": " + p.getCodigoSala());
@@ -59,7 +55,7 @@ public class SocketService {
                                             "El administrador se ha desconectado.");
                                 }
                             }
-                            partidaRepository.delete(p);
+                            lobbyManager.removeRoom(p.getCodigoSala());
                         });
             }
         });
@@ -74,7 +70,7 @@ public class SocketService {
         // Jugador solicita unirse a una sala
         server.addEventListener("solicitar-unirse", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
                 String ownerId = partidaOpt.get().getJugador1();
                 UUID ownerSocketId = userSockets.get(ownerId);
@@ -91,14 +87,13 @@ public class SocketService {
             String requesterName = (String) data.get("requesterName");
             String requesterAvatar = (String) data.get("requesterAvatar");
 
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
-                PartidaEntity partida = partidaOpt.get();
+                LobbyRoom partida = partidaOpt.get();
                 partida.setJugador2(requesterId);
                 partida.setNombreJugador2(requesterName);
                 partida.setAvatarJugador2(requesterAvatar);
-                partida.setEstado(EstadoPartida.EN_CURSO);
-                partidaRepository.save(partida);
+                partida.setEstado("EN_CURSO");
 
                 UUID requesterSocketId = userSockets.get(requesterId);
                 if (requesterSocketId != null) {
@@ -119,9 +114,9 @@ public class SocketService {
 
         // Cerrar sala manualmente
         server.addEventListener("cerrar-sala", String.class, (cliente, codigoSala, ackRequest) -> {
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
-                PartidaEntity partida = partidaOpt.get();
+                LobbyRoom partida = partidaOpt.get();
                 String jugador2Id = partida.getJugador2();
                 if (jugador2Id != null) {
                     UUID j2Socket = userSockets.get(jugador2Id);
@@ -129,7 +124,7 @@ public class SocketService {
                         server.getClient(j2Socket).sendEvent("sala-cerrada", "El administrador ha cerrado la sala.");
                     }
                 }
-                partidaRepository.delete(partida);
+                lobbyManager.removeRoom(codigoSala);
                 System.out.println("Lobby: Sala cerrada manualmente: " + codigoSala);
             }
         });
@@ -138,9 +133,9 @@ public class SocketService {
         server.addEventListener("iniciar-partida", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
             System.out.println("Lobby: Solicitud 'iniciar-partida' recibida para sala: " + codigoSala);
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
-                PartidaEntity partida = partidaOpt.get();
+                LobbyRoom partida = partidaOpt.get();
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
                 System.out.println("Lobby: Sala encontrada. J1=" + j1Id + ", J2=" + j2Id);
@@ -161,6 +156,7 @@ public class SocketService {
                 System.out.println("Lobby: ERROR - No se encontró la sala: " + codigoSala);
             }
         });
+        
         // Selección de personaje
         server.addEventListener("seleccionar-personaje", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
@@ -170,9 +166,9 @@ public class SocketService {
             System.out.println(
                     "Lobby: Usuario " + userId + " seleccionó personaje " + personajeId + " en sala " + codigoSala);
 
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
-                PartidaEntity partida = partidaOpt.get();
+                LobbyRoom partida = partidaOpt.get();
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
 
@@ -189,9 +185,9 @@ public class SocketService {
         // Comenzar juego real (desde selección de personajes a partida-activa)
         server.addEventListener("comenzar-juego", String.class, (cliente, codigoSala, ackRequest) -> {
             System.out.println("Lobby: Iniciando partida activa en sala: " + codigoSala);
-            Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
-                PartidaEntity partida = partidaOpt.get();
+                LobbyRoom partida = partidaOpt.get();
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
 

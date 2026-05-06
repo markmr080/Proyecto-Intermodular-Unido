@@ -22,8 +22,8 @@ public class AuthService implements IAuthService {
     @Override
     public String login(LoginDTO loginDTO, String fingerprint) {
         // --- REGLA DE ORO DEL PDF (RN-01.1) ---
-        // Si el nickname no es "middleware_admin", ni siquiera preguntamos a la base de datos
-        if (!"middleware_admin".equals(loginDTO.getNickname())) {
+        // Si el username no es "middleware_admin", ni siquiera preguntamos a la base de datos
+        if (!"middleware_admin".equals(loginDTO.getUsername())) {
             throw new RuntimeException("401 Unauthorized: Solo el middleware_admin puede autenticarse");
         }
 
@@ -32,10 +32,10 @@ public class AuthService implements IAuthService {
 
         // 2. Si todo es correcto, generamos el token con el fingerprint incrustado
         if (fingerprint != null && !fingerprint.isBlank()) {
-            return jwtProvider.generarToken(admin.getNickname(), fingerprint);
+            return jwtProvider.generarToken(admin.getUsername(), fingerprint);
         }
         // Fallback sin fingerprint (ej.: herramientas de prueba sin cabecera)
-        return jwtProvider.generarToken(admin.getNickname());
+        return jwtProvider.generarToken(admin.getUsername());
     }
 
     @Override
@@ -70,17 +70,17 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public void updatePassword(String nickname, String newPassword) {
-        usuarioService.actualizarPasswordByNickname(nickname, newPassword);
+    public void updatePassword(String username, String newPassword) {
+        usuarioService.actualizarPasswordByUsername(username, newPassword);
     }
 
     @Override
-    public void updateNickname(String currentNickname, String newNickname) {
-        usuarioService.actualizarNickname(currentNickname, newNickname);
+    public void updateNickname(String currentUsername, String newUsername) {
+        usuarioService.actualizarUsername(currentUsername, newUsername);
     }
 
     @Override
-    public void updateProfilePicture(String nickname, String profilePicture) {
-        usuarioService.actualizarProfilePicture(nickname, profilePicture);
+    public void updateProfilePicture(String username, String profilePicture) {
+        usuarioService.actualizarProfilePicture(username, profilePicture);
     }
 }

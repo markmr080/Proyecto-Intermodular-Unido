@@ -2,34 +2,48 @@ package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
- * DTO recibido al finalizar una partida para actualizar las estadísticas del jugador.
+ * DTO recibido al finalizar una partida para guardar las estadísticas en MongoDB.
+ * Reestructurado para el nuevo modelo: por partida y con referencia a personaje.
  */
 public class ActualizarStatsDTO {
 
-    @NotBlank(message = "El nickname es obligatorio")
-    private String nickname;
+    @NotNull(message = "El id de partida es obligatorio")
+    private Long idPartida;
 
-    private boolean ganada;
+    @NotBlank(message = "El username es obligatorio")
+    private String username;
 
-    @Min(value = 0, message = "Los impactos acertados no pueden ser negativos")
-    private int impactosAcertados;
+    private Long idPersonaje;
 
-    @Min(value = 0, message = "Los impactos fallados no pueden ser negativos")
-    private int impactosFallados;
+    @Min(value = 0, message = "Los hits acertados no pueden ser negativos")
+    private int hitsAcertados;
+
+    @Min(value = 0, message = "Los hits fallados no pueden ser negativos")
+    private int hitsFallados;
+
+    @Min(value = 0, message = "Los barcos hundidos no pueden ser negativos")
+    private int barcosHundidos;
 
     // --- Getters y Setters ---
 
-    public String getNickname() { return nickname; }
-    public void setNickname(String nickname) { this.nickname = nickname; }
+    public Long getIdPartida() { return idPartida; }
+    public void setIdPartida(Long idPartida) { this.idPartida = idPartida; }
 
-    public boolean isGanada() { return ganada; }
-    public void setGanada(boolean ganada) { this.ganada = ganada; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public int getImpactosAcertados() { return impactosAcertados; }
-    public void setImpactosAcertados(int impactosAcertados) { this.impactosAcertados = impactosAcertados; }
+    public Long getIdPersonaje() { return idPersonaje; }
+    public void setIdPersonaje(Long idPersonaje) { this.idPersonaje = idPersonaje; }
 
-    public int getImpactosFallados() { return impactosFallados; }
-    public void setImpactosFallados(int impactosFallados) { this.impactosFallados = impactosFallados; }
+    public int getHitsAcertados() { return hitsAcertados; }
+    public void setHitsAcertados(int hitsAcertados) { this.hitsAcertados = hitsAcertados; }
+
+    public int getHitsFallados() { return hitsFallados; }
+    public void setHitsFallados(int hitsFallados) { this.hitsFallados = hitsFallados; }
+
+    public int getBarcosHundidos() { return barcosHundidos; }
+    public void setBarcosHundidos(int barcosHundidos) { this.barcosHundidos = barcosHundidos; }
 }
