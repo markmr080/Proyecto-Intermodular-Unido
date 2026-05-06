@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity;
 import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
-import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 
 import jakarta.annotation.PostConstruct;
@@ -45,20 +44,23 @@ public class SocketService {
                 socketUsers.remove(cliente.getSessionId());
                 System.out.println("Lobby: Usuario desconectado: " + userId);
 
-                // Limpieza automática: si el usuario era dueño de alguna sala abierta (ESPERANDO), la borramos
+                // Limpieza automática: si el usuario era dueño de alguna sala abierta
+                // (ESPERANDO), la borramos
                 partidaRepository.findAll().stream()
-                    .filter(p -> userId.equals(p.getJugador1()) && p.getEstado() == EstadoPartida.ESPERANDO)
-                    .forEach(p -> {
-                        System.out.println("Lobby: Limpiando sala fantasma del usuario " + userId + ": " + p.getCodigoSala());
-                        String j2 = p.getJugador2();
-                        if (j2 != null) {
-                            UUID j2Socket = userSockets.get(j2);
-                            if (j2Socket != null) {
-                                server.getClient(j2Socket).sendEvent("sala-cerrada", "El administrador se ha desconectado.");
+                        .filter(p -> userId.equals(p.getJugador1()) && p.getEstado() == EstadoPartida.ESPERANDO)
+                        .forEach(p -> {
+                            System.out.println(
+                                    "Lobby: Limpiando sala fantasma del usuario " + userId + ": " + p.getCodigoSala());
+                            String j2 = p.getJugador2();
+                            if (j2 != null) {
+                                UUID j2Socket = userSockets.get(j2);
+                                if (j2Socket != null) {
+                                    server.getClient(j2Socket).sendEvent("sala-cerrada",
+                                            "El administrador se ha desconectado.");
+                                }
                             }
-                        }
-                        partidaRepository.delete(p);
-                    });
+                            partidaRepository.delete(p);
+                        });
             }
         });
 
@@ -110,7 +112,8 @@ public class SocketService {
         server.addEventListener("rechazar-solicitud", String.class, (cliente, requesterId, ackRequest) -> {
             UUID requesterSocketId = userSockets.get(requesterId);
             if (requesterSocketId != null) {
-                server.getClient(requesterSocketId).sendEvent("solicitud-rechazada", "El administrador ha rechazado tu solicitud.");
+                server.getClient(requesterSocketId).sendEvent("solicitud-rechazada",
+                        "El administrador ha rechazado tu solicitud.");
             }
         });
 
@@ -141,7 +144,7 @@ public class SocketService {
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
                 System.out.println("Lobby: Sala encontrada. J1=" + j1Id + ", J2=" + j2Id);
-                
+
                 if (j2Id != null) {
                     UUID j2Socket = userSockets.get(j2Id);
                     if (j2Socket != null) {
@@ -151,7 +154,7 @@ public class SocketService {
                         System.out.println("Lobby: ERROR - No se encontró socket para J2: " + j2Id);
                     }
                 }
-                
+
                 System.out.println("Lobby: Notificando a J1 (" + j1Id + ") en socket " + cliente.getSessionId());
                 cliente.sendEvent("partida-iniciada", codigoSala);
             } else {
@@ -163,15 +166,16 @@ public class SocketService {
             String codigoSala = (String) data.get("codigoSala");
             String userId = (String) data.get("userId");
             Integer personajeId = (Integer) data.get("personajeId");
-            
-            System.out.println("Lobby: Usuario " + userId + " seleccionó personaje " + personajeId + " en sala " + codigoSala);
-            
+
+            System.out.println(
+                    "Lobby: Usuario " + userId + " seleccionó personaje " + personajeId + " en sala " + codigoSala);
+
             Optional<PartidaEntity> partidaOpt = partidaRepository.findByCodigoSala(codigoSala);
             if (partidaOpt.isPresent()) {
                 PartidaEntity partida = partidaOpt.get();
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
-                
+
                 String targetId = userId.equals(j1Id) ? j2Id : j1Id;
                 if (targetId != null) {
                     UUID targetSocket = userSockets.get(targetId);
@@ -190,12 +194,14 @@ public class SocketService {
                 PartidaEntity partida = partidaOpt.get();
                 String j1Id = partida.getJugador1();
                 String j2Id = partida.getJugador2();
-                
+
                 UUID j1Socket = userSockets.get(j1Id);
                 UUID j2Socket = (j2Id != null) ? userSockets.get(j2Id) : null;
-                
-                if (j1Socket != null) server.getClient(j1Socket).sendEvent("juego-comenzado", codigoSala);
-                if (j2Socket != null) server.getClient(j2Socket).sendEvent("juego-comenzado", codigoSala);
+
+                if (j1Socket != null)
+                    server.getClient(j1Socket).sendEvent("juego-comenzado", codigoSala);
+                if (j2Socket != null)
+                    server.getClient(j2Socket).sendEvent("juego-comenzado", codigoSala);
             }
         });
     }
