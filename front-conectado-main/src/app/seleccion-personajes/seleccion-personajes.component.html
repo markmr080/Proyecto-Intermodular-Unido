@@ -1,126 +1,108 @@
-<div class="sj-wrapper">
+<div class="sp-wrapper">
+  <div class="sp-background-overlay"></div>
 
-  <!-- ===== PANEL SUPERIOR IZQUIERDA: Avatares de jugadores ===== -->
-  <div class="sj-jugadores-panel">
-
-    <div class="sj-jugador-card" [class.listo]="jugador1Listo">
-      <img [src]="jugador1?.avatar" [alt]="jugador1?.username" class="sj-jugador-avatar" />
-      <span class="sj-jugador-nombre">{{ jugador1?.username }}</span>
+  <!-- ===== PANEL JUGADORES (arriba izquierda) ===== -->
+  <div class="sp-jugadores-panel">
+    <div class="sp-jugador-card" [class.listo]="jugador1Listo">
+      <img [src]="jugador1?.avatar" [alt]="jugador1?.username" class="sp-jugador-avatar" />
+      <span class="sp-jugador-nombre">{{ jugador1?.username }}</span>
       @if (jugador1Listo) {
-      <span class="sj-tick">✔</span>
+        <span class="sp-tick">✔</span>
       }
     </div>
 
-    <div class="sj-jugador-card" [class.listo]="jugador2Listo">
-      <img [src]="jugador2?.avatar" [alt]="jugador2?.username" class="sj-jugador-avatar" />
-      <span class="sj-jugador-nombre">{{ jugador2?.username }}</span>
+    <div class="sp-jugador-card" [class.listo]="jugador2Listo">
+      <img [src]="jugador2?.avatar" [alt]="jugador2?.username" class="sp-jugador-avatar" />
+      <span class="sp-jugador-nombre">{{ jugador2?.username }}</span>
       @if (jugador2Listo) {
-      <span class="sj-tick">✔</span>
+        <span class="sp-tick">✔</span>
       }
     </div>
 
-    <p class="sj-hint">
+    <p class="sp-hint">
       @if (!jugador1Listo && !jugador2Listo) {
-      Selecciona tu personaje para continuar
+        Selecciona tu personaje para continuar
       } @else if (jugador1Listo && !jugador2Listo) {
-      ¡Listo! Esperando al Jugador 2…
+        ¡Listo! Esperando al Jugador 2…
       } @else if (!jugador1Listo && jugador2Listo) {
-      Jugador 2 listo. ¡Elige tú también!
+        Jugador 2 listo. ¡Elige tú también!
       } @else {
-      ¡Ambos listos! Podéis empezar la batalla.
+        ¡Ambos listos! Podéis empezar la batalla.
       }
     </p>
   </div>
 
-  <!-- ===== ÁREA CENTRAL: Carrusel de personajes ===== -->
-  <div class="sj-carousel-area">
-    @if (personajes.length > 0) {
-      <!-- Botón anterior -->
-      <button class="sj-arrow sj-arrow--left" (click)="anterior()" aria-label="Personaje anterior">
-        <span class="sj-arrow-icon">&#9664;</span>
-        <span class="sj-arrow-label">anterior</span>
-      </button>
+  <!-- ===== TÍTULO ===== -->
+  <h1 class="sp-titulo">Selección de Personaje</h1>
 
-      <!-- Tarjeta del personaje -->
-      <div class="sj-personaje-card">
+  <!-- ===== CARRUSEL CENTRAL ===== -->
+  <div class="sp-carousel-area">
 
-        <!-- Foto del personaje -->
-        <div class="sj-personaje-img-wrapper">
-          <img [src]="personajeActual.imagen" [alt]="personajeActual.nombre" class="sj-personaje-img" />
-          <div class="sj-personaje-overlay">
-            <h2 class="sj-personaje-nombre">{{ personajeActual.nombre }}</h2>
-            <span class="sj-personaje-faccion">{{ personajeActual.faccion }}</span>
-          </div>
-        </div>
+    <!-- Flecha izquierda -->
+    <button class="sp-arrow sp-arrow--left" (click)="anterior()" aria-label="Personaje anterior">
+      &#10094;
+    </button>
 
-        <!-- Estadísticas -->
-        <div class="sj-stats-panel">
-          <p class="sj-descripcion">{{ personajeActual.descripcion }}</p>
-          <div class="sj-stats-grid">
-            <div class="sj-stat">
-              <span class="sj-stat-label">Fuerza</span>
-              <div class="sj-stat-bar">
-                <div class="sj-stat-fill fuerza" [style.width]="statPorcentaje(personajeActual.stats.fuerza)"></div>
-              </div>
-              <span class="sj-stat-val">{{ personajeActual.stats.fuerza }}</span>
-            </div>
-            <div class="sj-stat">
-              <span class="sj-stat-label">Resistencia</span>
-              <div class="sj-stat-bar">
-                <div class="sj-stat-fill resistencia" [style.width]="statPorcentaje(personajeActual.stats.resistencia)">
-                </div>
-              </div>
-              <span class="sj-stat-val">{{ personajeActual.stats.resistencia }}</span>
-            </div>
-            <div class="sj-stat">
-              <span class="sj-stat-label">Velocidad</span>
-              <div class="sj-stat-bar">
-                <div class="sj-stat-fill velocidad" [style.width]="statPorcentaje(personajeActual.stats.velocidad)"></div>
-              </div>
-              <span class="sj-stat-val">{{ personajeActual.stats.velocidad }}</span>
-            </div>
-            <div class="sj-stat">
-              <span class="sj-stat-label">Liderazgo</span>
-              <div class="sj-stat-bar">
-                <div class="sj-stat-fill liderazgo" [style.width]="statPorcentaje(personajeActual.stats.liderazgo)"></div>
-              </div>
-              <span class="sj-stat-val">{{ personajeActual.stats.liderazgo }}</span>
-            </div>
-          </div>
-        </div>
+    <!-- Tarjeta del personaje -->
+    <div class="sp-personaje-card">
 
-        <!-- Indicadores de página -->
-        <div class="sj-dots">
-          @for (p of personajes; track p.id; let i = $index) {
-          <span class="sj-dot" [class.active]="i === indiceActual"></span>
+      <!-- Imagen -->
+      <div class="sp-card-image-wrapper">
+        <img [src]="personajeActual.imagen" [alt]="personajeActual.nombre" class="sp-card-img" />
+        <div class="sp-card-overlay"></div>
+      </div>
+
+      <!-- Footer: nombre -->
+      <div class="sp-card-footer">
+        <span class="sp-char-name">{{ personajeActual.nombre }}</span>
+      </div>
+
+      <!-- Sección de barcos -->
+      <div class="sp-flota-panel">
+        <h3 class="sp-flota-titulo">⚓ Flota</h3>
+        <div class="sp-barcos-lista">
+          @for (barco of personajeActual.barcos; track $index) {
+            <div class="sp-barco-row">
+              <span class="sp-barco-label">Barco {{ $index + 1 }}</span>
+              <div class="sp-barco-casillas">
+                @for (c of range(barco.tamano); track c) {
+                  <div class="sp-casilla"></div>
+                }
+              </div>
+              <span class="sp-barco-size">{{ barco.tamano }}</span>
+            </div>
           }
         </div>
       </div>
 
-      <!-- Botón siguiente -->
-      <button class="sj-arrow sj-arrow--right" (click)="siguiente()" aria-label="Personaje siguiente">
-        <span class="sj-arrow-icon">&#9654;</span>
-        <span class="sj-arrow-label">siguiente</span>
-      </button>
-    } @else {
-      <p style="color: white; text-align: center;">Cargando personajes...</p>
-    }
+      <!-- Dots de paginación -->
+      <div class="sp-dots">
+        @for (p of personajes; track p.id; let i = $index) {
+          <span class="sp-dot" [class.active]="i === indiceActual"></span>
+        }
+      </div>
+
+    </div>
+
+    <!-- Flecha derecha -->
+    <button class="sp-arrow sp-arrow--right" (click)="siguiente()" aria-label="Personaje siguiente">
+      &#10095;
+    </button>
+
   </div>
 
-  <!-- ===== BOTONES INFERIORES ===== -->
-  <div class="sj-actions">
-    <button class="sj-btn-seleccionar" (click)="seleccionar()">
-      @if (jugadorActual === 1 && jugador1Listo) {
-      ✔ Personaje elegido
-      } @else if (jugadorActual === 2 && jugador2Listo) {
-      ✔ Personaje elegido
+  <!-- ===== BOTONES ===== -->
+  <div class="sp-actions">
+    <button class="sp-btn-seleccionar" (click)="seleccionar()">
+      @if ((jugadorActual === 1 && jugador1Listo) || (jugadorActual === 2 && jugador2Listo)) {
+        ✔ Personaje elegido
       } @else {
-      Seleccionar
+        Seleccionar
       }
     </button>
 
-    @if (ambosProntos) {
-      <button class="sj-btn-empezar activo" (click)="empezarPartida()">
+    @if (jugadorActual === 1) {
+      <button class="sp-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
         ⚔ Empieza la partida
       </button>
     }
