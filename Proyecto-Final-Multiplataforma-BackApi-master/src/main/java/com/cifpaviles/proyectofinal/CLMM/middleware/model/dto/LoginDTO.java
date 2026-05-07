@@ -1,7 +1,6 @@
 package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 /**
  * DTO para el login.
