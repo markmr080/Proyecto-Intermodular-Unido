@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { RoomService, Room } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
+import { PersonajeService, PersonajeBackend } from '../services/personaje.service';
 import { Subject, takeUntil } from 'rxjs';
 
 export interface Personaje {
@@ -18,6 +19,7 @@ export interface Personaje {
     liderazgo: number;
   };
   descripcion: string;
+  flota: any[];
 }
 
 @Component({
@@ -31,54 +33,13 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   roomService = inject(RoomService);
   socketService = inject(SocketService);
+  personajeService = inject(PersonajeService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
   private destroy$ = new Subject<void>();
 
-  personajes: Personaje[] = [
-    {
-      id: 1,
-      nombre: 'Primaris Space Marine',
-      faccion: 'Adeptus Astartes',
-      imagen: 'https://api.dicebear.com/7.x/bottts/svg?seed=SpaceMarine&backgroundColor=1a1a2e',
-      stats: { fuerza: 90, resistencia: 85, velocidad: 70, liderazgo: 80 },
-      descripcion: 'Súper soldado del Emperador, forjado para la guerra eterna.'
-    },
-    {
-      id: 2,
-      nombre: 'Caos Guerrero',
-      faccion: 'Chaos Space Marines',
-      imagen: 'https://api.dicebear.com/7.x/bottts/svg?seed=ChaosWarrior&backgroundColor=3d0000',
-      stats: { fuerza: 95, resistencia: 80, velocidad: 65, liderazgo: 75 },
-      descripcion: 'Renegado corrompido por los dioses del Caos.'
-    },
-    {
-      id: 3,
-      nombre: 'Eldar Guardián',
-      faccion: 'Craftworld Eldar',
-      imagen: 'https://api.dicebear.com/7.x/bottts/svg?seed=EldarGuardian&backgroundColor=001a3d',
-      stats: { fuerza: 65, resistencia: 60, velocidad: 95, liderazgo: 70 },
-      descripcion: 'Guerrero ágil de una raza ancestral en declive.'
-    },
-    {
-      id: 4,
-      nombre: 'Necron Guerrero',
-      faccion: 'Necrons',
-      imagen: 'https://api.dicebear.com/7.x/bottts/svg?seed=NecronWarrior&backgroundColor=003d1a',
-      stats: { fuerza: 80, resistencia: 100, velocidad: 55, liderazgo: 65 },
-      descripcion: 'Ser inmortal de metal y energía que despertó del sueño eterno.'
-    },
-    {
-      id: 5,
-      nombre: 'Ork Nob',
-      faccion: 'Orks',
-      imagen: 'https://api.dicebear.com/7.x/bottts/svg?seed=OrkNob&backgroundColor=2d3d00',
-      stats: { fuerza: 100, resistencia: 90, velocidad: 60, liderazgo: 55 },
-      descripcion: 'Bruto salvaje que vive para la batalla y el WAAAGH!'
-    }
-  ];
-
+  personajes: Personaje[] = [];
   indiceActual = 0;
 
   // Datos de la sala
@@ -96,6 +57,35 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   // ¿El usuario actual es el jugador 1 (owner) o el 2?
   jugadorActual: 1 | 2 = 1;
 
+  testMode = false;
+
+  private readonly uiMetadata: { [key: string]: any } = {
+    'Wulfrik': {
+      faccion: 'Norsca',
+      imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg',
+      stats: { fuerza: 95, resistencia: 120, velocidad: 70, liderazgo: 80 },
+      descripcion: 'Campeón de los dioses oscuros.'
+    },
+    'Aislinn': {
+      faccion: 'Altos Elfos',
+      imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
+      stats: { fuerza: 90, resistencia: 100, velocidad: 95, liderazgo: 90 },
+      descripcion: 'Comandante de la guardia del mar.'
+    },
+    'Lokhir': {
+      faccion: 'Elfos Oscuros',
+      imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
+      stats: { fuerza: 85, resistencia: 110, velocidad: 85, liderazgo: 75 },
+      descripcion: 'Corsario de Karond Kar.'
+    },
+    'Aranessa': {
+      faccion: 'Costa del Vampiro',
+      imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
+      stats: { fuerza: 100, resistencia: 105, velocidad: 60, liderazgo: 85 },
+      descripcion: 'Reina Pirata de Sartosa.'
+    }
+  };
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (!user) {
@@ -103,11 +93,29 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.personajeService.getPersonajes().pipe(takeUntil(this.destroy$)).subscribe(backends => {
+      this.personajes = backends.map(b => {
+        const meta = this.uiMetadata[b.nombre] || this.uiMetadata['Wulfrik'];
+        return {
+          id: b.id,
+          nombre: b.nombre,
+          faccion: meta.faccion,
+          imagen: meta.imagen,
+          stats: meta.stats,
+          descripcion: meta.descripcion,
+          flota: b.flota
+        };
+      });
+    });
+
     this.roomCode = this.route.snapshot.queryParamMap.get('code') || '';
+    this.testMode = this.route.snapshot.queryParamMap.get('testMode') === 'true';
+
     if (!this.roomCode) {
       this.router.navigate(['/lista-salas']);
       return;
     }
+
 
     // Registrar usuario para asegurar socket activo
     this.socketService.registrarUsuario(user.username);
@@ -138,6 +146,14 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         };
 
         this.jugadorActual = user.username === ownerName ? 1 : 2;
+
+        if (this.testMode) {
+          this.jugador2 = {
+            username: 'Jugador 2 (Bot)',
+            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=Bot`
+          };
+          this.seleccionJugador2 = 0; // Selecciona al primer personaje
+        }
       });
 
     // Escuchar selecciones del otro jugador
@@ -213,11 +229,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   empezarPartida(): void {
     if (!this.ambosProntos) return;
     
-    // Solo el admin (J1) dispara el evento de inicio real para evitar duplicados, 
-    // aunque ambos podrían.
-    if (this.jugadorActual === 1) {
-      this.socketService.comenzarJuego(this.roomCode);
-    }
+    // Cualquiera de los dos jugadores puede iniciar la partida una vez ambos estén listos
+    this.socketService.comenzarJuego(this.roomCode);
   }
 
   statPorcentaje(valor: number): string {

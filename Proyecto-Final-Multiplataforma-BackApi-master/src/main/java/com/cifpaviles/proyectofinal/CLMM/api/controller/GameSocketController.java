@@ -128,12 +128,16 @@ public class GameSocketController {
             
             if (p != null) {
                 com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus[][] newTablero = new com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus[10][10];
+                int totalVidas = 0;
                 for(int i=0; i<10; i++) {
                     for(int j=0; j<10; j++) {
-                        newTablero[i][j] = com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus.valueOf(mensaje.getTablero()[i][j]);
+                        com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus st = com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus.valueOf(mensaje.getTablero()[i][j]);
+                        newTablero[i][j] = st;
+                        if(st == com.cifpaviles.proyectofinal.CLMM.api.model.game.CellStatus.BARCO) totalVidas++;
                     }
                 }
                 p.setTablero(newTablero);
+                p.setVidas(totalVidas);
                 p.setListoParaCombate(true);
             }
             

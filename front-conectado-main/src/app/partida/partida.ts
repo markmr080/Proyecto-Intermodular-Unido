@@ -168,7 +168,7 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   testPartida() {
-    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode } });
+    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode, testMode: 'true' } });
   }
 }
 

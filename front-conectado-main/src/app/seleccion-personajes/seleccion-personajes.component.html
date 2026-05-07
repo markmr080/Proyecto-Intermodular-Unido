@@ -34,75 +34,77 @@
 
   <!-- ===== ÁREA CENTRAL: Carrusel de personajes ===== -->
   <div class="sj-carousel-area">
+    @if (personajes.length > 0) {
+      <!-- Botón anterior -->
+      <button class="sj-arrow sj-arrow--left" (click)="anterior()" aria-label="Personaje anterior">
+        <span class="sj-arrow-icon">&#9664;</span>
+        <span class="sj-arrow-label">anterior</span>
+      </button>
 
-    <!-- Botón anterior -->
-    <button class="sj-arrow sj-arrow--left" (click)="anterior()" aria-label="Personaje anterior">
-      <span class="sj-arrow-icon">&#9664;</span>
-      <span class="sj-arrow-label">anterior</span>
-    </button>
+      <!-- Tarjeta del personaje -->
+      <div class="sj-personaje-card">
 
-    <!-- Tarjeta del personaje -->
-    <div class="sj-personaje-card">
-
-      <!-- Foto del personaje -->
-      <div class="sj-personaje-img-wrapper">
-        <img [src]="personajeActual.imagen" [alt]="personajeActual.nombre" class="sj-personaje-img" />
-        <div class="sj-personaje-overlay">
-          <h2 class="sj-personaje-nombre">{{ personajeActual.nombre }}</h2>
-          <span class="sj-personaje-faccion">{{ personajeActual.faccion }}</span>
-        </div>
-      </div>
-
-      <!-- Estadísticas -->
-      <div class="sj-stats-panel">
-        <p class="sj-descripcion">{{ personajeActual.descripcion }}</p>
-        <div class="sj-stats-grid">
-          <div class="sj-stat">
-            <span class="sj-stat-label">Fuerza</span>
-            <div class="sj-stat-bar">
-              <div class="sj-stat-fill fuerza" [style.width]="statPorcentaje(personajeActual.stats.fuerza)"></div>
-            </div>
-            <span class="sj-stat-val">{{ personajeActual.stats.fuerza }}</span>
+        <!-- Foto del personaje -->
+        <div class="sj-personaje-img-wrapper">
+          <img [src]="personajeActual.imagen" [alt]="personajeActual.nombre" class="sj-personaje-img" />
+          <div class="sj-personaje-overlay">
+            <h2 class="sj-personaje-nombre">{{ personajeActual.nombre }}</h2>
+            <span class="sj-personaje-faccion">{{ personajeActual.faccion }}</span>
           </div>
-          <div class="sj-stat">
-            <span class="sj-stat-label">Resistencia</span>
-            <div class="sj-stat-bar">
-              <div class="sj-stat-fill resistencia" [style.width]="statPorcentaje(personajeActual.stats.resistencia)">
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="sj-stats-panel">
+          <p class="sj-descripcion">{{ personajeActual.descripcion }}</p>
+          <div class="sj-stats-grid">
+            <div class="sj-stat">
+              <span class="sj-stat-label">Fuerza</span>
+              <div class="sj-stat-bar">
+                <div class="sj-stat-fill fuerza" [style.width]="statPorcentaje(personajeActual.stats.fuerza)"></div>
               </div>
+              <span class="sj-stat-val">{{ personajeActual.stats.fuerza }}</span>
             </div>
-            <span class="sj-stat-val">{{ personajeActual.stats.resistencia }}</span>
-          </div>
-          <div class="sj-stat">
-            <span class="sj-stat-label">Velocidad</span>
-            <div class="sj-stat-bar">
-              <div class="sj-stat-fill velocidad" [style.width]="statPorcentaje(personajeActual.stats.velocidad)"></div>
+            <div class="sj-stat">
+              <span class="sj-stat-label">Resistencia</span>
+              <div class="sj-stat-bar">
+                <div class="sj-stat-fill resistencia" [style.width]="statPorcentaje(personajeActual.stats.resistencia)">
+                </div>
+              </div>
+              <span class="sj-stat-val">{{ personajeActual.stats.resistencia }}</span>
             </div>
-            <span class="sj-stat-val">{{ personajeActual.stats.velocidad }}</span>
-          </div>
-          <div class="sj-stat">
-            <span class="sj-stat-label">Liderazgo</span>
-            <div class="sj-stat-bar">
-              <div class="sj-stat-fill liderazgo" [style.width]="statPorcentaje(personajeActual.stats.liderazgo)"></div>
+            <div class="sj-stat">
+              <span class="sj-stat-label">Velocidad</span>
+              <div class="sj-stat-bar">
+                <div class="sj-stat-fill velocidad" [style.width]="statPorcentaje(personajeActual.stats.velocidad)"></div>
+              </div>
+              <span class="sj-stat-val">{{ personajeActual.stats.velocidad }}</span>
             </div>
-            <span class="sj-stat-val">{{ personajeActual.stats.liderazgo }}</span>
+            <div class="sj-stat">
+              <span class="sj-stat-label">Liderazgo</span>
+              <div class="sj-stat-bar">
+                <div class="sj-stat-fill liderazgo" [style.width]="statPorcentaje(personajeActual.stats.liderazgo)"></div>
+              </div>
+              <span class="sj-stat-val">{{ personajeActual.stats.liderazgo }}</span>
+            </div>
           </div>
+        </div>
+
+        <!-- Indicadores de página -->
+        <div class="sj-dots">
+          @for (p of personajes; track p.id; let i = $index) {
+          <span class="sj-dot" [class.active]="i === indiceActual"></span>
+          }
         </div>
       </div>
 
-      <!-- Indicadores de página -->
-      <div class="sj-dots">
-        @for (p of personajes; track p.id; let i = $index) {
-        <span class="sj-dot" [class.active]="i === indiceActual"></span>
-        }
-      </div>
-    </div>
-
-    <!-- Botón siguiente -->
-    <button class="sj-arrow sj-arrow--right" (click)="siguiente()" aria-label="Personaje siguiente">
-      <span class="sj-arrow-icon">&#9654;</span>
-      <span class="sj-arrow-label">siguiente</span>
-    </button>
-
+      <!-- Botón siguiente -->
+      <button class="sj-arrow sj-arrow--right" (click)="siguiente()" aria-label="Personaje siguiente">
+        <span class="sj-arrow-icon">&#9654;</span>
+        <span class="sj-arrow-label">siguiente</span>
+      </button>
+    } @else {
+      <p style="color: white; text-align: center;">Cargando personajes...</p>
+    }
   </div>
 
   <!-- ===== BOTONES INFERIORES ===== -->
@@ -117,8 +119,8 @@
       }
     </button>
 
-    @if (jugadorActual === 1) {
-      <button class="sj-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
+    @if (ambosProntos) {
+      <button class="sj-btn-empezar activo" (click)="empezarPartida()">
         ⚔ Empieza la partida
       </button>
     }

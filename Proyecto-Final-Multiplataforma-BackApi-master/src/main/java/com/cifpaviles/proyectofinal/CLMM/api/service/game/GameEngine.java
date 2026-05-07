@@ -22,22 +22,33 @@ public class GameEngine {
      */
     public void procesarDisparo(String jugadorId, int x, int y) {
         // 1. Validar si es el turno del jugador
-        if (!state.getTurnoActualId().equals(jugadorId)) return;
+        if (!state.getTurnoActualId().equals(jugadorId))
+            return;
 
         Player atacante = state.getJugadorActivo();
         Player enemigo = state.getEnemigo();
 
         // 2. No permitir disparar dos veces en el mismo turno normal
-        if (atacante.isHaAtacadoEsteTurno()) return;
+        if (atacante.isHaAtacadoEsteTurno())
+            return;
 
         // 3. Ejecutar lÃ³gica de impacto
         CellStatus celdaDestino = enemigo.getTablero()[x][y];
-        
+
         if (celdaDestino == CellStatus.BARCO) {
             enemigo.getTablero()[x][y] = CellStatus.TOCADO;
             enemigo.recibirDano();
             atacante.incrementarHitsAcertados();
-            state.setMensajeEstado("¡Impacto de " + atacante.getNombre() + "!");
+
+            boolean[] visited = new boolean[100];
+            if (dfsSunkCheck(enemigo.getTablero(), x, y, visited)) {
+                boolean[] visitedMark = new boolean[100];
+                marcarHundido(enemigo.getTablero(), x, y, visitedMark);
+                atacante.incrementarBarcosHundidos();
+                state.setMensajeEstado("¡Barco HUNDIDO por " + atacante.getNombre() + "!");
+            } else {
+                state.setMensajeEstado("¡Impacto de " + atacante.getNombre() + "!");
+            }
         } else if (celdaDestino == CellStatus.AGUA) {
             enemigo.getTablero()[x][y] = CellStatus.AGUA_GOLPEADA;
             atacante.incrementarHitsFallados();
@@ -46,16 +57,54 @@ public class GameEngine {
 
         atacante.setHaAtacadoEsteTurno(true);
 
-        // 4. Aplicar REGLA DE 20 SEGUNDOS (segÃºn tu boceto)
-        // Tras atacar, el oponente tiene 20s para reaccionar.
+        // 4. Aplicar REGLA DE 20 SEGUNDOS
         activarFaseReaccion();
-        
+
         // 5. Verificar si alguien ha ganado
         verificarVictoria();
     }
 
+    private boolean dfsSunkCheck(CellStatus[][] tablero, int x, int y, boolean[] visited) {
+        if (x < 0 || x >= 10 || y < 0 || y >= 10)
+            return true;
+        int idx = x * 10 + y;
+        if (visited[idx])
+            return true;
+        visited[idx] = true;
+
+        CellStatus status = tablero[x][y];
+        if (status == CellStatus.AGUA || status == CellStatus.AGUA_GOLPEADA || status == CellStatus.HUNDIDO)
+            return true;
+        if (status == CellStatus.BARCO)
+            return false;
+
+        boolean up = dfsSunkCheck(tablero, x - 1, y, visited);
+        boolean down = dfsSunkCheck(tablero, x + 1, y, visited);
+        boolean left = dfsSunkCheck(tablero, x, y - 1, visited);
+        boolean right = dfsSunkCheck(tablero, x, y + 1, visited);
+
+        return up && down && left && right;
+    }
+
+    private void marcarHundido(CellStatus[][] tablero, int x, int y, boolean[] visited) {
+        if (x < 0 || x >= 10 || y < 0 || y >= 10)
+            return;
+        int idx = x * 10 + y;
+        if (visited[idx])
+            return;
+        visited[idx] = true;
+
+        if (tablero[x][y] == CellStatus.TOCADO) {
+            tablero[x][y] = CellStatus.HUNDIDO;
+            marcarHundido(tablero, x - 1, y, visited);
+            marcarHundido(tablero, x + 1, y, visited);
+            marcarHundido(tablero, x, y - 1, visited);
+            marcarHundido(tablero, x, y + 1, visited);
+        }
+    }
+
     /**
-     * Activa la fase de contraataque rÃ¡pido.
+     * Activa la fase de contraataque rápido.
      */
     private void activarFaseReaccion() {
         state.setFaseReaccion(true);
@@ -70,7 +119,8 @@ public class GameEngine {
     public void usarHabilidad(String jugadorId, String habilidadId) {
         Player p = state.getJugadorActivo();
 
-        if (!p.getId().equals(jugadorId)) return;
+        if (!p.getId().equals(jugadorId))
+            return;
         if (p.isHabilidadUsadaEsteTurno()) {
             state.setMensajeEstado("Ya has usado una habilidad en este turno.");
             return;
@@ -84,7 +134,7 @@ public class GameEngine {
         if (habilidad != null && habilidad.estaLista()) {
             // AquÃ­ llamarÃ­amos a un ejecutor de efectos especÃ­ficos
             ejecutarEfectoHabilidad(habilidad, p);
-            
+
             habilidad.activarCooldown();
             p.setHabilidadUsadaEsteTurno(true);
             state.setMensajeEstado(p.getNombre() + " usÃ³ " + habilidad.getNombre());

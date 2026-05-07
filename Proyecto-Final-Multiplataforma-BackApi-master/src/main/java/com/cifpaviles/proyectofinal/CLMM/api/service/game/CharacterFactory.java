@@ -12,8 +12,7 @@ import java.util.Optional;
 
 /**
  * Servicio encargado de instanciar personajes específicos con sus habilidades.
- * Ahora consulta a la base de datos (PERSONAJES y PERSONAJE_FLOTA) para configurar
- * la flota de cada personaje.
+ * Consulta la base de datos para configurar la flota de cada personaje.
  */
 @Service
 public class CharacterFactory {
@@ -26,20 +25,23 @@ public class CharacterFactory {
         this.personajeFlotaRepository = personajeFlotaRepository;
     }
 
-    /**
-     * Crea un personaje basado en su nombre o ID.
-     */
     public GameCharacter crearPersonaje(String tipo) {
         GameCharacter baseCharacter;
         switch (tipo.toUpperCase()) {
-            case "ARTILLERO":
-                baseCharacter = crearArtillero();
+            case "WULFRIK":
+                baseCharacter = crearWulfrik();
                 break;
-            case "COMANDANTE":
-                baseCharacter = crearComandante();
+            case "AISLINN":
+                baseCharacter = crearAislinn();
+                break;
+            case "LOKHIR":
+                baseCharacter = crearLokhir();
+                break;
+            case "ARANESSA":
+                baseCharacter = crearAranessa();
                 break;
             default:
-                baseCharacter = crearArtillero(); // Personaje por defecto
+                baseCharacter = crearWulfrik(); // Default
         }
 
         // Leer la flota desde la BD
@@ -50,7 +52,6 @@ public class CharacterFactory {
                 baseCharacter.anadirBarcoAFlota(pf.getBarcoTipo().getNombre(), pf.getCantidad());
             }
         } else {
-            // Si no está en BD (por ej. tests o no inicializado), añadimos una flota por defecto
             baseCharacter.anadirBarcoAFlota("Portaaviones", 1);
             baseCharacter.anadirBarcoAFlota("Acorazado", 2);
             baseCharacter.anadirBarcoAFlota("Crucero", 3);
@@ -60,53 +61,52 @@ public class CharacterFactory {
         return baseCharacter;
     }
 
-    private GameCharacter crearArtillero() {
-        Skill pasiva = new Skill("PAS_01", "Puntería", "Aumenta la probabilidad de crítico", SkillType.PASIVA, 0);
-
-        GameCharacter artillero = new GameCharacter("Artillero", "Experto en ataques múltiples.", pasiva) {
+    private GameCharacter crearWulfrik() {
+        Skill pasiva = new Skill("PAS_WUL", "Cazador de Naves", "Si aciertas a un barco enemigo, ganas un disparo extra.", SkillType.PASIVA, 0);
+        GameCharacter c = new GameCharacter("Wulfrik", "Campeón de los dioses oscuros.", pasiva) {
             @Override
-            public void aplicarEfectoPasivo(GameState estado, Player dueno) {
-                // Lógica de la pasiva: Se ejecuta automáticamente.
-            }
+            public void aplicarEfectoPasivo(GameState estado, Player dueno) { }
         };
-
-        artillero.anadirHabilidadActiva(new Skill(
-            "SKL_OFF_01", 
-            "Ráfaga", 
-            "Dispara 4 veces en posiciones aleatorias.", 
-            SkillType.OFENSIVA, 
-            4 // Cooldown de 4 turnos
-        ));
-
-        artillero.anadirHabilidadActiva(new Skill(
-            "SKL_DEF_01", 
-            "Cortina de Humo", 
-            "Oculta tu tablero durante un turno.", 
-            SkillType.DEFENSIVA, 
-            5
-        ));
-
-        return artillero;
+        c.anadirHabilidadActiva(new Skill("SKL_WUL_1", "Desafío del Errante", "Fuerza al rival a revelar la posición aleatoria de un barco si fallas.", SkillType.OFENSIVA, 4));
+        c.anadirHabilidadActiva(new Skill("SKL_WUL_2", "Colmillo de los Mares", "Impacta un área en línea horizontal de 3 casillas.", SkillType.OFENSIVA, 5));
+        c.anadirHabilidadActiva(new Skill("SKL_WUL_3", "Favor Ruinoso", "Escuda una casilla. Falla automática para el enemigo.", SkillType.DEFENSIVA, 4));
+        return c;
     }
 
-    private GameCharacter crearComandante() {
-        Skill pasiva = new Skill("PAS_02", "Refuerzo", "Repara 1 de vida cada 5 turnos", SkillType.PASIVA, 0);
-        
-        GameCharacter comandante = new GameCharacter("Comandante", "Líder táctico con gran defensa.", pasiva) {
+    private GameCharacter crearAislinn() {
+        Skill pasiva = new Skill("PAS_AIS", "Señor del Mar Alto Elfo", "15% probabilidad de ignorar escudos/niebla.", SkillType.PASIVA, 0);
+        GameCharacter c = new GameCharacter("Aislinn", "Comandante de la guardia del mar.", pasiva) {
             @Override
-            public void aplicarEfectoPasivo(GameState estado, Player dueno) {
-                // Lógica de reparación
-            }
+            public void aplicarEfectoPasivo(GameState estado, Player dueno) { }
         };
+        c.anadirHabilidadActiva(new Skill("SKL_AIS_1", "Corte de Lothern", "Dos disparos independientes en dos casillas separadas.", SkillType.OFENSIVA, 4));
+        c.anadirHabilidadActiva(new Skill("SKL_AIS_2", "Ira de Mathlann", "Golpea en forma de cruz (5 casillas).", SkillType.OFENSIVA, 6));
+        c.anadirHabilidadActiva(new Skill("SKL_AIS_3", "Bruma Marina", "Oculta área 2x2. Si acierta, el golpe se anula.", SkillType.DEFENSIVA, 5));
+        return c;
+    }
 
-        comandante.anadirHabilidadActiva(new Skill(
-            "SKL_OFF_02", "Misil de Crucero", "Daña una zona de 3x3.", SkillType.OFENSIVA, 6
-        ));
+    private GameCharacter crearLokhir() {
+        Skill pasiva = new Skill("PAS_LOK", "Saqueador Especialista", "Al hundir un barco, revela una casilla del siguiente.", SkillType.PASIVA, 0);
+        GameCharacter c = new GameCharacter("Lokhir", "Corsario de Karond Kar.", pasiva) {
+            @Override
+            public void aplicarEfectoPasivo(GameState estado, Player dueno) { }
+        };
+        c.anadirHabilidadActiva(new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara a 3 casillas en diagonal.", SkillType.OFENSIVA, 4));
+        c.anadirHabilidadActiva(new Skill("SKL_LOK_2", "Furia Corsaria", "Bengalas en área 3x3. Revela barcos sin causar daño.", SkillType.OFENSIVA, 5));
+        c.anadirHabilidadActiva(new Skill("SKL_LOK_3", "Yelmo del Kraken", "Reubica uno de tus barcos enteros.", SkillType.DEFENSIVA, 6));
+        return c;
+    }
 
-        comandante.anadirHabilidadActiva(new Skill(
-            "SKL_DEF_02", "Escudo de Acero", "Bloquea el siguiente impacto.", SkillType.DEFENSIVA, 3
-        ));
-
-        return comandante;
+    private GameCharacter crearAranessa() {
+        Skill pasiva = new Skill("PAS_ARA", "Casco Reforzado", "Tu barco más pequeño requiere dos impactos para hundirse.", SkillType.PASIVA, 0);
+        GameCharacter c = new GameCharacter("Aranessa", "Reina Pirata de Sartosa.", pasiva) {
+            @Override
+            public void aplicarEfectoPasivo(GameState estado, Player dueno) { }
+        };
+        c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica", "El fuego se propaga 2x2 si impacta un barco.", SkillType.OFENSIVA, 5));
+        c.anadirHabilidadActiva(new Skill("SKL_ARA_2", "Disparo de Saloma", "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4));
+        c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels", "Anula por un turno completo cualquier disparo.", SkillType.DEFENSIVA, 6));
+        return c;
     }
 }
+
