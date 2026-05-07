@@ -4,22 +4,25 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { RoomService, Room } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
-import { PersonajeService, PersonajeBackend } from '../services/personaje.service';
 import { Subject, takeUntil } from 'rxjs';
+
+export interface Barco {
+  tamano: number; // 1 a 5 casillas
+}
 
 export interface Personaje {
   id: number;
   nombre: string;
-  faccion: string;
   imagen: string;
-  stats: {
-    fuerza: number;
-    resistencia: number;
-    velocidad: number;
-    liderazgo: number;
-  };
-  descripcion: string;
-  flota: any[];
+  barcos: Barco[];
+}
+
+function generarFlota(): Barco[] {
+  const barcos: Barco[] = [];
+  for (let i = 0; i < 5; i++) {
+    barcos.push({ tamano: Math.floor(Math.random() * 5) + 1 }); // 1 a 5 casillas
+  }
+  return barcos;
 }
 
 @Component({
@@ -33,13 +36,38 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   roomService = inject(RoomService);
   socketService = inject(SocketService);
-  personajeService = inject(PersonajeService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
   private destroy$ = new Subject<void>();
 
-  personajes: Personaje[] = [];
+  personajes: Personaje[] = [
+    {
+      id: 1,
+      nombre: 'Wulfrik',
+      imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg',
+      barcos: generarFlota()
+    },
+    {
+      id: 2,
+      nombre: 'Aislinn',
+      imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
+      barcos: generarFlota()
+    },
+    {
+      id: 3,
+      nombre: 'Lokhir',
+      imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
+      barcos: generarFlota()
+    },
+    {
+      id: 4,
+      nombre: 'Aranessa',
+      imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
+      barcos: generarFlota()
+    }
+  ];
+
   indiceActual = 0;
 
   // Datos de la sala
@@ -57,35 +85,6 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   // ¿El usuario actual es el jugador 1 (owner) o el 2?
   jugadorActual: 1 | 2 = 1;
 
-  testMode = false;
-
-  private readonly uiMetadata: { [key: string]: any } = {
-    'Wulfrik': {
-      faccion: 'Norsca',
-      imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg',
-      stats: { fuerza: 95, resistencia: 120, velocidad: 70, liderazgo: 80 },
-      descripcion: 'Campeón de los dioses oscuros.'
-    },
-    'Aislinn': {
-      faccion: 'Altos Elfos',
-      imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
-      stats: { fuerza: 90, resistencia: 100, velocidad: 95, liderazgo: 90 },
-      descripcion: 'Comandante de la guardia del mar.'
-    },
-    'Lokhir': {
-      faccion: 'Elfos Oscuros',
-      imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
-      stats: { fuerza: 85, resistencia: 110, velocidad: 85, liderazgo: 75 },
-      descripcion: 'Corsario de Karond Kar.'
-    },
-    'Aranessa': {
-      faccion: 'Costa del Vampiro',
-      imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
-      stats: { fuerza: 100, resistencia: 105, velocidad: 60, liderazgo: 85 },
-      descripcion: 'Reina Pirata de Sartosa.'
-    }
-  };
-
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (!user) {
@@ -93,29 +92,11 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.personajeService.getPersonajes().pipe(takeUntil(this.destroy$)).subscribe(backends => {
-      this.personajes = backends.map(b => {
-        const meta = this.uiMetadata[b.nombre] || this.uiMetadata['Wulfrik'];
-        return {
-          id: b.id,
-          nombre: b.nombre,
-          faccion: meta.faccion,
-          imagen: meta.imagen,
-          stats: meta.stats,
-          descripcion: meta.descripcion,
-          flota: b.flota
-        };
-      });
-    });
-
     this.roomCode = this.route.snapshot.queryParamMap.get('code') || '';
-    this.testMode = this.route.snapshot.queryParamMap.get('testMode') === 'true';
-
     if (!this.roomCode) {
       this.router.navigate(['/lista-salas']);
       return;
     }
-
 
     // Registrar usuario para asegurar socket activo
     this.socketService.registrarUsuario(user.username);
@@ -136,24 +117,16 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
           avatar: this.currentRoom.avatarJugador1 || `https://api.dicebear.com/7.x/adventurer/svg?seed=${ownerName}`
         };
 
-        const j2Name = (this.currentRoom.nombreJugador2 && this.currentRoom.nombreJugador2 !== ownerName) 
-                       ? this.currentRoom.nombreJugador2 
+        const j2Name = (this.currentRoom.nombreJugador2 && this.currentRoom.nombreJugador2 !== ownerName)
+                       ? this.currentRoom.nombreJugador2
                        : (user.username !== ownerName ? user.username : 'Jugador 2');
-        
+
         this.jugador2 = {
           username: j2Name,
           avatar: this.currentRoom.avatarJugador2 || `https://api.dicebear.com/7.x/adventurer/svg?seed=${j2Name}`
         };
 
         this.jugadorActual = user.username === ownerName ? 1 : 2;
-
-        if (this.testMode) {
-          this.jugador2 = {
-            username: 'Jugador 2 (Bot)',
-            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=Bot`
-          };
-          this.seleccionJugador2 = 0; // Selecciona al primer personaje
-        }
       });
 
     // Escuchar selecciones del otro jugador
@@ -163,10 +136,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         console.log('Selección remota recibida:', data);
         if (data.codigoSala === this.roomCode) {
           if (this.jugadorActual === 1) {
-            // Soy J1, recibo de J2
             this.seleccionJugador2 = data.personajeId;
           } else {
-            // Soy J2, recibo de J1
             this.seleccionJugador1 = data.personajeId;
           }
         }
@@ -228,12 +199,14 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
   empezarPartida(): void {
     if (!this.ambosProntos) return;
-    
-    // Cualquiera de los dos jugadores puede iniciar la partida una vez ambos estén listos
-    this.socketService.comenzarJuego(this.roomCode);
+
+    if (this.jugadorActual === 1) {
+      this.socketService.comenzarJuego(this.roomCode);
+    }
   }
 
-  statPorcentaje(valor: number): string {
-    return `${valor}%`;
+  /** Devuelve un array de longitud `n` para usar con @for en el template */
+  range(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i);
   }
 }
