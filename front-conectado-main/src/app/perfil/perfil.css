@@ -14,7 +14,10 @@
 .perfil-wrapper::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(135deg, rgba(20, 25, 45, 0.7), rgba(8, 11, 22, 0.9));
   z-index: 1;
 }
@@ -30,11 +33,19 @@
 }
 
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.panel-left, .panel-right {
+.panel-left,
+.panel-right {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -48,7 +59,7 @@
   border-radius: 12px;
   padding: 30px;
   margin-bottom: 25px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .avatar-display {
@@ -82,7 +93,10 @@
 
 .avatar-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,13 +111,18 @@
 .avatar-overlay span {
   font-size: 40px;
   color: #fff;
-  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes popIn {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 .spinner {
@@ -116,7 +135,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .info-group {
@@ -188,7 +209,7 @@
   cursor: pointer;
   padding: 3px;
   transition: all 0.3s;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .avatar-option img {
@@ -228,21 +249,25 @@
 
 /* --- Right Panel --- */
 .stats-box {
-  background: #fcebbb; /* Parchment-like color */
-  border: 4px solid #b89158;
+  background: rgba;
+  /* Parchment-like color */
+  border: 4px solid #d4af37;
   border-radius: 4px;
   padding: 40px;
   height: 100%;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-  color: #2c1e0b;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  color: #e5d3b3;
   position: relative;
-  background-image: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.05));
+  background-image: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.05));
 }
 
 .stats-box::after {
   content: '';
   position: absolute;
-  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   border: 1px solid rgba(44, 30, 11, 0.2);
   pointer-events: none;
 }
@@ -251,7 +276,7 @@
   margin: 0 0 30px 0;
   text-align: center;
   font-size: 32px;
-  color: #2c1e0b;
+  color: #e5d3b3;
   text-transform: uppercase;
   font-weight: 900;
   border-bottom: 2px solid #2c1e0b;
@@ -272,7 +297,8 @@
 
 .stat-value {
   font-weight: 800;
-  color: #8b0000; /* Dark red for values */
+  color: #8b0000;
+  /* Dark red for values */
 }
 
 .stat-punteria {
@@ -290,25 +316,29 @@
 .punteria-val {
   font-size: 64px;
   font-weight: 900;
-  color: #2c1e0b;
+  color: #dda04b;
   line-height: 1;
 }
 
 .stats-footer {
   position: absolute;
   bottom: 30px;
-  left: 0; right: 0;
+  left: 0;
+  right: 0;
   text-align: center;
   font-style: italic;
   font-size: 14px;
-  color: #5c4b37;
+  color: #e5d3b3;
   padding: 0 40px;
 }
 
 /* --- Modales Custom --- */
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   z-index: 1000;
@@ -319,12 +349,18 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
-  background: #fcebbb; /* Pergamino */
+  background: #fcebbb;
+  /* Pergamino */
   border: 4px solid #b89158;
   border-radius: 8px;
   padding: 40px;
@@ -337,13 +373,21 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .close-btn {
   position: absolute;
-  top: 15px; right: 15px;
+  top: 15px;
+  right: 15px;
   background: none;
   border: none;
   font-size: 30px;
