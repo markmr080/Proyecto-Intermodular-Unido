@@ -464,46 +464,46 @@ FASE 1 → FASE 4 → FASE 2 → FASE 3 → FASE 5 → FASE 6 → FASE 7
 ## 5. Checklist de archivos a modificar/crear/eliminar
 
 ### Crear
-- [ ] `api/config/MongoConfig.java`
-- [ ] `api/config/JpaConfig.java`
-- [ ] `api/model/entity/PersonajeEntity.java`
-- [ ] `api/model/entity/BarcosCatalogoEntity.java`
-- [ ] `api/model/entity/PersonajeFlotaEntity.java`
-- [ ] `api/model/entity/PersonajeFlotaId.java`
-- [ ] `api/model/entity/PartidaStatsDocument.java` (Mongo)
+- [x] `api/config/MongoConfig.java`
+- [x] `api/config/JpaConfig.java`
+- [x] `api/model/entity/PersonajeEntity.java`
+- [x] `api/model/entity/BarcosCatalogoEntity.java`
+- [x] `api/model/entity/PersonajeFlotaEntity.java`
+- [x] `api/model/entity/PersonajeFlotaId.java`
+- [x] `api/model/entity/PartidaStatsDocument.java` (Mongo)
 - [ ] `api/model/dto/StatsAgregadasDTO.java`
-- [ ] `api/repository/mysql/PersonajeRepository.java`
-- [ ] `api/repository/mysql/BarcosCatalogoRepository.java`
-- [ ] `api/repository/mysql/PersonajeFlotaRepository.java`
+- [x] `api/repository/mysql/PersonajeRepository.java`
+- [x] `api/repository/mysql/BarcosCatalogoRepository.java`
+- [x] `api/repository/mysql/PersonajeFlotaRepository.java`
 
 ### Modificar
-- [ ] `application.properties` — Añadir config MongoDB
-- [ ] `UsuarioEntity.java` — Renombrar campos
-- [ ] `PartidaEntity.java` — Reestructuración completa
-- [ ] `EstadoPartida.java` — Añadir valores enum
-- [ ] `UsuarioRepository.java` — Adaptar métodos
+- [x] `application.properties` — Añadir config MongoDB
+- [x] `UsuarioEntity.java` — Renombrar campos
+- [x] `PartidaEntity.java` — Reestructuración completa
+- [x] `EstadoPartida.java` — Añadir valores enum
+- [x] `UsuarioRepository.java` — Adaptar métodos
 - [ ] `PartidaRepository.java` — Adaptar métodos
-- [ ] `EstadisticasRepository.java` — Convertir a MongoRepository
-- [ ] `UsuarioService.java` — Renombramiento de campos
-- [ ] `IUsuarioService.java` — Adaptar interfaz
+- [x] `EstadisticasRepository.java` — Convertir a MongoRepository
+- [x] `UsuarioService.java` — Renombramiento de campos
+- [x] `IUsuarioService.java` — Adaptar interfaz
 - [ ] `EstadisticasService.java` — Migrar a MongoDB
 - [ ] `IEstadisticasService.java` — Actualizar interfaz
-- [ ] `AuthService.java` — Adaptar a nuevos nombres
-- [ ] `AuthController.java` — Adaptar a nuevos nombres
+- [x] `AuthService.java` — Adaptar a nuevos nombres
+- [x] `AuthController.java` — Adaptar a nuevos nombres
 - [ ] `PartidaController.java` — Adaptar al nuevo esquema
-- [ ] `GameSocketController.java` — Integrar persistencia partidas
-- [ ] `LoginDTO.java` — nickname → username
-- [ ] `RegistroDTO.java` — nickname → username
+- [x] `GameSocketController.java` — Integrar persistencia partidas
+- [x] `LoginDTO.java` — nickname → username
+- [x] `RegistroDTO.java` — nickname → username
 - [ ] `ActualizarStatsDTO.java` — Reestructurar
-- [ ] `UpdateNicknameDTO.java` — Adaptar
-- [ ] `UpdatePasswordDTO.java` — Adaptar
-- [ ] `UpdateProfilePictureDTO.java` — Adaptar
-- [ ] **Frontend** `auth.service.ts` — StatsDTO + nombres
-- [ ] **Frontend** `perfil.ts` — Adaptar stats
-- [ ] **Frontend** `perfil.html` — Nuevos campos stats
+- [x] `UpdateNicknameDTO.java` — Adaptar
+- [x] `UpdatePasswordDTO.java` — Adaptar
+- [x] `UpdateProfilePictureDTO.java` — Adaptar
+- [x] **Frontend** `auth.service.ts` — StatsDTO + nombres
+- [x] **Frontend** `perfil.ts` — Adaptar stats
+- [x] **Frontend** `perfil.html` — Nuevos campos stats
 
 ### Eliminar
-- [ ] `BarcoEntity.java`
-- [ ] `BarcoRepository.java`
-- [ ] `PartidasStatsEntity.java`
-- [ ] `PartidasStatsRepository.java` (MySQL)
+- [x] `BarcoEntity.java`
+- [x] `BarcoRepository.java`
+- [x] `PartidasStatsEntity.java`
+- [x] `PartidasStatsRepository.java` (MySQL)

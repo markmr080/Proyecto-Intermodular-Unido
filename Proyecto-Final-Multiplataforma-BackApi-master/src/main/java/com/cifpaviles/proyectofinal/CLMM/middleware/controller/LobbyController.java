@@ -1,4 +1,4 @@
-package com.cifpaviles.proyectofinal.CLMM.api.controller;
+package com.cifpaviles.proyectofinal.CLMM.middleware.controller;
 
 import com.cifpaviles.proyectofinal.CLMM.middleware.sockets.LobbyManager;
 import com.cifpaviles.proyectofinal.CLMM.middleware.sockets.LobbyRoom;
