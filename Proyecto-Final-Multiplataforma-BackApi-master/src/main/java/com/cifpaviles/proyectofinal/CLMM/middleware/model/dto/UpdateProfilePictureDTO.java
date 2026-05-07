@@ -1,6 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * DTO para actualizar la foto de perfil de un usuario.
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 public class UpdateProfilePictureDTO {
 
     @NotBlank(message = "El username es obligatorio")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "El username solo puede contener letras, números y guiones bajos")
     private String username;
 
     @NotBlank(message = "La URL de la imagen es obligatoria")

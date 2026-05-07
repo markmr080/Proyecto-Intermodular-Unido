@@ -24,7 +24,12 @@ export class RegistroComponent {
   router = inject(Router);
 
   registerForm = new FormGroup({
-    username: new FormControl('', Validators.required),
+    username: new FormControl('', [
+      Validators.required, 
+      Validators.minLength(3), 
+      Validators.maxLength(20),
+      Validators.pattern('^[a-zA-Z0-9_]+$')
+    ]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
     confirmPassword: new FormControl('', Validators.required),

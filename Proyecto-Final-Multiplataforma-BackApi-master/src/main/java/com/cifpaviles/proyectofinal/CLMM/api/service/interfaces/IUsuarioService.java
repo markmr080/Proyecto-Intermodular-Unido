@@ -48,4 +48,9 @@ public interface IUsuarioService {
      * Actualiza la foto de perfil de un usuario.
      */
     void actualizarProfilePicture(String username, String profilePicture);
+
+    /**
+     * Obtiene el perfil público de un usuario por su username.
+     */
+    com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO getProfileByUsername(String username);
 }

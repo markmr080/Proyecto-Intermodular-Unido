@@ -1,6 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -10,6 +11,7 @@ import jakarta.validation.constraints.Size;
 public class UpdatePasswordDTO {
 
     @NotBlank(message = "El username no puede estar vacío")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "El username solo puede contener letras, números y guiones bajos")
     private String username;
 
     @NotBlank(message = "La nueva contraseña no puede estar vacía")

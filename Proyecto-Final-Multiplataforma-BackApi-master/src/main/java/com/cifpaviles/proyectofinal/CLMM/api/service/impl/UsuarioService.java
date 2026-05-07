@@ -121,4 +121,15 @@ public class UsuarioService implements IUsuarioService {
         user.setProfilePicture(profilePicture);
         usuarioRepository.save(user);
     }
+
+    @Override
+    public com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO getProfileByUsername(String username) {
+        UsuarioEntity user = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
+        return new com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfilePicture()
+        );
+    }
 }

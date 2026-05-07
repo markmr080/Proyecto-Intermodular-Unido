@@ -26,11 +26,13 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of("message", "Jugador registrado con éxito"));
     }
 
-    // Ejemplo de identificación explícita: Buscar por ID como parámetro
-    @GetMapping("/{usuarioId}")
-    public ResponseEntity<?> obtenerJugador(@PathVariable Long usuarioId) {
-        // Aquí llamarías a un método del service que busque por ID
-        // return ResponseEntity.ok(usuarioService.findById(usuarioId));
-        return ResponseEntity.ok(Map.of("id", usuarioId, "info", "Datos del jugador"));
+    @GetMapping("/{username}")
+    public ResponseEntity<?> obtenerJugador(@PathVariable String username) {
+        try {
+            com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO profile = usuarioService.getProfileByUsername(username);
+            return ResponseEntity.ok(profile);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

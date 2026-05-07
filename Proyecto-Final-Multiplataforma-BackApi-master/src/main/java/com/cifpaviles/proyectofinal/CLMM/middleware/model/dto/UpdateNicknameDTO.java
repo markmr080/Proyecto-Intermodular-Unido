@@ -1,6 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.middleware.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -10,10 +11,12 @@ import jakarta.validation.constraints.Size;
 public class UpdateNicknameDTO {
 
     @NotBlank(message = "El username actual no puede estar vacío")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "El username solo puede contener letras, números y guiones bajos")
     private String currentUsername;
 
     @NotBlank(message = "El nuevo username no puede estar vacío")
-    @Size(min = 3, max = 100, message = "El username debe tener entre 3 y 100 caracteres")
+    @Size(min = 3, max = 20, message = "El username debe tener entre 3 y 20 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "El username solo puede contener letras, números y guiones bajos")
     private String newUsername;
 
     public UpdateNicknameDTO() {}
