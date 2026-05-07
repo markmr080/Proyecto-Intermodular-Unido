@@ -1,0 +1,11 @@
+## 1. Instruciones para el desarrollo del proyecto.
+- **Siempre programa de forma simple, que un metodo haga una sola cosa y hazlo de forma clara y comoda para el usuario final.**
+- **Nunca implementes una funcionalidad que no se te pida expresamente.**
+- **Siempre añade un README.md en la carpeta donde crees el nuevo componente con un enlace al HTML, TS, CSS y JS del componente.**
+- **Siempre añade una breve descripción de lo que hace el componente en el README.md del mismo.**
+- **Siempre comprueba si la funcionalidad ya existe antes de crearla, lee los docs y mira el código actual.**
+- **En caso de error, no intentes arreglarlo tú mismo, pide ayuda.**
+- **No termines de trabajar hasta que el programa no tenga errores de compilación y corra correctamente.**
+- **Si vas a programar y no estas seguro de como funciona el proyecto, antes lee todos los docs y mira el código actual**
+- **Añade comentarios a tu código explicando lo que hace, como funciona y a que otras partes del codigo referencia.**
+- **Lo primero que vas a hacer es revisar la carpeta .agents en busca de instrucciones previas y los documentos de la carpeta.**
