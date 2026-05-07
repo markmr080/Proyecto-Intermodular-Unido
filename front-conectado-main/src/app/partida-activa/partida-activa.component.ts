@@ -19,10 +19,10 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   roomCode = '';
   myUsername = '';
   myDisplayName = '';
-  
+
   gameState: any = null;
   enemyBoard: string[][] = [];
-  
+
   // --- Lógica de Colocación de Barcos ---
   myBoard: string[][] = [];
   shipsToPlace = [5, 4, 3, 3, 2];
@@ -33,7 +33,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   constructor() {
     this.myUsername = this.authService.getCurrentUsername();
     // En el futuro puedes sacar el nombre real del perfil, ahora usamos el username
-    this.myDisplayName = this.myUsername; 
+    this.myDisplayName = this.myUsername;
 
     // Inicializar tableros visuales
     for (let i = 0; i < 10; i++) {
@@ -48,7 +48,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.roomCode = this.route.snapshot.paramMap.get('code') || '';
-    
+
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
     // Le damos 500ms para asegurar la conexión de socketio subyacente
@@ -102,9 +102,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   colocarBarcoEnCelda(x: number, y: number) {
     if (this.colocacionTerminada || this.gameState?.fase !== 'COLOCACION') return;
-    
+
     const size = this.shipsToPlace[this.currentShipIndex];
-    
+
     // Verificar límites
     if (this.orientation === 'H' && y + size > 10) return;
     if (this.orientation === 'V' && x + size > 10) return;
@@ -155,7 +155,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       case 'AGUA_GOLPEADA': return 'casilla-fallo';
       case 'TOCADO': return 'casilla-tocado';
       case 'HUNDIDO': return 'casilla-hundido';
-      case 'BARCO': 
+      case 'BARCO':
         return esMiTablero ? 'casilla-barco' : 'casilla-agua'; // Enemigo no ve barcos intactos
       default: return 'casilla-agua';
     }

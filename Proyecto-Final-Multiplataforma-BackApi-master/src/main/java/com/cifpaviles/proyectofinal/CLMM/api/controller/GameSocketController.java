@@ -68,28 +68,35 @@ public class GameSocketController {
 
     @OnEvent("join-room")
     public void onJoinRoom(SocketIOClient client, JoinMessage mensaje, AckRequest ackSender) {
-        String roomCode = mensaje.getRoomCode();
-        client.joinRoom(roomCode);
-        
-        GameEngine engine = roomManager.getOrCreateRoom(roomCode);
-        
-        // Si no hay estado, creamos uno con jugadores dummy (se actualizarán al unirse)
-        if (engine.getState() == null) {
-            Player p1 = new Player(mensaje.getJugadorId(), mensaje.getJugadorNombre(), characterFactory.crearPersonaje("ARTILLERO"));
-            Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("COMANDANTE"));
-            GameState newState = new GameState(p1, p2);
-            engine.setState(newState);
-        } else {
-            // Ya había un jugador, el segundo toma el control del p2
-            GameState state = engine.getState();
-            if (state.getJugador2().getId().equals("enemigo-dummy")) {
-                state.getJugador2().setId(mensaje.getJugadorId());
-                state.getJugador2().setNombre(mensaje.getJugadorNombre());
-                state.setMensajeEstado("Ambos jugadores conectados. " + state.getMensajeEstado());
+        try {
+            String roomCode = mensaje.getRoomCode();
+            System.out.println("JOIN-ROOM RECIBIDO. Jugador: " + mensaje.getJugadorNombre() + ", Sala: " + roomCode);
+            client.joinRoom(roomCode);
+            
+            GameEngine engine = roomManager.getOrCreateRoom(roomCode);
+            
+            // Si no hay estado, creamos uno con jugadores dummy (se actualizarán al unirse)
+            if (engine.getState() == null) {
+                Player p1 = new Player(mensaje.getJugadorId(), mensaje.getJugadorNombre(), characterFactory.crearPersonaje("WULFRIK"));
+                Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"));
+                GameState newState = new GameState(p1, p2);
+                engine.setState(newState);
+            } else {
+                // Ya había un jugador, el segundo toma el control del p2
+                GameState state = engine.getState();
+                if (state.getJugador2().getId().equals("enemigo-dummy")) {
+                    state.getJugador2().setId(mensaje.getJugadorId());
+                    state.getJugador2().setNombre(mensaje.getJugadorNombre());
+                    state.setMensajeEstado("Ambos jugadores conectados. " + state.getMensajeEstado());
+                }
             }
+            
+            difundirEstado(roomCode, engine.getState());
+            System.out.println("gameState difundido con éxito a la sala " + roomCode);
+        } catch (Exception e) {
+            System.err.println("ERROR EN ONJOINROOM: ");
+            e.printStackTrace();
         }
-        
-        difundirEstado(roomCode, engine.getState());
     }
 
     @OnEvent("atacar")

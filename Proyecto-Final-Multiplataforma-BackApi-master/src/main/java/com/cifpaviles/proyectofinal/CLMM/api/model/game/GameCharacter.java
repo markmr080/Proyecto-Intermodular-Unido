@@ -10,7 +10,7 @@ import java.util.Map;
  * Cada personaje tiene una pasiva única, un conjunto de habilidades activas
  * y una flota predefinida (leída de la base de datos).
  */
-public abstract class GameCharacter {
+public class GameCharacter {
     private String nombre;
     private String descripcion;
     private Skill habilidadPasiva;
@@ -33,7 +33,7 @@ public abstract class GameCharacter {
      * @param estado El estado global del juego para poder modificarlo.
      * @param dueno El jugador que posee a este personaje.
      */
-    public abstract void aplicarEfectoPasivo(GameState estado, Player dueno);
+    public void aplicarEfectoPasivo(GameState estado, Player dueno) {}
 
     public void anadirHabilidadActiva(Skill skill) {
         this.habilidadesActivas.add(skill);

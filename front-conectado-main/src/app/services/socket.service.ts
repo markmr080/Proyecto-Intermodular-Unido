@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Subject } from 'rxjs';
 import * as io from 'socket.io-client';
 
@@ -21,7 +21,7 @@ export class SocketService {
   // --- Subjects para Juego ---
   public gameState$ = new Subject<any>();
 
-  constructor() { }
+  constructor(private ngZone: NgZone) { }
 
   public connect() {
     if (!this.socket || !this.socket.connected) {
@@ -36,19 +36,19 @@ export class SocketService {
       });
 
       // --- Listeners de Lobby ---
-      this.socket.on('nueva-solicitud', (data: any) => this.nuevaSolicitud$.next(data));
-      this.socket.on('solicitud-aceptada', (codigo: string) => this.solicitadaAceptadaInternal(codigo));
-      this.socket.on('solicitud-rechazada', (msg: string) => this.solicitudRechazada$.next(msg));
-      this.socket.on('jugador-unido', (data: any) => this.jugadorUnido$.next(data));
-      this.socket.on('sala-cerrada', (msg: string) => this.salaCerrada$.next(msg));
-      this.socket.on('partida-iniciada', (codigo: string) => this.partidaIniciada$.next(codigo));
-      this.socket.on('personaje-seleccionado', (data: any) => this.personajeSeleccionado$.next(data));
-      this.socket.on('juego-comenzado', (codigo: string) => this.juegoComenzado$.next(codigo));
+      this.socket.on('nueva-solicitud', (data: any) => this.ngZone.run(() => this.nuevaSolicitud$.next(data)));
+      this.socket.on('solicitud-aceptada', (codigo: string) => this.ngZone.run(() => this.solicitadaAceptadaInternal(codigo)));
+      this.socket.on('solicitud-rechazada', (msg: string) => this.ngZone.run(() => this.solicitudRechazada$.next(msg)));
+      this.socket.on('jugador-unido', (data: any) => this.ngZone.run(() => this.jugadorUnido$.next(data)));
+      this.socket.on('sala-cerrada', (msg: string) => this.ngZone.run(() => this.salaCerrada$.next(msg)));
+      this.socket.on('partida-iniciada', (codigo: string) => this.ngZone.run(() => this.partidaIniciada$.next(codigo)));
+      this.socket.on('personaje-seleccionado', (data: any) => this.ngZone.run(() => this.personajeSeleccionado$.next(data)));
+      this.socket.on('juego-comenzado', (codigo: string) => this.ngZone.run(() => this.juegoComenzado$.next(codigo)));
 
       // --- Listeners de Juego ---
       this.socket.on('gameState', (state: any) => {
         console.log('Nuevo estado de juego recibido:', state);
-        this.gameState$.next(state);
+        this.ngZone.run(() => this.gameState$.next(state));
       });
 
       this.socket.on('disconnect', () => {
