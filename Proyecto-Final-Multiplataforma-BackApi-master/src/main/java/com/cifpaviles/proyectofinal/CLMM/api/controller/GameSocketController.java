@@ -334,10 +334,13 @@ public class GameSocketController {
 
     /**
      * Comprueba si el juego terminó y, en ese caso:
-     *  1. Guarda las estadísticas en BD (solo si hay idPartidaMysql y no se guardaron ya).
-     *  2. Elimina la sala de memoria para que pueda crearse una nueva partida limpia.
-     * Se llama tras cada disparo y cada uso de habilidad ofensiva.
+     *  1. Guarda las estadísticas en BD de forma inmediata.
+     *  2. Programa la eliminación de la sala con 10 s de retraso para que:
+     *     - Ambos clientes reciban el gameState final antes de que la sala desaparezca.
+     *     - Un posible evento 'rendirse' tardío no encuentre la sala ya eliminada.
+     * Se llama tras cada disparo, habilidad ofensiva y evento rendirse.
      */
+    @org.springframework.scheduling.annotation.Async
     private void limpiarSalaFinalizada(String roomCode, GameEngine engine) {
         GameState state = engine.getState();
         if (state == null || state.isJuegoActivo()) return;
@@ -348,7 +351,9 @@ public class GameSocketController {
             finalizarPartidaBD(state);
         }
 
-        // Siempre eliminar la sala de memoria al terminar (modo test y multijugador)
+        // Esperar 10 s antes de eliminar la sala de memoria
+        // (garantiza que ambos clientes reciben el gameState final)
+        try { Thread.sleep(10_000); } catch (InterruptedException ignored) {}
         roomManager.removeRoom(roomCode);
         System.out.println("[SALA] Sala " + roomCode + " eliminada de memoria tras fin de partida.");
     }

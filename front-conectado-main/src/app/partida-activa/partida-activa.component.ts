@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SocketService } from '../services/socket.service';
 import { AuthService } from '../services/auth.service';
+import { RoomService } from '../services/room.service';
 
 @Component({
   selector: 'app-partida-activa',
@@ -16,6 +17,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   router = inject(Router);
   socketService = inject(SocketService);
   authService = inject(AuthService);
+  roomService = inject(RoomService);
 
   roomCode = '';
   myUsername = '';
@@ -397,22 +399,32 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Limpia todos los datos de la partida en localStorage y navega a lista de salas.
-   * Elimina: test_mode_ROOMCODE, personaje_ROOMCODE.
-   * Usa router.navigate para no perder la conexión del socket service.
+   * Limpia todos los datos de la partida al salir:
+   * 1. Elimina la sala del LobbyManager (evita sala zombie en lista de salas).
+   * 2. Limpia claves de localStorage relacionadas con esta sala.
+   * 3. Navega a lista de salas con el Router SPA.
    */
   salirDePartida(): void {
+    // Eliminar la sala del lobby para que no quede zombie ni bloquee futuras partidas
+    this.roomService.deleteRoom(this.roomCode).subscribe({
+      error: () => {} // Ignorar error si la sala ya fue eliminada
+    });
     localStorage.removeItem(`test_mode_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}`);
     this.router.navigate(['/lista-salas']);
   }
 
   /**
-   * Confirma la rendición: emite el evento al servidor y el backend
-   * declara ganador al rival y cierra la sala.
+   * Confirma la rendición:
+   * 1. Muestra inmediatamente el modal de derrota para el jugador que se rinde.
+   * 2. Emite el evento 'rendirse' al servidor para que el rival vea el modal de victoria.
    */
   confirmarRendirse(): void {
     this.mostrarConfirmacionRendirse = false;
+    // Mostrar derrota de forma inmediata en este cliente
+    this.soyGanador = false;
+    this.mostrarModal = true;
+    // Notificar al servidor: el rival recibirá gameState con juegoActivo=false y él como ganador
     this.socketService.rendirse(this.myUsername, this.roomCode);
   }
 
