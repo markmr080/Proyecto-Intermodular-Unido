@@ -369,6 +369,10 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       case 'AGUA_GOLPEADA': return 'casilla-fallo';
       case 'TOCADO': return 'casilla-tocado';
       case 'HUNDIDO': return 'casilla-hundido';
+      case 'REVELADA':
+        // En el tablero ENEMIGO se muestra como celda revelada (sabemos que hay barco).
+        // En nuestro tablero propio no aplica este estado, pero por seguridad lo tratamos igual que BARCO.
+        return esMiTablero ? 'casilla-barco' : 'casilla-revelada';
       case 'BARCO':
         return esMiTablero ? 'casilla-barco' : 'casilla-agua'; // Enemigo no ve barcos intactos
       default: return 'casilla-agua';
@@ -384,7 +388,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     let total = 0;
     for (const fila of tablero) {
       for (const celda of fila) {
-        if (celda === 'BARCO') total++;
+        // Contamos tanto BARCO como REVELADA: ambos son barcos aun a flote
+        if (celda === 'BARCO' || celda === 'REVELADA') total++;
       }
     }
     return total;

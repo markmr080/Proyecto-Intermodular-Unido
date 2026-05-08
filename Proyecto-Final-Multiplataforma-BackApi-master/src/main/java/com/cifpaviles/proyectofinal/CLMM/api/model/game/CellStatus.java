@@ -29,5 +29,13 @@ public enum CellStatus {
      * Opcional: Si todas las casillas de un barco estÃ¡n en estado TOCADO, 
      * puedes cambiarlas a HUNDIDO para efectos visuales o lÃ³gicos.
      */
-    HUNDIDO
+    HUNDIDO,
+
+    /**
+     * El jugador sabe que aquí hay un barco (revelado por habilidad de visión)
+     * pero no ha disparado sobre él: el barco está intacto.
+     * Referencias: SKL_WUL_1 (Desafío del Errante), SKL_LOK_2 (Furia Corsaria),
+     *              PAS_LOK (Saqueador Especialista).
+     */
+    REVELADA
 }
