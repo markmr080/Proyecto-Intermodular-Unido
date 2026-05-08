@@ -69,12 +69,14 @@ public class GameEngine {
         }
 
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
-            // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3 / Lokhir SKL_LOK_3: escudo de casilla
+            // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3: escudo de casilla.
+            // El escudo absorbe el impacto: la celda SIGUE siendo BARCO (el barco queda intacto)
+            // y solo se consume el escudo. El atacante pierde el disparo pero la celda no desaparece.
             if (enemigo.tieneEscudo(x, y)) {
                 enemigo.quitarEscudo(x, y);
-                enemigo.getTablero()[x][y] = CellStatus.AGUA_GOLPEADA;
+                // La celda permanece BARCO — el barco no recibe daño ni pierde vidas
                 atacante.incrementarHitsFallados();
-                state.setMensajeEstado("¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido.");
+                state.setMensajeEstado("¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido. La celda sigue en pie.");
                 state.cambiarTurno();
                 return;
             }
@@ -287,14 +289,116 @@ public class GameEngine {
         state.setMensajeEstado(encontrado ? reveal.toString() : "Furia Corsaria! Area despejada.");
     }
 
-    /** SKL_LOK_3: Escuda hasta 5 casillas BARCO propias (da extra vida al barco). */
+    /**
+     * SKL_LOK_3: Reubica aleatoriamente uno de los barcos intactos del jugador.
+     * Pasos: (1) localiza todos los grupos de celdas BARCO conectadas (barcos),
+     * (2) elige uno al azar, (3) borra esas celdas del tablero,
+     * (4) intenta colocar el barco en una nueva posicion aleatoria valida.
+     * Si no encuentra hueco libre tras 200 intentos, devuelve el barco a su posicion original.
+     */
     private void ejecutarYelmoKraken(Player owner) {
-        List<int[]> celdas = celdasConEstado(owner.getTablero(), CellStatus.BARCO);
-        celdas.removeIf(c -> owner.tieneEscudo(c[0], c[1]));
-        Collections.shuffle(celdas);
-        int n = Math.min(5, celdas.size());
-        for (int k = 0; k < n; k++) owner.anadirEscudo(celdas.get(k)[0], celdas.get(k)[1]);
-        state.setMensajeEstado("¡Yelmo del Kraken! " + n + " casillas reforzadas.");
+        List<List<int[]>> barcos = encontrarBarcos(owner.getTablero());
+        if (barcos.isEmpty()) {
+            state.setMensajeEstado("No quedan barcos intactos para reubicar.");
+            return;
+        }
+
+        // Elegir un barco al azar y recordar su posicion original
+        List<int[]> barco = barcos.get((int)(Math.random() * barcos.size()));
+        int size = barco.size();
+
+        // Borrar el barco del tablero (y sus escudos si los tuviera)
+        for (int[] c : barco) {
+            owner.getTablero()[c[0]][c[1]] = CellStatus.AGUA;
+            owner.quitarEscudo(c[0], c[1]);
+        }
+
+        // Buscar nueva posicion valida
+        boolean colocado = false;
+        int intentos = 0;
+        while (!colocado && intentos < 200) {
+            intentos++;
+            boolean horizontal = Math.random() > 0.5 || size == 1;
+            int startX, startY;
+            if (horizontal) {
+                startX = (int)(Math.random() * 10);
+                startY = (int)(Math.random() * (10 - size + 1));
+            } else {
+                startX = (int)(Math.random() * (10 - size + 1));
+                startY = (int)(Math.random() * 10);
+            }
+
+            // Calcular las celdas que ocuparia
+            List<int[]> nuevasCeldas = new ArrayList<>();
+            for (int k = 0; k < size; k++) {
+                int nx = horizontal ? startX : startX + k;
+                int ny = horizontal ? startY + k : startY;
+                nuevasCeldas.add(new int[]{nx, ny});
+            }
+
+            // Verificar que no hay barcos adyacentes (incluye diagonales)
+            boolean valido = true;
+            outer:
+            for (int[] c : nuevasCeldas) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        int ax = c[0] + dx, ay = c[1] + dy;
+                        if (ax >= 0 && ax < 10 && ay >= 0 && ay < 10) {
+                            CellStatus cs = owner.getTablero()[ax][ay];
+                            if (cs == CellStatus.BARCO) { valido = false; break outer; }
+                        }
+                    }
+                }
+            }
+
+            if (valido) {
+                for (int[] c : nuevasCeldas) owner.getTablero()[c[0]][c[1]] = CellStatus.BARCO;
+                colocado = true;
+            }
+        }
+
+        if (!colocado) {
+            // Sin hueco libre: restaurar en su posicion original
+            for (int[] c : barco) owner.getTablero()[c[0]][c[1]] = CellStatus.BARCO;
+            state.setMensajeEstado("¡Yelmo del Kraken! No hay espacio libre. El barco permanece en su lugar.");
+        } else {
+            state.setMensajeEstado("¡Yelmo del Kraken! Un barco ha sido reubicado a una nueva posicion.");
+        }
+    }
+
+    /**
+     * Encuentra todos los grupos de celdas BARCO conectadas (barcos intactos) en el tablero.
+     * Usa DFS para agrupar celdas adyacentes (sin diagonales) con estado BARCO.
+     * Referencia: ejecutarYelmoKraken (SKL_LOK_3).
+     */
+    private List<List<int[]>> encontrarBarcos(CellStatus[][] tablero) {
+        boolean[] visited = new boolean[100];
+        List<List<int[]>> resultado = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (tablero[i][j] == CellStatus.BARCO && !visited[i * 10 + j]) {
+                    List<int[]> grupo = new ArrayList<>();
+                    dfsBarco(tablero, i, j, visited, grupo);
+                    resultado.add(grupo);
+                }
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * DFS auxiliar de encontrarBarcos: recorre celdas BARCO conectadas (4-direccional).
+     */
+    private void dfsBarco(CellStatus[][] tablero, int x, int y, boolean[] visited, List<int[]> grupo) {
+        if (x < 0 || x >= 10 || y < 0 || y >= 10) return;
+        int idx = x * 10 + y;
+        if (visited[idx] || tablero[x][y] != CellStatus.BARCO) return;
+        visited[idx] = true;
+        grupo.add(new int[]{x, y});
+        dfsBarco(tablero, x - 1, y, visited, grupo);
+        dfsBarco(tablero, x + 1, y, visited, grupo);
+        dfsBarco(tablero, x, y - 1, visited, grupo);
+        dfsBarco(tablero, x, y + 1, visited, grupo);
     }
 
     // --- Aranessa ---
@@ -344,9 +448,10 @@ public class GameEngine {
             return "(" + nx + "," + ny + ":ya) ";
 
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
+            // Escudo de casilla: la celda permanece BARCO, el escudo se consume, sin daño
             if (enemigo.tieneEscudo(nx, ny)) {
                 enemigo.quitarEscudo(nx, ny);
-                enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
+                // No cambiar el estado de la celda: el barco sigue intacto
                 owner.incrementarHitsFallados();
                 return "(" + nx + "," + ny + ":escudo) ";
             }
