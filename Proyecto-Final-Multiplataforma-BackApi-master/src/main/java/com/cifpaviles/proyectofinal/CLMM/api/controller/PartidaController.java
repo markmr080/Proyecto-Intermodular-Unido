@@ -16,7 +16,7 @@ import java.util.Map;
  * vía WebSockets (GameSocketController). Este controller solo expone
  * consultas de historial y estado de partidas ya guardadas.
  */
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/partidas")
 public class PartidaController {

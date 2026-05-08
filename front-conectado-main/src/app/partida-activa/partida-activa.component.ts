@@ -48,16 +48,38 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.roomCode = this.route.snapshot.paramMap.get('code') || '';
+    this.myUsername = this.authService.getCurrentUsername();
+    this.myDisplayName = this.myUsername;
+
+    console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode);
 
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
-    // Le damos 500ms para asegurar la conexión de socketio subyacente
-    setTimeout(() => {
+
+    // Esperamos a que la conexión esté establecida antes de emitir join-room.
+    // Si el socket no está listo en el primer intento, se reintenta tras 1s adicional.
+    const intentarJoinRoom = () => {
+      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername);
       this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode);
+    };
+
+    setTimeout(() => {
+      intentarJoinRoom();
+      // Segundo intento de seguridad tras 1.5s adicionales, por si el socket tardó en conectar
+      setTimeout(intentarJoinRoom, 1500);
     }, 500);
 
     // Escuchar el estado de la partida
     this.socketService.gameState$.subscribe((state) => {
+      console.log('[PartidaActiva] gameState recibido:', {
+        turnoActualId: state?.turnoActualId,
+        miUsername: this.myUsername,
+        esMiTurno: state?.turnoActualId === this.myUsername,
+        fase: state?.fase,
+        tiempoRestante: state?.tiempoRestante,
+        j1id: state?.jugador1?.id,
+        j2id: state?.jugador2?.id
+      });
       this.gameState = state;
       this.actualizarTablerosVisuales();
     });
@@ -138,7 +160,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   // --- Acciones de Fase COMBATE ---
 
   atacarCasilla(x: number, y: number) {
-    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno || this.gameState.faseReaccion) return;
+    // Solo se puede atacar si es la fase COMBATE y es nuestro turno.
+    // La validación de quién tiene el turno la hace también el backend.
+    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
     this.socketService.atacar(this.myUsername, this.roomCode, x, y);
   }
 

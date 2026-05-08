@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller REST para exponer las estadísticas agregadas de los jugadores.
  */
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/estadisticas")
 public class EstadisticasController {

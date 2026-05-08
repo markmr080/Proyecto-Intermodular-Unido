@@ -70,29 +70,41 @@ public class GameSocketController {
     public void onJoinRoom(SocketIOClient client, JoinMessage mensaje, AckRequest ackSender) {
         try {
             String roomCode = mensaje.getRoomCode();
-            System.out.println("JOIN-ROOM RECIBIDO. Jugador: " + mensaje.getJugadorNombre() + ", Sala: " + roomCode);
+            String jugadorId = mensaje.getJugadorId();
+            System.out.println("JOIN-ROOM RECIBIDO. Jugador: " + jugadorId + " | Sala: " + roomCode);
+            
+            // Añadir al canal Socket.IO de la sala (idempotente si ya está)
             client.joinRoom(roomCode);
             
             GameEngine engine = roomManager.getOrCreateRoom(roomCode);
             
-            // Si no hay estado, creamos uno con jugadores dummy (se actualizarán al unirse)
             if (engine.getState() == null) {
-                Player p1 = new Player(mensaje.getJugadorId(), mensaje.getJugadorNombre(), characterFactory.crearPersonaje("WULFRIK"));
+                // Primer jugador: crea el estado con J1 real y J2 dummy temporal
+                Player p1 = new Player(jugadorId, mensaje.getJugadorNombre(), characterFactory.crearPersonaje("WULFRIK"));
                 Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"));
                 GameState newState = new GameState(p1, p2);
                 engine.setState(newState);
+                System.out.println("JOIN-ROOM: Estado creado. J1=" + jugadorId + " tiene el turno.");
             } else {
-                // Ya había un jugador, el segundo toma el control del p2
                 GameState state = engine.getState();
-                if (state.getJugador2().getId().equals("enemigo-dummy")) {
-                    state.getJugador2().setId(mensaje.getJugadorId());
+                boolean esJ1 = state.getJugador1().getId().equals(jugadorId);
+                boolean esJ2 = state.getJugador2().getId().equals(jugadorId);
+                
+                if (esJ1 || esJ2) {
+                    // Jugador ya registrado (reintento de join-room): solo readmitir en sala
+                    System.out.println("JOIN-ROOM: Jugador " + jugadorId + " ya registrado. Readmitiendo en sala.");
+                } else if (state.getJugador2().getId().equals("enemigo-dummy")) {
+                    // Segundo jugador: reemplaza al dummy
+                    state.getJugador2().setId(jugadorId);
                     state.getJugador2().setNombre(mensaje.getJugadorNombre());
-                    state.setMensajeEstado("Ambos jugadores conectados. " + state.getMensajeEstado());
+                    state.setMensajeEstado("Ambos jugadores conectados. Coloca tus barcos.");
+                    System.out.println("JOIN-ROOM: J2=" + jugadorId + " se ha unido. TurnoActual=" + state.getTurnoActualId());
                 }
             }
             
             difundirEstado(roomCode, engine.getState());
-            System.out.println("gameState difundido con éxito a la sala " + roomCode);
+            System.out.println("JOIN-ROOM: Estado difundido a sala " + roomCode 
+                + " | turnoActualId=" + engine.getState().getTurnoActualId());
         } catch (Exception e) {
             System.err.println("ERROR EN ONJOINROOM: ");
             e.printStackTrace();
@@ -103,7 +115,16 @@ public class GameSocketController {
     public void onAtacar(SocketIOClient client, AtaqueMessage mensaje, AckRequest ackSender) {
         GameEngine engine = roomManager.getRoom(mensaje.getRoomCode());
         if (engine != null && engine.getState() != null) {
+            String turnoAntes = engine.getState().getTurnoActualId();
+            System.out.println("[ATACAR] jugadorId=" + mensaje.getJugadorId() 
+                + " | turnoAntes=" + turnoAntes
+                + " | J1=" + engine.getState().getJugador1().getId()
+                + " | J2=" + engine.getState().getJugador2().getId());
+
             engine.procesarDisparo(mensaje.getJugadorId(), mensaje.getX(), mensaje.getY());
+
+            System.out.println("[ATACAR] turnoAhora=" + engine.getState().getTurnoActualId()
+                + " | tiempoRestante=" + engine.getState().getTiempoRestante());
             
             // Verificar si el juego terminó tras el disparo
             if (!engine.getState().isJuegoActivo() && engine.getState().getIdPartidaMysql() != null && !engine.getState().isStatsGuardadas()) {
@@ -114,6 +135,8 @@ public class GameSocketController {
             }
 
             difundirEstado(mensaje.getRoomCode(), engine.getState());
+        } else {
+            System.out.println("[ATACAR] ERROR - engine o state nulo para sala: " + mensaje.getRoomCode());
         }
     }
 
@@ -154,6 +177,11 @@ public class GameSocketController {
                 state.setMensajeEstado("¡Comienza la batalla! Turno de " + state.getJugadorActivo().getNombre());
                 
                 iniciarPartidaBD(state);
+                
+                // Arrancamos el cronómetro compartido para esta sala.
+                // El TurnTimerService difundirá el gameState cada segundo a ambos clientes,
+                // garantizando que los dos vean el mismo tiempo restante en pantalla.
+                roomManager.startTimer(mensaje.getRoomCode());
             }
             
             difundirEstado(mensaje.getRoomCode(), state);

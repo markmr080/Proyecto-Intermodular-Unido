@@ -19,20 +19,24 @@ public class GameEngine {
 
     /**
      * Procesa un disparo a una coordenada.
+     *
+     * Flujo de turnos: un disparo válido siempre pasa el turno al otro jugador.
+     * cambiarTurno() limpia los flags de ambos jugadores y reinicia el timer a 60s.
+     * El TurnTimerService cambia el turno automáticamente si el tiempo se agota.
      */
     public void procesarDisparo(String jugadorId, int x, int y) {
-        // 1. Validar si es el turno del jugador
+        // 1. Validar que es el turno del jugador que dispara
         if (!state.getTurnoActualId().equals(jugadorId))
             return;
 
         Player atacante = state.getJugadorActivo();
         Player enemigo = state.getEnemigo();
 
-        // 2. No permitir disparar dos veces en el mismo turno normal
+        // 2. No permitir disparar dos veces en el mismo turno
         if (atacante.isHaAtacadoEsteTurno())
             return;
 
-        // 3. Ejecutar lÃ³gica de impacto
+        // 3. Ejecutar lógica de impacto
         CellStatus celdaDestino = enemigo.getTablero()[x][y];
 
         if (celdaDestino == CellStatus.BARCO) {
@@ -55,10 +59,8 @@ public class GameEngine {
             state.setMensajeEstado(atacante.getNombre() + " ha fallado.");
         }
 
-        atacante.setHaAtacadoEsteTurno(true);
-
-        // 4. Aplicar REGLA DE 20 SEGUNDOS
-        activarFaseReaccion();
+        // 4. Pasar turno al otro jugador (resetea flags y timer a 60s)
+        state.cambiarTurno();
 
         // 5. Verificar si alguien ha ganado
         verificarVictoria();
@@ -103,15 +105,7 @@ public class GameEngine {
         }
     }
 
-    /**
-     * Activa la fase de contraataque rápido.
-     */
-    private void activarFaseReaccion() {
-        state.setFaseReaccion(true);
-        state.setTiempoRestante(20); // Bajamos el cronÃ³metro a 20s
-        // Cambiamos el ID del turno para que el otro pueda disparar
-        state.setTurnoActualId(state.getEnemigo().getId());
-    }
+
 
     /**
      * Procesa el uso de una habilidad activa.

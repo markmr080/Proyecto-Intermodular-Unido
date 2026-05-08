@@ -19,7 +19,7 @@ export interface Room {
   providedIn: 'root'
 })
 export class RoomService {
-  private readonly API_URL = 'http://localhost:8080/api/lobby';
+  private readonly API_URL = `http://${window.location.hostname}:8080/api/lobby`;
   private http = inject(HttpClient);
 
   getRooms(): Observable<Room[]> {

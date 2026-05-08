@@ -30,8 +30,8 @@ export interface StatsDTO {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api/auth';
-  private readonly STATS_URL = 'http://localhost:8080/api/estadisticas';
+  private readonly API_URL = `http://${window.location.hostname}:8080/api/auth`;
+  private readonly STATS_URL = `http://${window.location.hostname}:8080/api/estadisticas`;
 
   private userSubject = new BehaviorSubject<UserDB | undefined>(undefined);
   public user$ = this.userSubject.asObservable();
@@ -82,11 +82,26 @@ export class AuthService {
       navigator.platform ?? ''
     ].join('|');
 
-    const encoder = new TextEncoder();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(datos));
-    const hashHex = Array.from(new Uint8Array(hashBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    let hashHex = '';
+    
+    // crypto.subtle SOLO está disponible en localhost o HTTPS (Secure Contexts).
+    // Si se accede por IP en HTTP (ej. desde un móvil), crypto.subtle es undefined.
+    if (crypto && crypto.subtle) {
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(datos));
+      hashHex = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    } else {
+      // Fallback simple para HTTP inseguro (sin HTTPS)
+      let hash = 0;
+      for (let i = 0; i < datos.length; i++) {
+        const char = datos.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      hashHex = Math.abs(hash).toString(16).padStart(8, '0');
+    }
 
     // Solo en memoria — NO en sessionStorage ni localStorage
     this.cachedFingerprint = hashHex;
@@ -309,7 +324,7 @@ export class AuthService {
     if (!this.isLoggedIn()) return undefined;
     const username = this.getCurrentUsername();
     const storedPic = sessionStorage.getItem(this.PIC_KEY);
-    
+
     return {
       username,
       email: 'usuario@ejemplo.com',

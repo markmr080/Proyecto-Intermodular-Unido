@@ -26,7 +26,7 @@ export class SocketService {
   public connect() {
     if (!this.socket || !this.socket.connected) {
       // Conectamos al backend Netty de WebSockets (PUERTO UNIFICADO 8081)
-      this.socket = io.connect('http://localhost:8081', {
+      this.socket = io.connect(`http://${window.location.hostname}:8081`, {
         transports: ['websocket'],
         autoConnect: true
       });
