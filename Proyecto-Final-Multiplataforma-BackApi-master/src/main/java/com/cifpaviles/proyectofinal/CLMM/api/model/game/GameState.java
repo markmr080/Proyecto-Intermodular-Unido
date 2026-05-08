@@ -49,12 +49,12 @@ public class GameState {
         }
         
         // Reset de flags de turno para AMBOS jugadores.
-        // Es crítico limpiar también al jugador que acaba de atacar, ya que si no
-        // su flag 'haAtacadoEsteTurno' quedaría en 'true' y bloquearía su siguiente turno.
         jugador1.setHabilidadUsadaEsteTurno(false);
         jugador1.setHaAtacadoEsteTurno(false);
+        jugador1.setTurnoExtraWulfrik(false);
         jugador2.setHabilidadUsadaEsteTurno(false);
         jugador2.setHaAtacadoEsteTurno(false);
+        jugador2.setTurnoExtraWulfrik(false);
         
         // Al cambiar turno, los cooldowns de las habilidades del nuevo jugador activo bajan
         getJugadorActivo().getPersonaje().getHabilidadesActivas().forEach(Skill::reducirCooldown);

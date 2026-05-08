@@ -418,7 +418,49 @@
   .column-right { flex-direction: row; }
 }
 
+/* ===== MODO TARGETING (Habilidades de área) ===== */
+.targeting-banner {
+  background: linear-gradient(90deg, #7b2d00, #b84d00);
+  border: 2px solid #ff6f00;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: pulse-border 1s ease infinite alternate;
+}
+
+@keyframes pulse-border {
+  from { box-shadow: 0 0 8px rgba(255, 111, 0, 0.4); }
+  to   { box-shadow: 0 0 20px rgba(255, 111, 0, 0.9); }
+}
+
+.btn-cancelar-target {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-cancelar-target:hover { background: rgba(255,255,255,0.30); }
+
+/* Tablero enemigo en modo targeting: cursor crosshair especial + borde pulsante */
+.targeting-active {
+  border-color: #ff6f00 !important;
+  box-shadow: 0 0 20px rgba(255, 111, 0, 0.7);
+}
+.targeting-active .cell { cursor: crosshair; }
+.targeting-active .cell:hover { background: rgba(255, 111, 0, 0.35) !important; }
+
 /* ===== MODAL FIN DE PARTIDA ===== */
+
 /* Fondo semitransparente que bloquea la pantalla */
 .modal-overlay {
   position: fixed;

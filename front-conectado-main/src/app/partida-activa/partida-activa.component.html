@@ -86,11 +86,18 @@
 
       <!-- FASE DE COMBATE -->
       <ng-container *ngIf="gameState.fase === 'COMBATE'">
-        <div class="board enemigo-tablero">
+
+        <!-- Banner de targeting activo -->
+        <div class="targeting-banner" *ngIf="habilidadPendiente">
+          🎯 Selecciona una casilla del tablero enemigo para lanzar la habilidad
+          <button class="btn-cancelar-target" (click)="habilidadPendiente = null">✕ Cancelar</button>
+        </div>
+
+        <div class="board enemigo-tablero" [class.targeting-active]="!!habilidadPendiente">
           <ng-container *ngFor="let fila of enemyBoard; let x = index">
             <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, false)"
               (click)="atacarCasilla(x, y)">
-              <span *ngIf="celda === 'AGUA_GOLPEADA'">💦</span>
+              <span *ngIf="celda === 'AGUA_GOLPEADA'">&#x1F4A6;</span>
               <span *ngIf="celda === 'TOCADO' || celda === 'HUNDIDO'">🔥</span>
             </div>
           </ng-container>
