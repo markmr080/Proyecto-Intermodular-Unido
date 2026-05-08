@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+  background: url('/imagenes/fondoHundirLaFlota.png') center/cover no-repeat;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #e5d3b3;
   padding: 40px;
@@ -385,8 +385,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-espera-card {
@@ -396,13 +401,20 @@
   padding: 48px 40px 36px;
   width: 360px;
   text-align: center;
-  box-shadow: 0 0 40px rgba(184, 145, 88, 0.3), 0 20px 60px rgba(0,0,0,0.7);
+  box-shadow: 0 0 40px rgba(184, 145, 88, 0.3), 0 20px 60px rgba(0, 0, 0, 0.7);
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .espera-icon {
@@ -412,8 +424,15 @@
 }
 
 @keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .espera-titulo {
@@ -448,13 +467,31 @@
   animation: dotBounce 1.2s ease-in-out infinite;
 }
 
-.espera-loader span:nth-child(1) { animation-delay: 0s; }
-.espera-loader span:nth-child(2) { animation-delay: 0.2s; }
-.espera-loader span:nth-child(3) { animation-delay: 0.4s; }
+.espera-loader span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.espera-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.espera-loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes dotBounce {
-  0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
-  40%            { transform: scale(1.2); opacity: 1; }
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 
 .btn-cancelar-espera {
@@ -474,4 +511,4 @@
   background: rgba(220, 53, 69, 0.2);
   border-color: #dc3545;
   color: #ff6b6b;
-}
+}

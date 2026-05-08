@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+  background: url('/imagenes/fondoHundirLaFlota.png') center/cover no-repeat;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #e5d3b3;
   padding: 40px;

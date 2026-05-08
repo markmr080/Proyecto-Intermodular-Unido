@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   /* Background image with a magical/gaming feel */
-  background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+  background: url('/imagenes/fondoHundirLaFlota.png') center/cover no-repeat;
   overflow: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -111,7 +111,8 @@
 }
 
 .password-input-wrapper input {
-  padding-right: 45px; /* Make room for the eye icon */
+  padding-right: 45px;
+  /* Make room for the eye icon */
 }
 
 .btn-toggle-password {
