@@ -25,10 +25,14 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   // --- Lógica de Colocación de Barcos ---
   myBoard: string[][] = [];
-  shipsToPlace = [5, 4, 3, 3, 2];
+  // Lista de tamaños de barcos a colocar; se actualiza desde el gameState del personaje elegido.
+  // Valor por defecto (flota estándar) hasta que el backend confirme la flota real.
+  shipsToPlace: number[] = [5, 4, 3, 3, 2];
   currentShipIndex = 0;
-  orientation: 'H' | 'V' = 'H'; // Horizontal o Vertical
+  orientation: 'H' | 'V' = 'H';
   colocacionTerminada = false;
+  flotaInicializada = false; // Evita reinicializar la lista si llega un segundo estado
+
 
   // --- Lógica del Modo Test (Bot) ---
   isTestMode = false;
@@ -110,6 +114,16 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       });
       this.gameState = state;
       this.actualizarTablerosVisuales();
+
+      // Inicializar la flota desde el personaje la primera vez que llega el estado
+      if (!this.flotaInicializada && state?.fase === 'COLOCACION') {
+        const flotaPersonaje = this.miJugador?.personaje?.flotaComoListaTamanos;
+        if (flotaPersonaje && flotaPersonaje.length > 0) {
+          this.shipsToPlace = flotaPersonaje;
+          this.flotaInicializada = true;
+          console.log('[PartidaActiva] Flota del personaje:', this.shipsToPlace);
+        }
+      }
 
       // Detectar fin de partida para mostrar el modal de victoria/derrota
       if (state?.juegoActivo === false && !this.mostrarModal) {
@@ -236,7 +250,11 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       }
     }
 
-    const botShipsToPlace = [5, 4, 3, 3, 2];
+    // Usar la flota real del personaje del bot si está disponible, si no la estándar
+    const botShipsToPlace: number[] =
+      this.enemigo?.personaje?.flotaComoListaTamanos?.length
+        ? this.enemigo.personaje.flotaComoListaTamanos
+        : [5, 4, 3, 3, 2];
     
     for (const size of botShipsToPlace) {
       let colocado = false;

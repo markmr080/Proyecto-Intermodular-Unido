@@ -95,11 +95,13 @@ public class GameSocketController {
                     // Jugador ya registrado (reintento de join-room): solo readmitir en sala
                     System.out.println("JOIN-ROOM: Jugador " + jugadorId + " ya registrado. Readmitiendo en sala.");
                 } else if (state.getJugador2().getId().equals("enemigo-dummy")) {
-                    // Segundo jugador: reemplaza al dummy
+                    // Segundo jugador: reemplaza al dummy con su ID, nombre y personaje elegido
+                    String tipoP2 = mensaje.getPersonajeId() != null ? mensaje.getPersonajeId() : "WULFRIK";
                     state.getJugador2().setId(jugadorId);
                     state.getJugador2().setNombre(mensaje.getJugadorNombre());
+                    state.getJugador2().setPersonaje(characterFactory.crearPersonaje(tipoP2));
                     state.setMensajeEstado("Ambos jugadores conectados. Coloca tus barcos.");
-                    System.out.println("JOIN-ROOM: J2=" + jugadorId + " se ha unido. TurnoActual=" + state.getTurnoActualId());
+                    System.out.println("JOIN-ROOM: J2=" + jugadorId + " personaje=" + tipoP2);
                 }
             }
             

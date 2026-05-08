@@ -12,8 +12,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.List;
 
+/**
+ * Inicializa los datos de referencia en la BD al arrancar.
+ *
+ * Flotas únicas por personaje (tamaños de cada barco):
+ *   Wulfrik  → 5, 4, 3, 3, 2  (flota equilibrada, 17 celdas)
+ *   Aislinn  → 5, 4, 3, 2, 2  (flota ágil alta elfa, 16 celdas)
+ *   Lokhir   → 5, 3, 3, 2, 2  (flota corsaria rápida, 15 celdas)
+ *   Aranessa → 4, 4, 3, 3, 2  (flota pirata pesada, 16 celdas)
+ *
+ * Catálogo de barcos compartido (nombre + tamaño):
+ *   Portaaviones=5, Acorazado=4, Crucero=3, Destructor=2, Lancha=1
+ */
 @Configuration
 public class DataInitializer {
 
@@ -25,36 +36,52 @@ public class DataInitializer {
             PersonajeFlotaRepository flotaRepo) {
 
         return args -> {
-            // Inicializar Barcos
+            // Siempre recrear el catálogo si está vacío
             if (barcosRepo.count() == 0) {
                 barcosRepo.saveAll(Arrays.asList(
                         new BarcosCatalogoEntity("Portaaviones", 5),
-                        new BarcosCatalogoEntity("Acorazado", 4),
-                        new BarcosCatalogoEntity("Crucero", 3),
-                        new BarcosCatalogoEntity("Submarino", 2)
+                        new BarcosCatalogoEntity("Acorazado",    4),
+                        new BarcosCatalogoEntity("Crucero",      3),
+                        new BarcosCatalogoEntity("Destructor",   2),
+                        new BarcosCatalogoEntity("Lancha",       1)
                 ));
                 System.out.println("Catálogo de barcos inicializado.");
             }
 
-            // Inicializar Personajes
             if (personajeRepo.count() == 0) {
-                List<String> nombresPersonajes = Arrays.asList("Wulfrik", "Aislinn", "Lokhir", "Aranessa");
-                for (String nombre : nombresPersonajes) {
-                    PersonajeEntity p = new PersonajeEntity(nombre);
-                    personajeRepo.save(p);
+                // --- Helpers ---
+                BarcosCatalogoEntity porta   = barcosRepo.findByNombre("Portaaviones").orElseThrow();
+                BarcosCatalogoEntity acoraza = barcosRepo.findByNombre("Acorazado").orElseThrow();
+                BarcosCatalogoEntity crucero = barcosRepo.findByNombre("Crucero").orElseThrow();
+                BarcosCatalogoEntity destru  = barcosRepo.findByNombre("Destructor").orElseThrow();
 
-                    // Asignar flota por defecto a cada personaje
-                    BarcosCatalogoEntity portaaviones = barcosRepo.findByNombre("Portaaviones").orElseThrow();
-                    BarcosCatalogoEntity acorazado = barcosRepo.findByNombre("Acorazado").orElseThrow();
-                    BarcosCatalogoEntity crucero = barcosRepo.findByNombre("Crucero").orElseThrow();
-                    BarcosCatalogoEntity submarino = barcosRepo.findByNombre("Submarino").orElseThrow();
+                // --- Wulfrik: 5,4,3,3,2 ---
+                PersonajeEntity wulfrik = personajeRepo.save(new PersonajeEntity("Wulfrik"));
+                flotaRepo.save(new PersonajeFlotaEntity(wulfrik, porta,   1)); // 1× tamaño 5
+                flotaRepo.save(new PersonajeFlotaEntity(wulfrik, acoraza, 1)); // 1× tamaño 4
+                flotaRepo.save(new PersonajeFlotaEntity(wulfrik, crucero, 2)); // 2× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(wulfrik, destru,  1)); // 1× tamaño 2
 
-                    flotaRepo.save(new PersonajeFlotaEntity(p, portaaviones, 1));
-                    flotaRepo.save(new PersonajeFlotaEntity(p, acorazado, 2));
-                    flotaRepo.save(new PersonajeFlotaEntity(p, crucero, 3));
-                    flotaRepo.save(new PersonajeFlotaEntity(p, submarino, 4));
-                }
-                System.out.println("Personajes y flotas inicializados.");
+                // --- Aislinn: 5,4,3,2,2 ---
+                PersonajeEntity aislinn = personajeRepo.save(new PersonajeEntity("Aislinn"));
+                flotaRepo.save(new PersonajeFlotaEntity(aislinn, porta,   1)); // 1× tamaño 5
+                flotaRepo.save(new PersonajeFlotaEntity(aislinn, acoraza, 1)); // 1× tamaño 4
+                flotaRepo.save(new PersonajeFlotaEntity(aislinn, crucero, 1)); // 1× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(aislinn, destru,  2)); // 2× tamaño 2
+
+                // --- Lokhir: 5,3,3,2,2 ---
+                PersonajeEntity lokhir = personajeRepo.save(new PersonajeEntity("Lokhir"));
+                flotaRepo.save(new PersonajeFlotaEntity(lokhir, porta,   1)); // 1× tamaño 5
+                flotaRepo.save(new PersonajeFlotaEntity(lokhir, crucero, 2)); // 2× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(lokhir, destru,  2)); // 2× tamaño 2
+
+                // --- Aranessa: 4,4,3,3,2 ---
+                PersonajeEntity aranessa = personajeRepo.save(new PersonajeEntity("Aranessa"));
+                flotaRepo.save(new PersonajeFlotaEntity(aranessa, acoraza, 2)); // 2× tamaño 4
+                flotaRepo.save(new PersonajeFlotaEntity(aranessa, crucero, 2)); // 2× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(aranessa, destru,  1)); // 1× tamaño 2
+
+                System.out.println("Personajes y flotas únicas inicializados.");
             }
         };
     }

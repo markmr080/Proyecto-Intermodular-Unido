@@ -6,7 +6,6 @@
 
     <div class="salas-top-actions">
       <button class="btn-refresh" (click)="recargarSalas()" title="Recargar salas">
-        <!-- SVG Icon using a reload sync icon -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"></polyline>
@@ -27,7 +26,7 @@
           </div>
 
           @if (!room.jugador2) { 
-            <button class="btn-unirse" (click)="unirse(room)">Unirse</button>
+            <button class="btn-unirse" (click)="unirse(room)" [disabled]="solicitandoUnirse">Unirse</button>
           } @else {
             <button class="btn-llena" disabled>Sala llena</button>
           }
@@ -52,4 +51,23 @@
       <button class="btn-salir" (click)="salir()">Salir</button>
     </div>
   </div>
-</div>
+
+  <!-- ===== MODAL: ESPERANDO AL ANFITRIÓN ===== -->
+  @if (solicitandoUnirse) {
+  <div class="modal-espera-overlay" id="modal-esperando-anfitrion">
+    <div class="modal-espera-card">
+      <div class="espera-icon">⚓</div>
+      <h3 class="espera-titulo">Esperando al anfitrión</h3>
+      <p class="espera-subtitulo">Tu solicitud ha sido enviada.<br>El anfitrión debe aceptarla para continuar.</p>
+
+      <div class="espera-loader">
+        <span></span><span></span><span></span>
+      </div>
+
+      <button class="btn-cancelar-espera" id="btn-cancelar-espera" (click)="cancelarSolicitud()">
+        ✕ Cancelar solicitud
+      </button>
+    </div>
+  </div>
+  }
+</div>

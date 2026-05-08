@@ -78,6 +78,7 @@ public class Player {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public GameCharacter getPersonaje() { return personaje; }
+    public void setPersonaje(GameCharacter personaje) { this.personaje = personaje; }
     public CellStatus[][] getTablero() { return tablero; }
     public void setTablero(CellStatus[][] tablero) { this.tablero = tablero; }
 

@@ -43,6 +43,32 @@ public class GameCharacter {
         this.flotaPermitida.put(tipoBarco, cantidad);
     }
 
+    /**
+     * Devuelve la flota como lista de tamaños de celda ordenada de mayor a menor.
+     * El tamaño se infiere del nombre estándar del barco.
+     * Usado por el frontend para saber cuántos barcos y de qué tamaño colocar.
+     */
+    public java.util.List<Integer> getFlotaComoListaTamanos() {
+        // Mapa nombre de barco → tamaño (debe coincidir con barcos_catalogo)
+        java.util.Map<String, Integer> tamanos = new java.util.HashMap<>();
+        tamanos.put("Portaaviones", 5);
+        tamanos.put("Acorazado",    4);
+        tamanos.put("Crucero",      3);
+        tamanos.put("Destructor",   2);
+        tamanos.put("Lancha",       1);
+
+        java.util.List<Integer> lista = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> entry : flotaPermitida.entrySet()) {
+            int tam = tamanos.getOrDefault(entry.getKey(), 0);
+            for (int i = 0; i < entry.getValue(); i++) {
+                lista.add(tam);
+            }
+        }
+        // Ordenar de mayor a menor para que la UI los muestre en orden lógico
+        lista.sort(java.util.Comparator.reverseOrder());
+        return lista;
+    }
+
     // --- Getters y Setters ---
 
     public String getNombre() { return nombre; }

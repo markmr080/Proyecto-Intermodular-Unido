@@ -18,13 +18,11 @@ export interface Personaje {
   barcos: Barco[];
 }
 
-function generarFlota(): Barco[] {
-  const barcos: Barco[] = [];
-  for (let i = 0; i < 5; i++) {
-    barcos.push({ tamano: Math.floor(Math.random() * 5) + 1 }); // 1 a 5 casillas
-  }
-  return barcos;
-}
+// Flotas únicas por personaje (coinciden con DataInitializer en el backend)
+const FLOTA_WULFRIK:  Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
+const FLOTA_AISLINN:  Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_LOKHIR:   Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_ARANESSA: Barco[] = [{ tamano: 4 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
 
 @Component({
   selector: 'app-seleccion-personajes',
@@ -43,10 +41,10 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   personajes: Personaje[] = [
-    { id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg', barcos: generarFlota() },
-    { id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847', barcos: generarFlota() },
-    { id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es', barcos: generarFlota() },
-    { id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142', barcos: generarFlota() }
+    { id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg', barcos: FLOTA_WULFRIK },
+    { id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847', barcos: FLOTA_AISLINN },
+    { id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es', barcos: FLOTA_LOKHIR },
+    { id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142', barcos: FLOTA_ARANESSA }
   ];
 
   indiceActual = 0;

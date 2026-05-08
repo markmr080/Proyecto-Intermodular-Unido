@@ -24,12 +24,12 @@
 
         <!-- Mi Jugador -->
         <div class="player-card my-player">
-          <h3>TÚ: {{ miJugador?.nombre }}</h3>
+          <h3>🛡️ {{ miJugador?.personaje?.nombre || miJugador?.nombre }}</h3>
+          <p class="player-subtitle">{{ miJugador?.nombre }}</p>
           <div class="avatar-container">
-            <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + miJugador?.nombre" alt="Mi Avatar">
+            <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (miJugador?.personaje?.nombre || miJugador?.nombre)" alt="Mi Avatar">
           </div>
           <div class="stats">
-            <!-- Mostramos las celdas BARCO intactas sobre el total inicial -->
             <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
             <div class="passive-skill" *ngIf="miJugador?.personaje?.habilidadPasiva">
               <strong>Pasiva:</strong> {{miJugador?.personaje?.habilidadPasiva?.nombre}}
@@ -41,13 +41,18 @@
 
       <!-- Enemigo -->
       <div class="player-card enemy-player">
-        <h3>ENEMIGO: {{ enemigo?.nombre }}</h3>
+        <h3>⚔️ {{ enemigo?.personaje?.nombre || enemigo?.nombre }}</h3>
+        <p class="player-subtitle">{{ enemigo?.nombre }}</p>
         <div class="avatar-container">
-          <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + enemigo?.nombre" alt="Enemigo Avatar">
+          <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (enemigo?.personaje?.nombre || enemigo?.nombre)" alt="Enemigo Avatar">
         </div>
         <div class="stats">
           <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->
           <p>🚢 Barcos restantes: <strong>{{ barcosEnemigoRestantes }}</strong></p>
+          <div class="passive-skill" *ngIf="enemigo?.personaje?.habilidadPasiva">
+            <strong>Pasiva:</strong> {{enemigo?.personaje?.habilidadPasiva?.nombre}}
+            <span class="tooltip">{{enemigo?.personaje?.habilidadPasiva?.descripcion}}</span>
+          </div>
         </div>
       </div>
     </div>

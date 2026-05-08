@@ -112,6 +112,11 @@ export class ListaSalas implements OnInit, OnDestroy {
     this.socketService.solicitarUnirse(room.codigoSala, user);
   }
 
+  cancelarSolicitud() {
+    this.solicitandoUnirse = false;
+    // El servidor no necesita notificación porque el anfitrión simplemente no aceptará
+  }
+
   salir() {
     this.router.navigate(['/menu']);
   }
