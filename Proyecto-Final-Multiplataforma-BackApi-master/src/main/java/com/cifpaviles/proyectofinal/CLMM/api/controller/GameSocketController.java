@@ -78,14 +78,14 @@ public class GameSocketController {
             
             GameEngine engine = roomManager.getOrCreateRoom(roomCode);
             
-            if (engine.getState() == null) {
-                // Primer jugador: crea el estado con su personaje elegido y J2 dummy temporal
+            if (engine.getState() == null || !engine.getState().isJuegoActivo()) {
+                // Primera vez O partida anterior ya finalizada: crear estado nuevo limpio
                 String tipoP1 = mensaje.getPersonajeId() != null ? mensaje.getPersonajeId() : "WULFRIK";
                 Player p1 = new Player(jugadorId, mensaje.getJugadorNombre(), characterFactory.crearPersonaje(tipoP1));
                 Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"));
                 GameState newState = new GameState(p1, p2);
                 engine.setState(newState);
-                System.out.println("JOIN-ROOM: Estado creado. J1=" + jugadorId + " personaje=" + tipoP1);
+                System.out.println("JOIN-ROOM: Estado creado/reseteado. J1=" + jugadorId + " personaje=" + tipoP1);
             } else {
                 GameState state = engine.getState();
                 boolean esJ1 = state.getJugador1().getId().equals(jugadorId);
@@ -119,25 +119,15 @@ public class GameSocketController {
         GameEngine engine = roomManager.getRoom(mensaje.getRoomCode());
         if (engine != null && engine.getState() != null) {
             String turnoAntes = engine.getState().getTurnoActualId();
-            System.out.println("[ATACAR] jugadorId=" + mensaje.getJugadorId() 
-                + " | turnoAntes=" + turnoAntes
-                + " | J1=" + engine.getState().getJugador1().getId()
-                + " | J2=" + engine.getState().getJugador2().getId());
+            System.out.println("[ATACAR] jugadorId=" + mensaje.getJugadorId()
+                + " | turnoAntes=" + turnoAntes);
 
             engine.procesarDisparo(mensaje.getJugadorId(), mensaje.getX(), mensaje.getY());
 
-            System.out.println("[ATACAR] turnoAhora=" + engine.getState().getTurnoActualId()
-                + " | tiempoRestante=" + engine.getState().getTiempoRestante());
-            
-            // Verificar si el juego terminó tras el disparo
-            if (!engine.getState().isJuegoActivo() && engine.getState().getIdPartidaMysql() != null && !engine.getState().isStatsGuardadas()) {
-                engine.getState().setStatsGuardadas(true);
-                finalizarPartidaBD(engine.getState());
-                // Removemos la sala de memoria para evitar que se reutilice con datos corruptos si juegan otra vez
-                roomManager.removeRoom(mensaje.getRoomCode());
-            }
-
             difundirEstado(mensaje.getRoomCode(), engine.getState());
+
+            // Limpiar la sala si el juego terminó (funciona en modo test y multijugador)
+            limpiarSalaFinalizada(mensaje.getRoomCode(), engine);
         } else {
             System.out.println("[ATACAR] ERROR - engine o state nulo para sala: " + mensaje.getRoomCode());
         }
@@ -150,6 +140,8 @@ public class GameSocketController {
             // x,y son -1 para habilidades sin target; coordenada de celda para habilidades de área
             engine.usarHabilidad(mensaje.getJugadorId(), mensaje.getHabilidadId(), mensaje.getX(), mensaje.getY());
             difundirEstado(mensaje.getRoomCode(), engine.getState());
+            // Una habilidad ofensiva puede terminar la partida (ej: hunde el último barco)
+            limpiarSalaFinalizada(mensaje.getRoomCode(), engine);
         }
     }
 
@@ -190,6 +182,33 @@ public class GameSocketController {
             
             difundirEstado(mensaje.getRoomCode(), state);
         }
+    }
+
+    /**
+     * El jugador que se rinde pierde automáticamente.
+     * El rival es declarado ganador, se difunde el estado final y se limpia la sala.
+     */
+    @OnEvent("rendirse")
+    public void onRendirse(SocketIOClient client, RendirseMessage mensaje, AckRequest ackSender) {
+        GameEngine engine = roomManager.getRoom(mensaje.getRoomCode());
+        if (engine == null || engine.getState() == null) return;
+
+        GameState state = engine.getState();
+        if (!state.isJuegoActivo()) return; // Ya terminó, ignorar
+
+        // El rival del que se rinde es el ganador
+        String ganadorId = state.getJugador1().getId().equals(mensaje.getJugadorId())
+                ? state.getJugador2().getId()
+                : state.getJugador1().getId();
+
+        state.setJuegoActivo(false);
+        state.setGanadorId(ganadorId);
+        state.setMensajeEstado("¡" + state.getJugadorPorId(ganadorId).getNombre() + " gana! El rival se ha rendido.");
+
+        System.out.println("[RENDIRSE] " + mensaje.getJugadorId() + " se rinde. Ganador: " + ganadorId);
+
+        difundirEstado(mensaje.getRoomCode(), state);
+        limpiarSalaFinalizada(mensaje.getRoomCode(), engine);
     }
 
     private void iniciarPartidaBD(GameState state) {
@@ -312,4 +331,36 @@ public class GameSocketController {
         public String[][] getTablero() { return tablero; }
         public void setTablero(String[][] tablero) { this.tablero = tablero; }
     }
+
+    /**
+     * Comprueba si el juego terminó y, en ese caso:
+     *  1. Guarda las estadísticas en BD (solo si hay idPartidaMysql y no se guardaron ya).
+     *  2. Elimina la sala de memoria para que pueda crearse una nueva partida limpia.
+     * Se llama tras cada disparo y cada uso de habilidad ofensiva.
+     */
+    private void limpiarSalaFinalizada(String roomCode, GameEngine engine) {
+        GameState state = engine.getState();
+        if (state == null || state.isJuegoActivo()) return;
+
+        // Guardar stats en BD solo si hay partida MySQL registrada y no se guardaron aún
+        if (state.getIdPartidaMysql() != null && !state.isStatsGuardadas()) {
+            state.setStatsGuardadas(true);
+            finalizarPartidaBD(state);
+        }
+
+        // Siempre eliminar la sala de memoria al terminar (modo test y multijugador)
+        roomManager.removeRoom(roomCode);
+        System.out.println("[SALA] Sala " + roomCode + " eliminada de memoria tras fin de partida.");
+    }
+
+    /** DTO para el evento 'rendirse'. */
+    public static class RendirseMessage {
+        private String jugadorId;
+        private String roomCode;
+        public String getJugadorId() { return jugadorId; }
+        public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
+        public String getRoomCode() { return roomCode; }
+        public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
+    }
 }
+

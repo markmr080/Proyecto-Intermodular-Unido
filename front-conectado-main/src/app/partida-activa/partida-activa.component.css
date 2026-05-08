@@ -426,7 +426,193 @@
   .column-right { flex-direction: row; }
 }
 
+/* ===== BOTÓN VER MI TABLERO ===== */
+.btn-ver-mi-tablero {
+  display: block;
+  margin: 14px auto 0;
+  background: rgba(184, 145, 88, 0.12);
+  border: 1.5px solid #b89158;
+  color: #d4af37;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  letter-spacing: 0.5px;
+}
+.btn-ver-mi-tablero:hover {
+  background: rgba(184, 145, 88, 0.25);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ===== MODAL MI TABLERO ===== */
+.modal-mi-tablero-card {
+  background: linear-gradient(135deg, rgba(14, 10, 6, 0.97), rgba(30, 20, 10, 0.95));
+  border: 2px solid #b89158;
+  border-radius: 16px;
+  padding: 24px 28px 28px;
+  width: min(520px, 95vw);
+  box-shadow: 0 0 40px rgba(184, 145, 88, 0.3), 0 20px 60px rgba(0,0,0,0.8);
+  animation: slideUpFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-mi-tablero-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-mi-tablero-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #d4af37;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.btn-cerrar-mi-tablero {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #e5d3b3;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.btn-cerrar-mi-tablero:hover { background: rgba(220,53,69,0.4); }
+
+/* Leyenda de colores */
+.mi-tablero-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+  color: #c9bca7;
+}
+.leyenda-item { display: flex; align-items: center; gap: 6px; }
+.leyenda-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.barco-color   { background: #2a6496; }
+.tocado-color  { background: #e67e22; }
+.hundido-color { background: #c0392b; }
+.fallo-color   { background: rgba(100,150,255,0.3); }
+
+/* Tablero dentro del modal (sin clickable) */
+.mi-tablero-modal {
+  pointer-events: none; /* no se puede clicar, solo ver */
+}
+
+/* Contenedor de los botones de acción durante el combate */
+.combat-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+/* ===== BOTÓN RENDIRSE ===== */
+.btn-rendirse {
+  background: rgba(180, 30, 30, 0.12);
+  border: 1.5px solid #c0392b;
+  color: #e74c3c;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  letter-spacing: 0.5px;
+}
+.btn-rendirse:hover {
+  background: rgba(192, 57, 43, 0.3);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ===== MODAL CONFIRMACIÓN RENDICIÓN ===== */
+.modal-rendirse-card {
+  background: linear-gradient(135deg, rgba(30, 8, 8, 0.97), rgba(50, 15, 10, 0.95));
+  border: 2px solid #c0392b;
+  border-radius: 16px;
+  padding: 40px 36px 32px;
+  width: min(380px, 95vw);
+  text-align: center;
+  box-shadow: 0 0 40px rgba(192, 57, 43, 0.35), 0 20px 60px rgba(0,0,0,0.8);
+  animation: slideUpFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rendirse-icon {
+  font-size: 48px;
+  margin-bottom: 14px;
+}
+
+.rendirse-titulo {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #e74c3c;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rendirse-subtitulo {
+  color: #c9bca7;
+  font-size: 0.9rem;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.rendirse-botones {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-confirmar-rendirse {
+  background: #c0392b;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-confirmar-rendirse:hover {
+  background: #e74c3c;
+  transform: translateY(-2px);
+}
+
+.btn-cancelar-rendirse {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #e5d3b3;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-cancelar-rendirse:hover { background: rgba(255,255,255,0.14); }
+
 /* ===== MODO TARGETING (Habilidades de área) ===== */
+
+
 .targeting-banner {
   background: linear-gradient(90deg, #7b2d00, #b84d00);
   border: 2px solid #ff6f00;

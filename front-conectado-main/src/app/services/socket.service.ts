@@ -124,6 +124,11 @@ export class SocketService {
     this.socket.emit('usar-habilidad', { jugadorId, roomCode, habilidadId, x, y });
   }
 
+  /** Emite el evento de rendición. El backend declarará ganador al rival. */
+  public rendirse(jugadorId: string, roomCode: string) {
+    this.socket.emit('rendirse', { jugadorId, roomCode });
+  }
+
   public disconnect() {
     if (this.socket) {
       this.socket.disconnect();

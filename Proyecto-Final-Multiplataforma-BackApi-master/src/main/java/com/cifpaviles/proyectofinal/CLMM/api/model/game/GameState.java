@@ -77,6 +77,16 @@ public class GameState {
         return turnoActualId.equals(jugador1.getId()) ? jugador2 : jugador1;
     }
 
+    /**
+     * Devuelve el jugador por su ID. Útil para encontrar el ganador al rendirse.
+     * Devuelve null si el ID no corresponde a ningún jugador de la partida.
+     */
+    public Player getJugadorPorId(String id) {
+        if (jugador1.getId().equals(id)) return jugador1;
+        if (jugador2.getId().equals(id)) return jugador2;
+        return null;
+    }
+
     // --- Getters y Setters ---
 
     public Player getJugador1() { return jugador1; }

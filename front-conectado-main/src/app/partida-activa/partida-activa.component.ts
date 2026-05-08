@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SocketService } from '../services/socket.service';
 import { AuthService } from '../services/auth.service';
 
@@ -13,6 +13,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class PartidaActivaComponent implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
+  router = inject(Router);
   socketService = inject(SocketService);
   authService = inject(AuthService);
 
@@ -43,6 +44,12 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   // --- Fin de Partida / Modal ---
   mostrarModal = false;
   soyGanador = false;
+
+  /** Controla la visibilidad del modal "Ver mi tablero" durante el combate. */
+  mostrarMiTablero = false;
+
+  /** Controla la visibilidad del diálogo de confirmación de rendición. */
+  mostrarConfirmacionRendirse = false;
 
   // --- Modo targeting para habilidades de área ---
   // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
@@ -389,10 +396,24 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     return this.contarBarcosRestantes(this.enemigo?.tablero);
   }
 
-  /** Navega fuera de la partida y limpia el estado de test */
+  /**
+   * Limpia todos los datos de la partida en localStorage y navega a lista de salas.
+   * Elimina: test_mode_ROOMCODE, personaje_ROOMCODE.
+   * Usa router.navigate para no perder la conexión del socket service.
+   */
   salirDePartida(): void {
     localStorage.removeItem(`test_mode_${this.roomCode}`);
-    window.location.href = '/lista-salas';
+    localStorage.removeItem(`personaje_${this.roomCode}`);
+    this.router.navigate(['/lista-salas']);
+  }
+
+  /**
+   * Confirma la rendición: emite el evento al servidor y el backend
+   * declara ganador al rival y cierra la sala.
+   */
+  confirmarRendirse(): void {
+    this.mostrarConfirmacionRendirse = false;
+    this.socketService.rendirse(this.myUsername, this.roomCode);
   }
 
   get habilidadesOfensivas(): any[] {
