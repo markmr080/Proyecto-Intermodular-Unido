@@ -79,12 +79,13 @@ public class GameSocketController {
             GameEngine engine = roomManager.getOrCreateRoom(roomCode);
             
             if (engine.getState() == null) {
-                // Primer jugador: crea el estado con J1 real y J2 dummy temporal
-                Player p1 = new Player(jugadorId, mensaje.getJugadorNombre(), characterFactory.crearPersonaje("WULFRIK"));
+                // Primer jugador: crea el estado con su personaje elegido y J2 dummy temporal
+                String tipoP1 = mensaje.getPersonajeId() != null ? mensaje.getPersonajeId() : "WULFRIK";
+                Player p1 = new Player(jugadorId, mensaje.getJugadorNombre(), characterFactory.crearPersonaje(tipoP1));
                 Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"));
                 GameState newState = new GameState(p1, p2);
                 engine.setState(newState);
-                System.out.println("JOIN-ROOM: Estado creado. J1=" + jugadorId + " tiene el turno.");
+                System.out.println("JOIN-ROOM: Estado creado. J1=" + jugadorId + " personaje=" + tipoP1);
             } else {
                 GameState state = engine.getState();
                 boolean esJ1 = state.getJugador1().getId().equals(jugadorId);
@@ -144,7 +145,8 @@ public class GameSocketController {
     public void onUsarHabilidad(SocketIOClient client, HabilidadMessage mensaje, AckRequest ackSender) {
         GameEngine engine = roomManager.getRoom(mensaje.getRoomCode());
         if (engine != null && engine.getState() != null) {
-            engine.usarHabilidad(mensaje.getJugadorId(), mensaje.getHabilidadId());
+            // x,y son -1 para habilidades sin target; coordenada de celda para habilidades de área
+            engine.usarHabilidad(mensaje.getJugadorId(), mensaje.getHabilidadId(), mensaje.getX(), mensaje.getY());
             difundirEstado(mensaje.getRoomCode(), engine.getState());
         }
     }
@@ -250,12 +252,16 @@ public class GameSocketController {
         private String jugadorId;
         private String jugadorNombre;
         private String roomCode;
+        /** ID del personaje elegido (WULFRIK, AISLINN, LOKHIR, ARANESSA). Puede ser null (default WULFRIK). */
+        private String personajeId;
         public String getJugadorId() { return jugadorId; }
         public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
         public String getJugadorNombre() { return jugadorNombre; }
         public void setJugadorNombre(String jugadorNombre) { this.jugadorNombre = jugadorNombre; }
         public String getRoomCode() { return roomCode; }
         public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
+        public String getPersonajeId() { return personajeId; }
+        public void setPersonajeId(String personajeId) { this.personajeId = personajeId; }
     }
 
     // --- DTOs ---
@@ -278,12 +284,19 @@ public class GameSocketController {
         private String jugadorId;
         private String habilidadId;
         private String roomCode;
+        // Coordenadas de celda objetivo (requeridas por habilidades de área; -1 si no aplica)
+        private int x = -1;
+        private int y = -1;
         public String getJugadorId() { return jugadorId; }
         public void setJugadorId(String jugadorId) { this.jugadorId = jugadorId; }
         public String getHabilidadId() { return habilidadId; }
         public void setHabilidadId(String habilidadId) { this.habilidadId = habilidadId; }
         public String getRoomCode() { return roomCode; }
         public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
+        public int getX() { return x; }
+        public void setX(int x) { this.x = x; }
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
     }
 
     public static class ColocarBarcosMessage {

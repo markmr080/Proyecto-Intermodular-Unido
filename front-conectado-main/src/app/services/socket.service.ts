@@ -107,9 +107,9 @@ export class SocketService {
   }
 
   // --- Métodos de Juego ---
-  public joinRoom(jugadorId: string, jugadorNombre: string, roomCode: string) {
+  public joinRoom(jugadorId: string, jugadorNombre: string, roomCode: string, personajeId: string = 'WULFRIK') {
     this.connect();
-    this.socket.emit('join-room', { jugadorId, jugadorNombre, roomCode });
+    this.socket.emit('join-room', { jugadorId, jugadorNombre, roomCode, personajeId });
   }
 
   public colocarBarcos(jugadorId: string, roomCode: string, tablero: string[][]) {
@@ -120,8 +120,8 @@ export class SocketService {
     this.socket.emit('atacar', { jugadorId, roomCode, x, y });
   }
 
-  public usarHabilidad(jugadorId: string, roomCode: string, habilidadId: string) {
-    this.socket.emit('usar-habilidad', { jugadorId, roomCode, habilidadId });
+  public usarHabilidad(jugadorId: string, roomCode: string, habilidadId: string, x: number = -1, y: number = -1) {
+    this.socket.emit('usar-habilidad', { jugadorId, roomCode, habilidadId, x, y });
   }
 
   public disconnect() {

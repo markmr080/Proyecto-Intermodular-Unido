@@ -13,6 +13,7 @@ export interface Barco {
 export interface Personaje {
   id: number;
   nombre: string;
+  tipo: string; // ID para el backend: WULFRIK, AISLINN, LOKHIR, ARANESSA
   imagen: string;
   barcos: Barco[];
 }
@@ -42,30 +43,10 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   personajes: Personaje[] = [
-    {
-      id: 1,
-      nombre: 'Wulfrik',
-      imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg',
-      barcos: generarFlota()
-    },
-    {
-      id: 2,
-      nombre: 'Aislinn',
-      imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
-      barcos: generarFlota()
-    },
-    {
-      id: 3,
-      nombre: 'Lokhir',
-      imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
-      barcos: generarFlota()
-    },
-    {
-      id: 4,
-      nombre: 'Aranessa',
-      imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
-      barcos: generarFlota()
-    }
+    { id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg', barcos: generarFlota() },
+    { id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847', barcos: generarFlota() },
+    { id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es', barcos: generarFlota() },
+    { id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142', barcos: generarFlota() }
   ];
 
   indiceActual = 0;
@@ -181,6 +162,10 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       this.seleccionJugador2 = this.indiceActual;
     }
 
+    // Guardar el personaje seleccionado para enviarlo en join-room
+    const tipoPersonaje = this.personajes[this.indiceActual].tipo;
+    localStorage.setItem(`personaje_${this.roomCode}`, tipoPersonaje);
+
     // Notificar al otro jugador
     this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual);
   }
@@ -204,10 +189,14 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     // Seleccionamos personaje aleatorio para J2
     this.seleccionJugador2 = Math.floor(Math.random() * this.personajes.length);
     
-    // Si J1 no ha seleccionado, le seleccionamos el actual
+    // Si J1 no ha seleccionado, le seleccionamos el actual y lo guardamos
     if (!this.jugador1Listo) {
       this.seleccionJugador1 = this.indiceActual;
     }
+
+    // Guardar el personaje elegido por J1 para que partida-activa lo use en join-room
+    const tipoPersonaje = this.personajes[this.seleccionJugador1!].tipo;
+    localStorage.setItem(`personaje_${this.roomCode}`, tipoPersonaje);
 
     // Activamos el modo test en el storage para que la pantalla de partida lo sepa
     localStorage.setItem(`test_mode_${this.roomCode}`, 'true');

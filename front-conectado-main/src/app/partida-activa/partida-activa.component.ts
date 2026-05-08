@@ -40,6 +40,19 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   mostrarModal = false;
   soyGanador = false;
 
+  // --- Modo targeting para habilidades de área ---
+  // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
+  private readonly HABILIDADES_CON_TARGET = new Set([
+    'SKL_WUL_2', // Colmillo de los Mares — horizontal 3
+    'SKL_AIS_2', // Ira de Mathlann — cruz
+    'SKL_LOK_1', // Andanada Druchii — diagonal
+    'SKL_LOK_2', // Furia Corsaria — revelar 3x3
+    'SKL_ARA_1', // Pólvora Vampírica — propagación
+  ]);
+  /** ID de la habilidad que espera que el jugador clique una celda; null si no hay targeting activo. */
+  habilidadPendiente: string | null = null;
+
+
 
   constructor() {
     this.myUsername = this.authService.getCurrentUsername();
@@ -69,16 +82,18 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
 
+    // Recuperar el personaje elegido en la pantalla de selección
+    const personajeId = localStorage.getItem(`personaje_${this.roomCode}`) || 'WULFRIK';
+
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
-    // Si el socket no está listo en el primer intento, se reintenta tras 1s adicional.
     const intentarJoinRoom = () => {
-      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername);
-      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode);
+      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername, '| personaje:', personajeId);
+      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode, personajeId);
     };
 
     setTimeout(() => {
       intentarJoinRoom();
-      // Segundo intento de seguridad tras 1.5s adicionales, por si el socket tardó en conectar
+      // Segundo intento de seguridad tras 1.5s adicionales
       setTimeout(intentarJoinRoom, 1500);
     }, 500);
 
@@ -290,16 +305,32 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   // --- Acciones de Fase COMBATE ---
 
-
   atacarCasilla(x: number, y: number) {
-    // Solo se puede atacar si es la fase COMBATE y es nuestro turno.
-    // La validación de quién tiene el turno la hace también el backend.
     if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
+
+    // Si hay una habilidad de área esperando target, enviamos la habilidad con coordenadas
+    if (this.habilidadPendiente) {
+      const hab = this.habilidadPendiente;
+      this.habilidadPendiente = null;
+      this.socketService.usarHabilidad(this.myUsername, this.roomCode, hab, x, y);
+      return;
+    }
+
     this.socketService.atacar(this.myUsername, this.roomCode, x, y);
   }
 
   usarHabilidad(habilidadId: string) {
     if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
+
+    // Habilidades con target: activar modo selección de celda
+    if (this.HABILIDADES_CON_TARGET.has(habilidadId)) {
+      // Si ya estaba activa la misma, la desactiva (toggle)
+      this.habilidadPendiente = this.habilidadPendiente === habilidadId ? null : habilidadId;
+      return;
+    }
+
+    // Habilidades sin target: ejecutar directamente
+    this.habilidadPendiente = null;
     this.socketService.usarHabilidad(this.myUsername, this.roomCode, habilidadId);
   }
 
