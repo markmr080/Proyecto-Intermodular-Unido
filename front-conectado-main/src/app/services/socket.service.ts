@@ -107,9 +107,9 @@ export class SocketService {
   }
 
   // --- Métodos de Juego ---
-  public joinRoom(jugadorId: string, jugadorNombre: string, roomCode: string, personajeId: string = 'WULFRIK') {
+  public joinRoom(jugadorId: string, jugadorNombre: string, roomCode: string, personajeId: string = 'WULFRIK', avatar: string = '') {
     this.connect();
-    this.socket.emit('join-room', { jugadorId, jugadorNombre, roomCode, personajeId });
+    this.socket.emit('join-room', { jugadorId, jugadorNombre, roomCode, personajeId, avatar });
   }
 
   public colocarBarcos(jugadorId: string, roomCode: string, tablero: string[][]) {

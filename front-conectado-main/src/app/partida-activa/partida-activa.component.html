@@ -1,146 +1,194 @@
-<div class="partida-container">
+<div class="partida-wrapper">
+  <div class="background-overlay"></div>
+  <div class="partida-container">
 
-  <!-- ESTADO SUPERIOR O MENSAJES -->
-  <div class="game-header" *ngIf="gameState">
-    <h2>Sala: {{roomCode}}</h2>
-    <div class="turn-indicator" [class.mi-turno]="esMiTurno" [class.turno-enemigo]="!esMiTurno">
-      <span *ngIf="esMiTurno">⚔️ ¡ES TU TURNO! ⚔️</span>
-      <span *ngIf="!esMiTurno">🛡️ TURNO ENEMIGO 🛡️</span>
+
+    <!-- ESTADO SUPERIOR O MENSAJES -->
+    <div class="game-header" *ngIf="gameState">
+      <h2>Sala: {{roomCode}}</h2>
+      <!-- Indicador de Turno o Fase -->
+      <div class="turn-indicator" [class.mi-turno]="gameState.fase === 'COMBATE' && esMiTurno"
+        [class.turno-enemigo]="gameState.fase === 'COMBATE' && !esMiTurno"
+        [class.fase-colocacion]="gameState.fase === 'COLOCACION'">
+
+        <span *ngIf="gameState.fase === 'COLOCACION'">⚓ FASE DE DESPLIEGUE ⚓</span>
+
+        <ng-container *ngIf="gameState.fase === 'COMBATE'">
+          <span *ngIf="esMiTurno">⚔️ ¡ES TU TURNO! ⚔️</span>
+          <span *ngIf="!esMiTurno">🛡️ TURNO ENEMIGO 🛡️</span>
+        </ng-container>
+      </div>
+      <div class="header-placeholder"></div>
     </div>
-    <div class="timer">⏱️ {{gameState.tiempoRestante}}s</div>
-    <div class="game-message">{{gameState.mensajeEstado}}</div>
-  </div>
 
-  <div class="layout-grid" *ngIf="gameState; else loading">
+    <div class="layout-grid" *ngIf="gameState; else loading">
 
-    <!-- COLUMNA IZQUIERDA: STATS JUGADORES -->
-    <div class="column-left">
+      <!-- COLUMNA IZQUIERDA: STATS JUGADORES -->
+      <div class="column-left">
 
-      <div class="skills-top-group">
-        <div class="skills-warning" *ngIf="gameState.fase === 'COMBATE'">
-          <p class="skill-note-warning">Al clicar en una casilla se atacará a esa casilla. El otro jugador dispondrá de
-            20s para reaccionar. Tiempo máximo de turno: 60s.</p>
+        <div class="skills-top-group">
+
+          <!-- Mi Jugador -->
+          <div class="player-card my-player">
+            <h3>🛡️ {{ miJugador?.personaje?.nombre || miJugador?.nombre }}</h3>
+            <p class="player-subtitle">{{ miJugador?.nombre }}</p>
+            <div class="avatar-container">
+              <img
+                [src]="miJugador?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (miJugador?.personaje?.nombre || miJugador?.nombre)"
+                alt="Mi Avatar">
+            </div>
+            <div class="stats">
+              <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
+              <div class="passive-skill" *ngIf="miJugador?.personaje?.habilidadPasiva">
+                <strong>Pasiva:</strong> {{miJugador?.personaje?.habilidadPasiva?.nombre}}
+                <span class="tooltip">{{miJugador?.personaje?.habilidadPasiva?.descripcion}}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Mi Jugador -->
-        <div class="player-card my-player">
-          <h3>🛡️ {{ miJugador?.personaje?.nombre || miJugador?.nombre }}</h3>
-          <p class="player-subtitle">{{ miJugador?.nombre }}</p>
+        <!-- Enemigo -->
+        <div class="player-card enemy-player">
+          <h3>⚔️ {{ enemigo?.personaje?.nombre || enemigo?.nombre }}</h3>
+          <p class="player-subtitle">{{ enemigo?.nombre }}</p>
           <div class="avatar-container">
-            <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (miJugador?.personaje?.nombre || miJugador?.nombre)" alt="Mi Avatar">
+            <img
+              [src]="enemigo?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (enemigo?.personaje?.nombre || enemigo?.nombre)"
+              alt="Enemigo Avatar">
           </div>
           <div class="stats">
-            <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
-            <div class="passive-skill" *ngIf="miJugador?.personaje?.habilidadPasiva">
-              <strong>Pasiva:</strong> {{miJugador?.personaje?.habilidadPasiva?.nombre}}
-              <span class="tooltip">{{miJugador?.personaje?.habilidadPasiva?.descripcion}}</span>
+            <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->
+            <p>🚢 Barcos restantes: <strong>{{ barcosEnemigoRestantes }}</strong></p>
+            <div class="passive-skill" *ngIf="enemigo?.personaje?.habilidadPasiva">
+              <strong>Pasiva:</strong> {{enemigo?.personaje?.habilidadPasiva?.nombre}}
+              <span class="tooltip">{{enemigo?.personaje?.habilidadPasiva?.descripcion}}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Enemigo -->
-      <div class="player-card enemy-player">
-        <h3>⚔️ {{ enemigo?.personaje?.nombre || enemigo?.nombre }}</h3>
-        <p class="player-subtitle">{{ enemigo?.nombre }}</p>
-        <div class="avatar-container">
-          <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (enemigo?.personaje?.nombre || enemigo?.nombre)" alt="Enemigo Avatar">
-        </div>
-        <div class="stats">
-          <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->
-          <p>🚢 Barcos restantes: <strong>{{ barcosEnemigoRestantes }}</strong></p>
-          <div class="passive-skill" *ngIf="enemigo?.personaje?.habilidadPasiva">
-            <strong>Pasiva:</strong> {{enemigo?.personaje?.habilidadPasiva?.nombre}}
-            <span class="tooltip">{{enemigo?.personaje?.habilidadPasiva?.descripcion}}</span>
+      <!-- COLUMNA CENTRAL: TABLERO DE HUNDIR LA FLOTA -->
+      <div class="column-center">
+
+        <!-- FASE DE COLOCACIÓN -->
+        <ng-container *ngIf="gameState.fase === 'COLOCACION'">
+
+          <div class="board mi-tablero">
+            <ng-container *ngFor="let fila of myBoard; let x = index; trackBy: trackByFila">
+              <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
+                [ngClass]="getClaseCasilla(celda, true)" [class.drag-highlight]="isCellHighlighted(x, y)"
+                [class.drag-invalid]="isCellHighlighted(x, y) && !isPreviewValid()" (click)="colocarBarcoEnCelda(x, y)"
+                (mouseenter)="onMouseEnter(x, y)" (mouseleave)="onMouseLeave()" (dragover)="onDragOver($event, x, y)"
+                (dragleave)="onDragLeave()" (drop)="onDrop($event, x, y)">
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <!-- FASE DE COMBATE -->
+        <ng-container *ngIf="gameState.fase === 'COMBATE'">
+
+          <!-- Banner de targeting activo -->
+          <div class="targeting-banner" *ngIf="habilidadPendiente">
+            🎯 Selecciona una casilla del tablero enemigo para lanzar la habilidad
+            <button class="btn-cancelar-target" (click)="habilidadPendiente = null">✕ Cancelar</button>
+          </div>
+
+          <div class="board enemigo-tablero" [class.targeting-active]="!!habilidadPendiente">
+            <ng-container *ngFor="let fila of enemyBoard; let x = index; trackBy: trackByFila">
+              <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
+                [ngClass]="getClaseCasilla(celda, false)" (click)="atacarCasilla(x, y)">
+                <span *ngIf="celda === 'AGUA_GOLPEADA'">&#x1F4A6;</span>
+                <span *ngIf="celda === 'TOCADO' || celda === 'HUNDIDO'">🔥</span>
+                <!-- Celda revelada por habilidad de vision: el jugador sabe que hay un barco aqui -->
+                <span *ngIf="celda === 'REVELADA'">👁️</span>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Botones de acción eliminados de aquí (se mueven a la derecha) -->
+
+        </ng-container>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: HABILIDADES E INFO -->
+      <div class="column-right">
+
+        <!-- 1 & 2: TIEMPO / ESTADO DE COLOCACIÓN -->
+        <div class="game-info-top">
+          <!-- En Combate: Tiempo -->
+          <div class="info-item timer-info" *ngIf="gameState.fase === 'COMBATE'">
+            <span class="label">⏳ TIEMPO RESTANTE</span>
+            <div class="value">{{gameState.tiempoRestante}}s</div>
+          </div>
+
+          <!-- En Colocación: Instrucciones -->
+          <div class="info-item placement-info" *ngIf="gameState.fase === 'COLOCACION'">
+            <span class="label">📋 INSTRUCCIONES</span>
+
+            <div class="placement-steps" *ngIf="!colocacionTerminada">
+              <p>1. Selecciona la orientación.</p>
+              <p>2. Haz clic o arrastra los barcos al tablero.</p>
+            </div>
+
+            <div class="placement-waiting" *ngIf="colocacionTerminada">
+              <p *ngIf="!miJugador?.listoParaCombate">¡Flota lista! Pulsa el botón inferior.</p>
+              <p *ngIf="miJugador?.listoParaCombate">Esperando al enemigo...</p>
+            </div>
+          </div>
+
+          <div class="info-item action-info" *ngIf="gameState.fase === 'COMBATE'">
+            <span class="label">💬 ÚLTIMA ACCIÓN</span>
+            <div class="action-message">{{mensajeEstadoFormateado}}</div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- COLUMNA CENTRAL: TABLERO DE HUNDIR LA FLOTA -->
-    <div class="column-center">
+        <div class="orientation-control-standalone" *ngIf="gameState.fase === 'COLOCACION'">
+          <!-- Botón de Orientación (Mientras se coloca) -->
+          <button class="btn-toggle-orientation" (click)="cambiarOrientacion()" *ngIf="!colocacionTerminada">
+            <span class="orient-icon" [class.is-vertical]="orientation === 'V'">↔️</span>
+            <span class="orient-text">ORIENTACIÓN: {{ orientation === 'H' ? 'HORIZONTAL' : 'VERTICAL' }}</span>
+          </button>
 
-      <!-- FASE DE COLOCACIÓN -->
-      <ng-container *ngIf="gameState.fase === 'COLOCACION'">
-        <h2 class="board-title">COLOCA TUS BARCOS</h2>
-
-        <div class="placement-controls" *ngIf="!colocacionTerminada">
-          <p>Barco actual: <strong>Tamaño {{ shipsToPlace[currentShipIndex] }}</strong></p>
-          <button class="btn-orientacion" (click)="cambiarOrientacion()">
-            Orientación: {{ orientation === 'H' ? 'Horizontal ↔️' : 'Vertical ↕️' }}
+          <!-- Botón de ¡A LA BATALLA! (Cuando termina) -->
+          <button class="btn-toggle-orientation btn-battle-ready" (click)="enviarTablero()"
+            *ngIf="colocacionTerminada && !miJugador?.listoParaCombate">
+            <span class="orient-icon">⚔️</span>
+            <span class="orient-text">¡A LA BATALLA!</span>
           </button>
         </div>
 
-        <div class="placement-controls" *ngIf="colocacionTerminada && !miJugador?.listoParaCombate">
-          <p>¡Flota preparada para la batalla!</p>
-          <button class="btn-listo" (click)="enviarTablero()">LISTO</button>
-        </div>
+        <!-- 3 & 4: SELECCIÓN DE BARCOS -->
+        <div class="skills-box ships-selection" *ngIf="gameState.fase === 'COLOCACION'">
+          <h3>Despliegue de Flota</h3>
 
-        <div class="placement-controls" *ngIf="miJugador?.listoParaCombate">
-          <p>Esperando a que el enemigo termine de colocar sus barcos...</p>
-        </div>
-
-        <div class="board mi-tablero">
-          <ng-container *ngFor="let fila of myBoard; let x = index">
-            <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, true)"
-              (click)="colocarBarcoEnCelda(x, y)">
+          <div class="ships-list-container">
+            <div *ngFor="let ship of shipsAvailable; let i = index" class="ship-token-item" [class.placed]="ship.placed"
+              [draggable]="!ship.placed" (dragstart)="onDragStart(i)">
+              <div class="ship-visual-token" [attr.data-size]="ship.size">
+                <span class="ship-size-badge">{{ship.size}}</span>
+                <div class="ship-segments">
+                  <div *ngFor="let s of [].constructor(ship.size)" class="segment"></div>
+                </div>
+              </div>
+              <span class="ship-status-icon">{{ ship.placed ? '✅' : '⚓' }}</span>
             </div>
-          </ng-container>
-        </div>
-      </ng-container>
+          </div>
 
-      <!-- FASE DE COMBATE -->
-      <ng-container *ngIf="gameState.fase === 'COMBATE'">
-
-        <!-- Banner de targeting activo -->
-        <div class="targeting-banner" *ngIf="habilidadPendiente">
-          🎯 Selecciona una casilla del tablero enemigo para lanzar la habilidad
-          <button class="btn-cancelar-target" (click)="habilidadPendiente = null">✕ Cancelar</button>
+          <!-- MENSAJE DE ERROR O TIP (Aquí abajo ahora) -->
+          <div class="placement-error-msg" *ngIf="placementError">
+            {{ placementError }}
+          </div>
         </div>
 
-        <div class="board enemigo-tablero" [class.targeting-active]="!!habilidadPendiente">
-          <ng-container *ngFor="let fila of enemyBoard; let x = index">
-            <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, false)"
-              (click)="atacarCasilla(x, y)">
-              <span *ngIf="celda === 'AGUA_GOLPEADA'">&#x1F4A6;</span>
-              <span *ngIf="celda === 'TOCADO' || celda === 'HUNDIDO'">🔥</span>
-              <!-- Celda revelada por habilidad de vision: el jugador sabe que hay un barco aqui -->
-              <span *ngIf="celda === 'REVELADA'">👁️</span>
-            </div>
-          </ng-container>
-        </div>
-
-        <!-- Botones de acción durante el combate -->
-        <div class="combat-actions">
-          <button class="btn-ver-mi-tablero" id="btn-ver-mi-tablero"
-            (click)="mostrarMiTablero = true">
-            🗺️ Ver mi tablero
-          </button>
-          <button class="btn-rendirse" id="btn-rendirse"
-            (click)="mostrarConfirmacionRendirse = true">
-            🏳️ Rendirse
-          </button>
-        </div>
-
-      </ng-container>
-
-    </div>
-
-    <!-- COLUMNA DERECHA: HABILIDADES -->
-    <div class="column-right">
-
-      <div class="skills-top-group">
-        <div class="skills-warning">
-          <p class="skill-note-warning">Solo se podrá utilizar una habilidad por turno, ya sea ofensiva o defensiva.</p>
-        </div>
-
-        <!-- Habilidades Ofensivas -->
-        <div class="skills-box offensive">
+        <!-- 3: HABILIDADES OFENSIVAS (Solo en Combate) -->
+        <div class="skills-box offensive" *ngIf="gameState.fase === 'COMBATE'">
           <h3>Habilidades Ofensivas</h3>
           <div class="abilities-container">
-            <div *ngFor="let hab of habilidadesOfensivas" class="ability-group">
+            <div *ngFor="let hab of habilidadesOfensivas; trackBy: trackByHabilidad" class="ability-group">
               <button class="ability-circle offensive"
-                [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
+                [disabled]="gameState.fase !== 'COMBATE' || hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
                 (click)="usarHabilidad(hab.id)">
                 <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre"
                   class="ability-img-icon" />
@@ -154,102 +202,112 @@
             <p *ngIf="habilidadesOfensivas.length === 0">Sin habilidades ofensivas.</p>
           </div>
         </div>
-      </div>
 
-      <!-- Habilidades Defensivas -->
-      <div class="skills-box defensive">
-        <h3>Habilidades Defensivas</h3>
-        <div class="abilities-container">
-          <div *ngFor="let hab of habilidadesDefensivas" class="ability-group">
-            <button class="ability-circle defensive"
-              [disabled]="hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
-              (click)="usarHabilidad(hab.id)">
-              <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre"
-                class="ability-img-icon" />
-              <span class="cd-overlay" *ngIf="hab.cooldownActual > 0">{{hab.cooldownActual}}</span>
-            </button>
-            <div class="ability-tooltip">
-              <strong class="ability-name">{{ hab.nombre }}</strong>
-              <span class="ability-desc">{{ hab.descripcion }} (CD: {{hab.cooldownMax}})</span>
+        <!-- 4: HABILIDADES DEFENSIVAS (Solo en Combate) -->
+        <div class="skills-box defensive" *ngIf="gameState.fase === 'COMBATE'">
+          <h3>Habilidades Defensivas</h3>
+          <div class="abilities-container">
+            <div *ngFor="let hab of habilidadesDefensivas; trackBy: trackByHabilidad" class="ability-group">
+              <button class="ability-circle defensive"
+                [disabled]="gameState.fase !== 'COMBATE' || hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
+                (click)="usarHabilidad(hab.id)">
+                <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre"
+                  class="ability-img-icon" />
+                <span class="cd-overlay" *ngIf="hab.cooldownActual > 0">{{hab.cooldownActual}}</span>
+              </button>
+              <div class="ability-tooltip">
+                <strong class="ability-name">{{ hab.nombre }}</strong>
+                <span class="ability-desc">{{ hab.descripcion }} (CD: {{hab.cooldownMax}})</span>
+              </div>
             </div>
+            <p *ngIf="habilidadesDefensivas.length === 0">Sin habilidades defensivas.</p>
           </div>
-          <p *ngIf="habilidadesDefensivas.length === 0">Sin habilidades defensivas.</p>
+        </div>
+
+        <!-- 5: BOTONES DE ACCIÓN (Adaptados a la fase) -->
+        <div class="combat-actions-vertical">
+          <!-- Botones de Colocación (Ya no están aquí abajo) -->
+
+          <!-- Botones de Combate -->
+          <ng-container *ngIf="gameState.fase === 'COMBATE'">
+            <button class="btn-ver-mi-tablero-v" (click)="mostrarMiTablero = true">
+              🗺️ VER MI TABLERO
+            </button>
+            <button class="btn-rendirse-v" (click)="mostrarConfirmacionRendirse = true">
+              🏳️ RENDIRSE
+            </button>
+          </ng-container>
+        </div>
+
+      </div> <!-- .column-right -->
+    </div> <!-- .layout-grid -->
+
+    <ng-template #loading>
+      <div class="loading-screen">
+        <div class="spinner"></div>
+        <p>Conectando con el campo de batalla...</p>
+      </div>
+    </ng-template>
+
+    <!-- ===== MODAL FIN DE PARTIDA ===== -->
+    <div class="modal-overlay" *ngIf="mostrarModal">
+      <div class="modal-card" [class.victoria]="soyGanador" [class.derrota]="!soyGanador">
+        <div class="modal-icon">{{ soyGanador ? '🏆' : '💀' }}</div>
+        <h2 class="modal-titulo">{{ soyGanador ? '¡VICTORIA!' : 'DERROTA' }}</h2>
+        <p class="modal-mensaje">
+          {{ soyGanador
+          ? '¡Has hundido toda la flota enemiga! La gloria es tuya.'
+          : 'Tu flota ha sido destruida. ¡La próxima vez tendrás más suerte!' }}
+        </p>
+        <button class="modal-btn-salir" (click)="salirDePartida()">
+          🚪 Salir
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== MODAL: CONFIRMACIÓN DE RENDICIÓN ===== -->
+    <div class="modal-overlay" *ngIf="mostrarConfirmacionRendirse" (click)="mostrarConfirmacionRendirse = false">
+      <div class="modal-rendirse-card" (click)="$event.stopPropagation()">
+        <div class="rendirse-icon">🏳️</div>
+        <h3 class="rendirse-titulo">¿Seguro que quieres rendirte?</h3>
+        <p class="rendirse-subtitulo">Perderás la partida y el rival será declarado ganador.</p>
+        <div class="rendirse-botones">
+          <button class="btn-confirmar-rendirse" id="btn-confirmar-rendirse" (click)="confirmarRendirse()">✔ Sí,
+            rendirse</button>
+          <button class="btn-cancelar-rendirse" id="btn-cancelar-rendirse"
+            (click)="mostrarConfirmacionRendirse = false">✖ Cancelar</button>
         </div>
       </div>
+    </div>
 
+    <!-- ===== MODAL: MI TABLERO ===== -->
+    <div class="modal-overlay" *ngIf="mostrarMiTablero" (click)="mostrarMiTablero = false">
+      <div class="modal-mi-tablero-card" (click)="$event.stopPropagation()">
+        <div class="modal-mi-tablero-header">
+          <h3>🗺️ Mi Tablero</h3>
+          <button class="btn-cerrar-mi-tablero" id="btn-cerrar-mi-tablero" (click)="mostrarMiTablero = false">✕</button>
+        </div>
+
+        <!-- Leyenda -->
+        <div class="mi-tablero-leyenda">
+          <span class="leyenda-item"><span class="leyenda-color barco-color"></span> Barco intacto</span>
+          <span class="leyenda-item"><span class="leyenda-color tocado-color"></span> Tocado 🔥</span>
+          <span class="leyenda-item"><span class="leyenda-color hundido-color"></span> Hundido</span>
+          <span class="leyenda-item"><span class="leyenda-color fallo-color"></span> Fallo enemigo 💧</span>
+        </div>
+
+        <!-- Tablero 10×10 con el estado propio -->
+        <div class="board mi-tablero-modal">
+          <ng-container *ngFor="let fila of myBoard; let x = index">
+            <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, true)">
+              <span *ngIf="celda === 'AGUA_GOLPEADA'">💧</span>
+              <span *ngIf="celda === 'TOCADO'">🔥</span>
+              <span *ngIf="celda === 'HUNDIDO'">💀</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
     </div>
 
   </div>
-
-  <ng-template #loading>
-    <div class="loading-screen">
-      <div class="spinner"></div>
-      <p>Conectando con el campo de batalla...</p>
-    </div>
-  </ng-template>
-
-  <!-- ===== MODAL FIN DE PARTIDA ===== -->
-  <!-- Se muestra cuando el backend indica que el juego ya no está activo -->
-  <div class="modal-overlay" *ngIf="mostrarModal">
-    <div class="modal-card" [class.victoria]="soyGanador" [class.derrota]="!soyGanador">
-      <div class="modal-icon">{{ soyGanador ? '🏆' : '💀' }}</div>
-      <h2 class="modal-titulo">{{ soyGanador ? '¡VICTORIA!' : 'DERROTA' }}</h2>
-      <p class="modal-mensaje">
-        {{ soyGanador
-            ? '¡Has hundido toda la flota enemiga! La gloria es tuya.'
-            : 'Tu flota ha sido destruida. ¡La próxima vez tendrás más suerte!' }}
-      </p>
-      <button class="modal-btn-salir" (click)="salirDePartida()">
-        🚪 Salir
-      </button>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: CONFIRMACIÓN DE RENDICIÓN ===== -->
-  <div class="modal-overlay" *ngIf="mostrarConfirmacionRendirse" (click)="mostrarConfirmacionRendirse = false">
-    <div class="modal-rendirse-card" (click)="$event.stopPropagation()">
-      <div class="rendirse-icon">🏳️</div>
-      <h3 class="rendirse-titulo">¿Seguro que quieres rendirte?</h3>
-      <p class="rendirse-subtitulo">Perderás la partida y el rival será declarado ganador.</p>
-      <div class="rendirse-botones">
-        <button class="btn-confirmar-rendirse" id="btn-confirmar-rendirse"
-          (click)="confirmarRendirse()">✔ Sí, rendirse</button>
-        <button class="btn-cancelar-rendirse" id="btn-cancelar-rendirse"
-          (click)="mostrarConfirmacionRendirse = false">✖ Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MODAL: MI TABLERO ===== -->
-  <div class="modal-overlay" *ngIf="mostrarMiTablero" (click)="mostrarMiTablero = false">
-    <div class="modal-mi-tablero-card" (click)="$event.stopPropagation()">
-      <div class="modal-mi-tablero-header">
-        <h3>🗺️ Mi Tablero</h3>
-        <button class="btn-cerrar-mi-tablero" id="btn-cerrar-mi-tablero"
-          (click)="mostrarMiTablero = false">✕</button>
-      </div>
-
-      <!-- Leyenda -->
-      <div class="mi-tablero-leyenda">
-        <span class="leyenda-item"><span class="leyenda-color barco-color"></span> Barco intacto</span>
-        <span class="leyenda-item"><span class="leyenda-color tocado-color"></span> Tocado 🔥</span>
-        <span class="leyenda-item"><span class="leyenda-color hundido-color"></span> Hundido</span>
-        <span class="leyenda-item"><span class="leyenda-color fallo-color"></span> Fallo enemigo 💧</span>
-      </div>
-
-      <!-- Tablero 10×10 con el estado propio -->
-      <div class="board mi-tablero-modal">
-        <ng-container *ngFor="let fila of myBoard; let x = index">
-          <div *ngFor="let celda of fila; let y = index"
-               class="cell"
-               [ngClass]="getClaseCasilla(celda, true)">
-            <span *ngIf="celda === 'AGUA_GOLPEADA'">💧</span>
-            <span *ngIf="celda === 'TOCADO'">🔥</span>
-            <span *ngIf="celda === 'HUNDIDO'">💀</span>
-          </div>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-
 </div>

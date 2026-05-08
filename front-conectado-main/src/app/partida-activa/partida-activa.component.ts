@@ -65,6 +65,19 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   /** ID de la habilidad que espera que el jugador clique una celda; null si no hay targeting activo. */
   habilidadPendiente: string | null = null;
 
+  // --- Propiedades para Drag and Drop de Barcos ---
+  /** Barcos que aún no han sido colocados en el tablero. */
+  shipsAvailable: { size: number, placed: boolean, id: number }[] = [];
+  /** Tamaño del barco que se está arrastrando actualmente. */
+  draggedShipIndex: number | null = null;
+  /** Mensaje de error cuando una colocación no es válida. */
+  placementError: string | null = null;
+  private errorTimeout: any;
+
+  // Propiedades para la previsualización del drag
+  hoverX: number | null = null;
+  hoverY: number | null = null;
+
 
 
   constructor() {
@@ -100,8 +113,11 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
     const intentarJoinRoom = () => {
-      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername, '| personaje:', personajeId);
-      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode, personajeId);
+      const user = this.authService.getCurrentUser();
+      const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/adventurer/svg?seed=${this.myUsername}`;
+      
+      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername, '| personaje:', personajeId, '| avatar:', avatarUrl);
+      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode, personajeId, avatarUrl);
     };
 
     setTimeout(() => {
@@ -129,8 +145,13 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         const flotaPersonaje = this.miJugador?.personaje?.flotaComoListaTamanos;
         if (flotaPersonaje && flotaPersonaje.length > 0) {
           this.shipsToPlace = flotaPersonaje;
+          this.shipsAvailable = flotaPersonaje.map((size: number, idx: number) => ({
+            size,
+            placed: false,
+            id: idx
+          }));
           this.flotaInicializada = true;
-          console.log('[PartidaActiva] Flota del personaje:', this.shipsToPlace);
+          console.log('[PartidaActiva] Flota del personaje inicializada:', this.shipsAvailable);
         }
       }
 
@@ -197,48 +218,192 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     this.orientation = this.orientation === 'H' ? 'V' : 'H';
   }
 
-  colocarBarcoEnCelda(x: number, y: number) {
-    if (this.colocacionTerminada || this.gameState?.fase !== 'COLOCACION') return;
+  // --- Drag and Drop Handlers ---
 
-    const size = this.shipsToPlace[this.currentShipIndex];
+  onDragStart(index: number) {
+    this.draggedShipIndex = index;
+    // Opcional: podemos resetear el error al empezar a arrastrar
+    this.placementError = null;
+  }
 
-    // Verificar límites
-    if (this.orientation === 'H' && y + size > 10) return;
-    if (this.orientation === 'V' && x + size > 10) return;
+  onDragOver(event: DragEvent, x: number, y: number) {
+    event.preventDefault(); // Permitir el drop
+    this.hoverX = x;
+    this.hoverY = y;
+  }
 
-    // Verificar colisiones y asegurar un espacio vacío alrededor
-    // Recorremos cada parte del barco a colocar
+  onDragLeave() {
+    this.hoverX = null;
+    this.hoverY = null;
+  }
+
+  onMouseEnter(x: number, y: number) {
+    if (this.gameState?.fase === 'COLOCACION') {
+      this.hoverX = x;
+      this.hoverY = y;
+    }
+  }
+
+  onMouseLeave() {
+    this.hoverX = null;
+    this.hoverY = null;
+  }
+
+  onDrop(event: DragEvent, x: number, y: number) {
+    event.preventDefault();
+    this.hoverX = null;
+    this.hoverY = null;
+    
+    if (this.draggedShipIndex === null) return;
+
+    const ship = this.shipsAvailable[this.draggedShipIndex];
+    if (ship.placed) return;
+
+    if (this.canPlaceShip(x, y, ship.size)) {
+      this.placeShipInBoard(x, y, ship.size);
+      ship.placed = true;
+      this.draggedShipIndex = null;
+      this.placementError = null;
+      
+      // Comprobar si todos los barcos están colocados
+      this.colocacionTerminada = this.shipsAvailable.every(s => s.placed);
+    } else {
+      this.showPlacementError('⚠️ Posición no válida o barcos demasiado juntos');
+    }
+  }
+
+  /** Determina si una celda debe mostrarse resaltada durante el arrastre o hover */
+  isCellHighlighted(x: number, y: number): boolean {
+    if (this.hoverX === null || this.hoverY === null || this.gameState?.fase !== 'COLOCACION') return false;
+
+    // Si estamos arrastrando, usamos ese barco. Si no, el siguiente disponible para clic.
+    let size = 0;
+    if (this.draggedShipIndex !== null) {
+      size = this.shipsAvailable[this.draggedShipIndex].size;
+    } else {
+      const nextShip = this.shipsAvailable.find(s => !s.placed);
+      if (!nextShip) return false;
+      size = nextShip.size;
+    }
+
+    // Calculamos si (x,y) está dentro del rango del barco
+    if (this.orientation === 'H') {
+      return x === this.hoverX && y >= this.hoverY && y < this.hoverY + size;
+    } else {
+      return y === this.hoverY && x >= this.hoverX && x < this.hoverX + size;
+    }
+  }
+
+  /** Indica si la previsualización actual es válida */
+  isPreviewValid(): boolean {
+    if (this.hoverX === null || this.hoverY === null) return true;
+
+    let size = 0;
+    if (this.draggedShipIndex !== null) {
+      size = this.shipsAvailable[this.draggedShipIndex].size;
+    } else {
+      const nextShip = this.shipsAvailable.find(s => !s.placed);
+      if (!nextShip) return true;
+      size = nextShip.size;
+    }
+
+    return this.canPlaceShip(this.hoverX, this.hoverY, size);
+  }
+
+  showPlacementError(msg: string) {
+    this.placementError = msg;
+    if (this.errorTimeout) clearTimeout(this.errorTimeout);
+    this.errorTimeout = setTimeout(() => this.placementError = null, 3000);
+  }
+
+  /** Comprueba si un barco de cierto tamaño se puede colocar en (x,y) con la orientación actual. */
+  canPlaceShip(x: number, y: number, size: number): boolean {
+    if (this.orientation === 'H' && y + size > 10) return false;
+    if (this.orientation === 'V' && x + size > 10) return false;
+
     for (let i = 0; i < size; i++) {
       const cx = this.orientation === 'V' ? x + i : x;
       const cy = this.orientation === 'H' ? y + i : y;
 
-      // Comprobamos la celda actual y todas sus adyacentes (incluyendo diagonales)
-      // para asegurar que como mínimo haya un espacio vacío entre cada barco
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
           const adjX = cx + dx;
           const adjY = cy + dy;
-          // Validar que la celda adyacente esté dentro del tablero (10x10)
           if (adjX >= 0 && adjX < 10 && adjY >= 0 && adjY < 10) {
-            if (this.myBoard[adjX][adjY] === 'BARCO') {
-              return; // Hay una colisión o un barco adyacente, por lo que no se puede colocar
-            }
+            if (this.myBoard[adjX][adjY] === 'BARCO') return false;
           }
         }
       }
     }
+    return true;
+  }
 
-    // Colocar
+  placeShipInBoard(x: number, y: number, size: number) {
     for (let i = 0; i < size; i++) {
       const cx = this.orientation === 'V' ? x + i : x;
       const cy = this.orientation === 'H' ? y + i : y;
       this.myBoard[cx][cy] = 'BARCO';
     }
+  }
 
-    this.currentShipIndex++;
-    if (this.currentShipIndex >= this.shipsToPlace.length) {
-      this.colocacionTerminada = true;
+  colocarBarcoEnCelda(x: number, y: number) {
+    if (this.gameState?.fase !== 'COLOCACION') return;
+
+    // Si ya hay un barco, lo retiramos
+    if (this.myBoard[x][y] === 'BARCO') {
+      this.retirarBarco(x, y);
+      return;
     }
+
+    // Si no hay barco, permitimos colocar el primero disponible
+    const nextShip = this.shipsAvailable.find(s => !s.placed);
+    if (!nextShip) return;
+
+    if (this.canPlaceShip(x, y, nextShip.size)) {
+      this.placeShipInBoard(x, y, nextShip.size);
+      nextShip.placed = true;
+      this.colocacionTerminada = this.shipsAvailable.every(s => s.placed);
+      this.placementError = null;
+    } else {
+      this.showPlacementError('⚠️ Posición no válida o barcos demasiado juntos');
+    }
+  }
+
+  /** Retira el barco que ocupa la celda (x, y) */
+  retirarBarco(x: number, y: number) {
+    // Encontrar todas las celdas contiguas que son BARCO
+    const celdasBarco: {x: number, y: number}[] = [];
+    const stack = [{x, y}];
+    const visited = new Set<string>();
+
+    while (stack.length > 0) {
+      const {x: cx, y: cy} = stack.pop()!;
+      const key = `${cx},${cy}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      if (cx >= 0 && cx < 10 && cy >= 0 && cy < 10 && this.myBoard[cx][cy] === 'BARCO') {
+        celdasBarco.push({x: cx, y: cy});
+        // Mirar vecinos (solo horizontal y vertical)
+        stack.push({x: cx + 1, y: cy});
+        stack.push({x: cx - 1, y: cy});
+        stack.push({x: cx, y: cy + 1});
+        stack.push({x: cx, y: cy - 1});
+      }
+    }
+
+    const size = celdasBarco.length;
+    // Limpiar celdas en el tablero
+    celdasBarco.forEach(c => this.myBoard[c.x][c.y] = 'AGUA');
+
+    // Marcar como no colocado en la lista
+    // Buscamos un barco del mismo tamaño que esté marcado como colocado
+    const shipToRestore = this.shipsAvailable.find(s => s.size === size && s.placed);
+    if (shipToRestore) {
+      shipToRestore.placed = false;
+    }
+    
+    this.colocacionTerminada = false;
   }
 
   enviarTablero() {
@@ -441,5 +606,46 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   get habilidadesDefensivas(): any[] {
     if (!this.miJugador || !this.miJugador.personaje) return [];
     return this.miJugador.personaje.habilidadesActivas.filter((h: any) => h.tipo === 'DEFENSIVA');
+  }
+
+  // --- Funciones TrackBy para evitar parpadeos en re-renders ---
+  trackByHabilidad(index: number, hab: any): string {
+    return hab.id;
+  }
+
+  trackByFila(index: number, fila: string[]): number {
+    return index;
+  }
+
+  trackByCelda(index: number, celda: string): number {
+    return index;
+  }
+
+  /**
+   * Formatea el mensaje de estado reemplazando nombres de personajes por nombres de jugadores.
+   */
+  get mensajeEstadoFormateado(): string {
+    if (!this.gameState || !this.gameState.mensajeEstado) return '';
+    
+    let msg = this.gameState.mensajeEstado;
+    const j1 = this.gameState.jugador1;
+    const j2 = this.gameState.jugador2;
+
+    if (j1 && j1.personaje) {
+      const nombrePersonaje = j1.personaje.nombre;
+      const nombreJugador = j1.nombre;
+      // Reemplazo insensible a mayúsculas/minúsculas
+      const regex = new RegExp(nombrePersonaje, 'gi');
+      msg = msg.replace(regex, nombreJugador);
+    }
+
+    if (j2 && j2.personaje) {
+      const nombrePersonaje = j2.personaje.nombre;
+      const nombreJugador = j2.nombre;
+      const regex = new RegExp(nombrePersonaje, 'gi');
+      msg = msg.replace(regex, nombreJugador);
+    }
+
+    return msg;
   }
 }
