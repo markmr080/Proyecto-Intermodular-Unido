@@ -29,8 +29,8 @@
             <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + miJugador?.nombre" alt="Mi Avatar">
           </div>
           <div class="stats">
-            <p>❤️ Vidas: {{miJugador?.vidas}}</p>
-            <p>🚢 Barcos restantes: {{miJugador?.vidas > 0 ? 'Vivos' : 'Destruidos'}}</p>
+            <!-- Mostramos las celdas BARCO intactas sobre el total inicial -->
+            <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
             <div class="passive-skill" *ngIf="miJugador?.personaje?.habilidadPasiva">
               <strong>Pasiva:</strong> {{miJugador?.personaje?.habilidadPasiva?.nombre}}
               <span class="tooltip">{{miJugador?.personaje?.habilidadPasiva?.descripcion}}</span>
@@ -46,8 +46,8 @@
           <img [src]="'https://api.dicebear.com/7.x/adventurer/svg?seed=' + enemigo?.nombre" alt="Enemigo Avatar">
         </div>
         <div class="stats">
-          <p>❤️ Vidas: {{enemigo?.vidas}}</p>
-          <p>💥 Estado: {{enemigo?.vidas > 0 ? 'Activo' : 'Derrotado'}}</p>
+          <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->
+          <p>🚢 Barcos restantes: <strong>{{ barcosEnemigoRestantes }}</strong></p>
         </div>
       </div>
     </div>
@@ -160,5 +160,22 @@
       <p>Conectando con el campo de batalla...</p>
     </div>
   </ng-template>
+
+  <!-- ===== MODAL FIN DE PARTIDA ===== -->
+  <!-- Se muestra cuando el backend indica que el juego ya no está activo -->
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal-card" [class.victoria]="soyGanador" [class.derrota]="!soyGanador">
+      <div class="modal-icon">{{ soyGanador ? '🏆' : '💀' }}</div>
+      <h2 class="modal-titulo">{{ soyGanador ? '¡VICTORIA!' : 'DERROTA' }}</h2>
+      <p class="modal-mensaje">
+        {{ soyGanador
+            ? '¡Has hundido toda la flota enemiga! La gloria es tuya.'
+            : 'Tu flota ha sido destruida. ¡La próxima vez tendrás más suerte!' }}
+      </p>
+      <button class="modal-btn-salir" (click)="salirDePartida()">
+        🚪 Salir
+      </button>
+    </div>
+  </div>
 
 </div>

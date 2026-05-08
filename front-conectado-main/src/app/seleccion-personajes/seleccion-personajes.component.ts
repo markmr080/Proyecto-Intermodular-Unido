@@ -197,6 +197,25 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     return this.jugador1Listo && this.jugador2Listo;
   }
 
+  testPartida(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+
+    // Seleccionamos personaje aleatorio para J2
+    this.seleccionJugador2 = Math.floor(Math.random() * this.personajes.length);
+    
+    // Si J1 no ha seleccionado, le seleccionamos el actual
+    if (!this.jugador1Listo) {
+      this.seleccionJugador1 = this.indiceActual;
+    }
+
+    // Activamos el modo test en el storage para que la pantalla de partida lo sepa
+    localStorage.setItem(`test_mode_${this.roomCode}`, 'true');
+
+    // Empezamos la partida
+    this.empezarPartida();
+  }
+
   empezarPartida(): void {
     if (!this.ambosProntos) return;
 

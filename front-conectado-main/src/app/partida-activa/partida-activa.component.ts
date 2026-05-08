@@ -30,6 +30,17 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   orientation: 'H' | 'V' = 'H'; // Horizontal o Vertical
   colocacionTerminada = false;
 
+  // --- Lógica del Modo Test (Bot) ---
+  isTestMode = false;
+  j2DummyId = 'enemigo-dummy';
+  dummyBarcosColocados = false;
+  dummyAtacando = false;
+
+  // --- Fin de Partida / Modal ---
+  mostrarModal = false;
+  soyGanador = false;
+
+
   constructor() {
     this.myUsername = this.authService.getCurrentUsername();
     // En el futuro puedes sacar el nombre real del perfil, ahora usamos el username
@@ -51,7 +62,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     this.myUsername = this.authService.getCurrentUsername();
     this.myDisplayName = this.myUsername;
 
-    console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode);
+    this.isTestMode = localStorage.getItem(`test_mode_${this.roomCode}`) === 'true';
+
+    console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode, '| TestMode:', this.isTestMode);
 
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
@@ -82,6 +95,30 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       });
       this.gameState = state;
       this.actualizarTablerosVisuales();
+
+      // Detectar fin de partida para mostrar el modal de victoria/derrota
+      if (state?.juegoActivo === false && !this.mostrarModal) {
+        this.soyGanador = state?.ganadorId === this.myUsername;
+        this.mostrarModal = true;
+        // Limpiar el flag de modo test al terminar
+        localStorage.removeItem(`test_mode_${this.roomCode}`);
+      }
+
+      // Lógica automática del bot si estamos en modo test
+      if (this.isTestMode) {
+        if (state?.fase === 'COLOCACION' && !this.dummyBarcosColocados) {
+          this.colocarBarcosAleatoriosDummy();
+        } else if (state?.fase === 'COMBATE' && state?.turnoActualId === this.j2DummyId) {
+          if (!this.dummyAtacando) {
+            this.dummyAtacando = true;
+            setTimeout(() => {
+              this.ataqueAleatorioDummy();
+            }, 1500); // Retraso para simular tiempo de reacción
+          }
+        } else if (state?.turnoActualId !== this.j2DummyId) {
+          this.dummyAtacando = false; // Resetear flag cuando ya no es su turno
+        }
+      }
     });
   }
 
@@ -131,11 +168,26 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     if (this.orientation === 'H' && y + size > 10) return;
     if (this.orientation === 'V' && x + size > 10) return;
 
-    // Verificar colisiones
+    // Verificar colisiones y asegurar un espacio vacío alrededor
+    // Recorremos cada parte del barco a colocar
     for (let i = 0; i < size; i++) {
       const cx = this.orientation === 'V' ? x + i : x;
       const cy = this.orientation === 'H' ? y + i : y;
-      if (this.myBoard[cx][cy] === 'BARCO') return; // Colisión
+
+      // Comprobamos la celda actual y todas sus adyacentes (incluyendo diagonales)
+      // para asegurar que como mínimo haya un espacio vacío entre cada barco
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          const adjX = cx + dx;
+          const adjY = cy + dy;
+          // Validar que la celda adyacente esté dentro del tablero (10x10)
+          if (adjX >= 0 && adjX < 10 && adjY >= 0 && adjY < 10) {
+            if (this.myBoard[adjX][adjY] === 'BARCO') {
+              return; // Hay una colisión o un barco adyacente, por lo que no se puede colocar
+            }
+          }
+        }
+      }
     }
 
     // Colocar
@@ -157,7 +209,87 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     }
   }
 
+  // --- Lógica del Bot Dummy (Modo Test) ---
+
+  colocarBarcosAleatoriosDummy() {
+    this.dummyBarcosColocados = true;
+    const dummyBoard: string[][] = [];
+    for (let i = 0; i < 10; i++) {
+      dummyBoard[i] = [];
+      for (let j = 0; j < 10; j++) {
+        dummyBoard[i][j] = 'AGUA';
+      }
+    }
+
+    const botShipsToPlace = [5, 4, 3, 3, 2];
+    
+    for (const size of botShipsToPlace) {
+      let colocado = false;
+      let intentos = 0;
+      while (!colocado && intentos < 100) {
+        intentos++;
+        const orientacionV = Math.random() > 0.5;
+        const x = Math.floor(Math.random() * 10);
+        const y = Math.floor(Math.random() * 10);
+
+        if (!orientacionV && y + size > 10) continue;
+        if (orientacionV && x + size > 10) continue;
+
+        let colision = false;
+        // Verificar colisiones y espacios adyacentes para el dummy
+        for (let i = 0; i < size; i++) {
+          const cx = orientacionV ? x + i : x;
+          const cy = !orientacionV ? y + i : y;
+          
+          for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+              const adjX = cx + dx;
+              const adjY = cy + dy;
+              if (adjX >= 0 && adjX < 10 && adjY >= 0 && adjY < 10) {
+                if (dummyBoard[adjX][adjY] === 'BARCO') colision = true;
+              }
+            }
+          }
+        }
+
+        // Si no hay colisión ni barcos pegados, se coloca
+        if (!colision) {
+          for (let i = 0; i < size; i++) {
+            const cx = orientacionV ? x + i : x;
+            const cy = !orientacionV ? y + i : y;
+            dummyBoard[cx][cy] = 'BARCO';
+          }
+          colocado = true;
+        }
+      }
+    }
+
+    this.socketService.colocarBarcos(this.j2DummyId, this.roomCode, dummyBoard);
+  }
+
+  ataqueAleatorioDummy() {
+    // Si la partida ya no está en COMBATE (por ejemplo ha finalizado), no atacamos
+    if (this.gameState?.fase !== 'COMBATE') return;
+
+    let attacked = false;
+    let intentos = 0;
+    while (!attacked && intentos < 100) {
+      intentos++;
+      const x = Math.floor(Math.random() * 10);
+      const y = Math.floor(Math.random() * 10);
+      
+      // Consultamos el tablero local del jugador real
+      const estado = this.myBoard[x][y];
+      // Solo ataca si la casilla no fue atacada antes
+      if (estado !== 'AGUA_GOLPEADA' && estado !== 'TOCADO' && estado !== 'HUNDIDO') {
+        this.socketService.atacar(this.j2DummyId, this.roomCode, x, y);
+        attacked = true;
+      }
+    }
+  }
+
   // --- Acciones de Fase COMBATE ---
+
 
   atacarCasilla(x: number, y: number) {
     // Solo se puede atacar si es la fase COMBATE y es nuestro turno.
@@ -183,6 +315,35 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         return esMiTablero ? 'casilla-barco' : 'casilla-agua'; // Enemigo no ve barcos intactos
       default: return 'casilla-agua';
     }
+  }
+
+  /**
+   * Cuenta cuántos barcos (celdas BARCO intactas) le quedan a un jugador.
+   * Se usa para mostrar en el panel de stats durante la fase de combate.
+   */
+  contarBarcosRestantes(tablero: string[][]): number {
+    if (!tablero) return 0;
+    let total = 0;
+    for (const fila of tablero) {
+      for (const celda of fila) {
+        if (celda === 'BARCO') total++;
+      }
+    }
+    return total;
+  }
+
+  get misBarcosRestantes(): number {
+    return this.contarBarcosRestantes(this.miJugador?.tablero);
+  }
+
+  get barcosEnemigoRestantes(): number {
+    return this.contarBarcosRestantes(this.enemigo?.tablero);
+  }
+
+  /** Navega fuera de la partida y limpia el estado de test */
+  salirDePartida(): void {
+    localStorage.removeItem(`test_mode_${this.roomCode}`);
+    window.location.href = '/lista-salas';
   }
 
   get habilidadesOfensivas(): any[] {

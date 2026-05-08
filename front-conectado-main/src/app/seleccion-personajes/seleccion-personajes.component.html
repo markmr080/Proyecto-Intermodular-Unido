@@ -102,6 +102,10 @@
     </button>
 
     @if (jugadorActual === 1) {
+      <button class="sp-btn-test" (click)="testPartida()" style="background: #e67e22; margin-right: 1rem;">
+        ⚙ Test Partida
+      </button>
+
       <button class="sp-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
         ⚔ Empieza la partida
       </button>

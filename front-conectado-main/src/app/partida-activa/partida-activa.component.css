@@ -417,3 +417,103 @@
   .column-left { flex-direction: row; }
   .column-right { flex-direction: row; }
 }
+
+/* ===== MODAL FIN DE PARTIDA ===== */
+/* Fondo semitransparente que bloquea la pantalla */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.80);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Tarjeta central del modal */
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 48px 56px;
+  border-radius: 16px;
+  border: 3px solid;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  animation: slideUp 0.4s ease;
+  min-width: 340px;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Variante victoria (verde dorado) */
+.modal-card.victoria {
+  background: linear-gradient(135deg, #1a3a1a 0%, #2a2015 100%);
+  border-color: #d4af37;
+}
+
+/* Variante derrota (rojo oscuro) */
+.modal-card.derrota {
+  background: linear-gradient(135deg, #3a0a0a 0%, #1a0808 100%);
+  border-color: #c62828;
+}
+
+/* Icono grande (emoji) */
+.modal-icon {
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+}
+
+/* Título VICTORIA / DERROTA */
+.modal-titulo {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.victoria .modal-titulo { color: #d4af37; text-shadow: 0 0 20px rgba(212, 175, 55, 0.6); }
+.derrota  .modal-titulo { color: #ef5350; text-shadow: 0 0 20px rgba(239, 83, 80, 0.6); }
+
+/* Mensaje descriptivo */
+.modal-mensaje {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #c0b3a0;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+/* Botón de salir */
+.modal-btn-salir {
+  margin-top: 8px;
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: inherit;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  background: #b89158;
+  color: #120e0b;
+}
+
+.modal-btn-salir:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(184, 145, 88, 0.6);
+}
