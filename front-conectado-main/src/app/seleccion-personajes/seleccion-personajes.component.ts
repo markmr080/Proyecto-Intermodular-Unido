@@ -64,6 +64,9 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   // ¿El usuario actual es el jugador 1 (owner) o el 2?
   jugadorActual: 1 | 2 = 1;
 
+  // Modo test
+  isTestMode = false;
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (!user) {
@@ -107,6 +110,9 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
         this.jugadorActual = user.username === ownerName ? 1 : 2;
       });
+
+    // Leer modo test de la URL
+    this.isTestMode = this.route.snapshot.queryParamMap.get('testMode') === 'true';
 
     // Escuchar selecciones del otro jugador
     this.socketService.personajeSeleccionado$
@@ -187,10 +193,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     // Seleccionamos personaje aleatorio para J2
     this.seleccionJugador2 = Math.floor(Math.random() * this.personajes.length);
     
-    // Si J1 no ha seleccionado, le seleccionamos el actual y lo guardamos
-    if (!this.jugador1Listo) {
-      this.seleccionJugador1 = this.indiceActual;
-    }
+    // Aseguramos que J1 ha seleccionado (el botón ya lo valida, pero reforzamos la lógica)
+    if (!this.jugador1Listo) return;
 
     // Guardar el personaje elegido por J1 para que partida-activa lo use en join-room
     const tipoPersonaje = this.personajes[this.seleccionJugador1!].tipo;
