@@ -49,8 +49,10 @@ public class GameEngine {
 
         CellStatus celda = enemigo.getTablero()[x][y];
 
-        // No repetir casillas ya atacadas
+        // No repetir casillas ya atacadas ni reveladas por vision
         if (celda == CellStatus.AGUA_GOLPEADA || celda == CellStatus.TOCADO || celda == CellStatus.HUNDIDO) return;
+        // Las celdas REVELADAS sí se pueden atacar (el jugador conoce la posicion)
+        // pero se tratan como BARCO en el impacto real (el estado es simplemente informativo).
 
         // Consumir el flag de turno extra si procede
         boolean eraDisparoExtra = atacante.isTurnoExtraWulfrik();
@@ -66,7 +68,7 @@ public class GameEngine {
             return;
         }
 
-        if (celda == CellStatus.BARCO) {
+        if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
             // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3 / Lokhir SKL_LOK_3: escudo de casilla
             if (enemigo.tieneEscudo(x, y)) {
                 enemigo.quitarEscudo(x, y);
@@ -184,12 +186,15 @@ public class GameEngine {
 
     // --- Wulfrik ---
 
-    /** SKL_WUL_1: Revela la posición de un BARCO enemigo sin atacarlo. */
+    /** SKL_WUL_1: Revela (marca en el tablero como REVELADA) la posicion de un BARCO enemigo sin atacarlo. */
     private void ejecutarDesafioErrante(Player owner, Player enemigo) {
+        // Buscamos celdas BARCO no reveladas aun
         List<int[]> barcos = celdasConEstado(enemigo.getTablero(), CellStatus.BARCO);
         if (barcos.isEmpty()) { state.setMensajeEstado("No quedan barcos enemigos por descubrir."); return; }
         int[] celda = barcos.get((int)(Math.random() * barcos.size()));
-        state.setMensajeEstado("¡Desafío del Errante! Barco avistado en (" + celda[0] + "," + celda[1] + ").");
+        // Marcar la celda como REVELADA en el tablero del enemigo
+        enemigo.getTablero()[celda[0]][celda[1]] = CellStatus.REVELADA;
+        state.setMensajeEstado("Desafio del Errante! Barco avistado en (" + celda[0] + "," + celda[1] + ").");
     }
 
     /** SKL_WUL_2: Dispara a 3 casillas en línea horizontal desde (x,y). */
@@ -263,21 +268,23 @@ public class GameEngine {
         state.setMensajeEstado(msg.toString());
     }
 
-    /** SKL_LOK_2: Revela (sin dañar) las posiciones de BARCO en área 3x3 centrada en (x,y). */
+    /** SKL_LOK_2: Revela (marca como REVELADA en tablero) las posiciones de BARCO en area 3x3 centrada en (x,y). */
     private void ejecutarFuriaCorsaria(Player enemigo, int x, int y) {
-        StringBuilder reveal = new StringBuilder("¡Furia Corsaria! Barcos avistados: ");
+        StringBuilder reveal = new StringBuilder("Furia Corsaria! Barcos avistados: ");
         boolean encontrado = false;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 int nx = x + dx, ny = y + dy;
                 if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10
                         && enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
+                    // Marcar la celda como REVELADA para que el frontend la muestre
+                    enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
                     reveal.append("(").append(nx).append(",").append(ny).append(") ");
                     encontrado = true;
                 }
             }
         }
-        state.setMensajeEstado(encontrado ? reveal.toString() : "¡Furia Corsaria! Área despejada.");
+        state.setMensajeEstado(encontrado ? reveal.toString() : "Furia Corsaria! Area despejada.");
     }
 
     /** SKL_LOK_3: Escuda hasta 5 casillas BARCO propias (da extra vida al barco). */
@@ -336,7 +343,7 @@ public class GameEngine {
         if (celda == CellStatus.AGUA_GOLPEADA || celda == CellStatus.TOCADO || celda == CellStatus.HUNDIDO)
             return "(" + nx + "," + ny + ":ya) ";
 
-        if (celda == CellStatus.BARCO) {
+        if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
             if (enemigo.tieneEscudo(nx, ny)) {
                 enemigo.quitarEscudo(nx, ny);
                 enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
@@ -378,7 +385,7 @@ public class GameEngine {
 
     /**
      * Lokhir PAS_LOK: tras hundir un barco en (x,y), revela una celda BARCO adyacente
-     * añadiendo sus coordenadas al mensajeEstado.
+     * marcandola como REVELADA en el tablero del enemigo y anadiendo sus coordenadas al mensajeEstado.
      */
     private void revelarCeldaAdyacente(Player enemigo, int x, int y) {
         int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
@@ -386,6 +393,8 @@ public class GameEngine {
             int nx = x + d[0], ny = y + d[1];
             if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10
                     && enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
+                // Marcar la celda como REVELADA para que el frontend la muestre visualmente
+                enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
                 state.setMensajeEstado(state.getMensajeEstado()
                         + " (Lokhir revela barco en " + nx + "," + ny + ")");
                 return;
@@ -404,7 +413,8 @@ public class GameEngine {
         visited[idx] = true;
         CellStatus s = tablero[x][y];
         if (s == CellStatus.AGUA || s == CellStatus.AGUA_GOLPEADA || s == CellStatus.HUNDIDO) return true;
-        if (s == CellStatus.BARCO) return false;
+        // BARCO y REVELADA son celdas de barco intactas: el barco aún no está hundido
+        if (s == CellStatus.BARCO || s == CellStatus.REVELADA) return false;
         return dfsSunkCheck(tablero, x-1, y, visited)
             && dfsSunkCheck(tablero, x+1, y, visited)
             && dfsSunkCheck(tablero, x, y-1, visited)

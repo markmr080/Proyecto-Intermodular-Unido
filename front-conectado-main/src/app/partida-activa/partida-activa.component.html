@@ -104,6 +104,8 @@
               (click)="atacarCasilla(x, y)">
               <span *ngIf="celda === 'AGUA_GOLPEADA'">&#x1F4A6;</span>
               <span *ngIf="celda === 'TOCADO' || celda === 'HUNDIDO'">🔥</span>
+              <!-- Celda revelada por habilidad de vision: el jugador sabe que hay un barco aqui -->
+              <span *ngIf="celda === 'REVELADA'">👁️</span>
             </div>
           </ng-container>
         </div>
