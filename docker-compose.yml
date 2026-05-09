@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Base de datos MySQL
+  mysql-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: prueba_prfinal
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # 2. Base de datos MongoDB
+  mongo-db:
+    image: mongo:7.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # 3. Tu Backend (Spring Boot)
+  backend:
+    build: ./Proyecto-Final-Multiplataforma-BackApi-master
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Estas variables SOBREESCRIBEN las de tu application.properties
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/prueba_prfinal?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=JeG7BUOh-
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo-db:27017/batalla_naval_stats
+      - SPRING_DATA_MONGODB_DATABASE=batalla_naval_stats
+    depends_on:
+      - mysql-db
+      - mongo-db
+
+  # 4. Tu Frontend (Angular)
+  frontend:
+    build: ./front-conectado-main
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+# Declaramos los volúmenes para no perder datos si apagamos Docker
+volumes:
+  mysql-data:
+  mongo-data:
