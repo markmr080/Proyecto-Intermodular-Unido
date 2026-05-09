@@ -14,6 +14,10 @@ public class EmailService implements IEmailService {
 
     private final JavaMailSender mailSender;
 
+    // Inyectamos la URL desde el archivo de propiedades
+    @org.springframework.beans.factory.annotation.Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -41,27 +45,26 @@ public class EmailService implements IEmailService {
             helper.setTo(destinatario);
             helper.setSubject("Recuperación de contraseña - Warhammer Battleship");
 
-            String urlRecuperacion = "http://localhost:4200/reset-password?token=" + token;
-            
+            // USAMOS LA VARIABLE EN LUGAR DE LOCALHOST
+            String urlRecuperacion = frontendUrl + "/reset-password?token=" + token;
+
             String htmlBody = "<p>Has solicitado restablecer tu contraseña.</p>"
-                            + "<p><a href=\"" + urlRecuperacion + "\" style=\"display: inline-block; padding: 10px 20px; color: white; background-color: #a67b4b; text-decoration: none; border-radius: 5px;\">"
-                            + "Haz click aquí para restablecerla"
-                            + "</a></p>"
-                            + "<p>Si no has sido tú, ignora este mensaje.</p>";
+                    + "<p><a href=\"" + urlRecuperacion
+                    + "\" style=\"display: inline-block; padding: 10px 20px; color: white; background-color: #a67b4b; text-decoration: none; border-radius: 5px;\">"
+                    + "Haz click aquí para restablecerla"
+                    + "</a></p>"
+                    + "<p>Si no has sido tú, ignora este mensaje.</p>";
 
             helper.setText(htmlBody, true);
-
             mailSender.send(mensaje);
+
         } catch (MessagingException e) {
-            System.err.println("Error al enviar el correo HTML: " + e.getMessage());
-            // Fallback a texto plano si falla
+            // ... (el fallback también debería usar frontendUrl)
             SimpleMailMessage fallback = new SimpleMailMessage();
             fallback.setTo(destinatario);
             fallback.setSubject("Recuperación de contraseña - Warhammer Battleship");
             fallback.setText("Has solicitado restablecer tu contraseña.\n\n" +
-                    "Copia y pega este enlace en tu navegador para crear una nueva contraseña:\n" +
-                    "http://localhost:4200/reset-password?token=" + token + "\n\n" +
-                    "Si no has sido tú, ignora este mensaje.");
+                    "Enlace: " + frontendUrl + "/reset-password?token=" + token);
             mailSender.send(fallback);
         }
     }
