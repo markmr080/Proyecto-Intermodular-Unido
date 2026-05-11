@@ -19,7 +19,9 @@ export interface PersonajeBackend {
 })
 export class PersonajeService {
   private http = inject(HttpClient);
-  private apiUrl = `http://${window.location.hostname}:8080/api/personajes`;
+  private apiUrl = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8080/api/personajes' 
+    : `https://${window.location.hostname}/api/personajes`;
 
   getPersonajes(): Observable<PersonajeBackend[]> {
     return this.http.get<PersonajeBackend[]>(this.apiUrl);

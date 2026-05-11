@@ -30,8 +30,12 @@ export interface StatsDTO {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = `http://${window.location.hostname}:8080/api/auth`;
-  private readonly STATS_URL = `http://${window.location.hostname}:8080/api/estadisticas`;
+  private readonly API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8080/api/auth' 
+    : `https://${window.location.hostname}/api/auth`;
+  private readonly STATS_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8080/api/estadisticas' 
+    : `https://${window.location.hostname}/api/estadisticas`;
 
   private userSubject = new BehaviorSubject<UserDB | undefined>(undefined);
   public user$ = this.userSubject.asObservable();
