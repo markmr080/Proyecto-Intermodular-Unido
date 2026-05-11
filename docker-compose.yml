@@ -31,6 +31,7 @@ services:
       - "8081:8081"
     environment:
       - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework # <--- AÑADE ESTA LÍNEA
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/prueba_prfinal?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root

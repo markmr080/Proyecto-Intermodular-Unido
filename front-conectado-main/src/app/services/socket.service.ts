@@ -30,7 +30,7 @@ export class SocketService {
       // Conectamos al backend Netty de WebSockets (PUERTO UNIFICADO 8081)
       const socketUrl = window.location.hostname === 'localhost'
         ? 'http://localhost:8081'
-        : `https://${window.location.hostname}:8081`;
+        : `https://${window.location.hostname}`;
       this.socket = io.connect(socketUrl, {
         transports: ['websocket'],
         autoConnect: true
