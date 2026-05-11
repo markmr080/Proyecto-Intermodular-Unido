@@ -30,7 +30,7 @@ services:
       - "8080:8080"
       - "8081:8081"
     environment:
-      - APP_FRONTEND_URL=http://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
+      - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/prueba_prfinal?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
@@ -50,7 +50,7 @@ services:
     build: ./front-conectado-main
     restart: always
     ports:
-      - "80:80"
+      - "8082:80"
     depends_on:
       - backend
 
