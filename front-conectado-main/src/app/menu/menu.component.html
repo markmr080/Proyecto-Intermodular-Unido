@@ -37,7 +37,7 @@
         @for (char of characters; track char.name; let i = $index) {
         <div class="character-card" [class.mobile-active]="i === currentMobileIndex">
           <div class="card-image-wrapper">
-            <img [src]="char.img" [alt]="char.name">
+            <img [src]="char.img" [alt]="char.name" (error)="handleImageError($event, char.localImg)">
             <div class="card-overlay">
               <div class="overlay-content">
                 <div class="stats-mini">

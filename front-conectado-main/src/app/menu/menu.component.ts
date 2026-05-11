@@ -31,6 +31,10 @@ export class MenuComponent {
     this.currentMobileIndex = (this.currentMobileIndex - 1 + this.characters.length) % this.characters.length;
   }
 
+  handleImageError(event: any, fallback: string) {
+    (event.target as HTMLImageElement).src = fallback;
+  }
+
   availableAvatars = [
     'https://api.dicebear.com/7.x/adventurer/svg?seed=Thor',
     'https://api.dicebear.com/7.x/adventurer/svg?seed=Odin',
@@ -41,7 +45,9 @@ export class MenuComponent {
 
   characters = [
     {
-      name: 'Wulfrik', atk: 95, hp: 120, img: 'https://i.redd.it/m4wl1apwe6p21.jpg',
+      name: 'Wulfrik', atk: 95, hp: 120, 
+      img: 'https://www.reddit.com/r/totalwar/comments/b76m9o/wulfrik_the_wanderer_by_inna_petyakina/?tl=es-419',
+      localImg: '/imagenes/wulfrik.jpg',
       abilities: [
         { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra en este turno inmediatamente.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Hunter&backgroundColor=1A1512' },
         { name: 'Desafío del Errante', desc: 'Disparo preciso que de impactar en agua, fuerza al rival a revelar la posición aleatoria de un barco.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Espada&backgroundColor=1A1512' },
@@ -50,7 +56,9 @@ export class MenuComponent {
       ]
     },
     {
-      name: 'Aislinn', atk: 90, hp: 100, img: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
+      name: 'Aislinn', atk: 90, hp: 100, 
+      img: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
+      localImg: '/imagenes/aislinn.jpg',
       abilities: [
         { name: 'Señor del Mar Alto Elfo', desc: 'Tus ataques tácticos tienen un 15% de probabilidad de ignorar los escudos o niebla enemiga.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Tide&backgroundColor=1A1512' },
         { name: 'Corte de Lothern', desc: 'Realiza dos disparos independientes en dos casillas separadas a tu elección.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Lanza&backgroundColor=1A1512' },
@@ -59,7 +67,9 @@ export class MenuComponent {
       ]
     },
     {
-      name: 'Lokhir', atk: 85, hp: 110, img: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
+      name: 'Lokhir', atk: 85, hp: 110, 
+      img: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
+      localImg: '/imagenes/lokhir.webp',
       abilities: [
         { name: 'Saqueador Especialista', desc: 'Al hundir completamente un barco enemigo, se revela automáticamente una casilla del siguiente.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Raid&backgroundColor=1A1512' },
         { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas consecutivas pero en posición diagonal.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Daga&backgroundColor=1A1512' },
@@ -68,7 +78,9 @@ export class MenuComponent {
       ]
     },
     {
-      name: 'Aranessa', atk: 100, hp: 105, img: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
+      name: 'Aranessa', atk: 100, hp: 105, 
+      img: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
+      localImg: '/imagenes/Aranessa (1).jpg',
       abilities: [
         { name: 'Casco Reforzado', desc: 'El barco más pequeño de tu flota requiere de dos impactos en lugar de uno para hundirse.', type: 'passive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Queen&backgroundColor=1A1512' },
         { name: 'Pólvora Vampírica', desc: 'Elige una casilla. Si impacta en un barco, su fuego se propaga extendiéndose en área 2x2.', type: 'offensive', icon: 'https://api.dicebear.com/7.x/icons/svg?seed=Sable&backgroundColor=1A1512' },
