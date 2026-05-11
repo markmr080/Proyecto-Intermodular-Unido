@@ -418,15 +418,16 @@ public class GameEngine {
     /** SKL_ARA_1: Dispara a (x,y); si es BARCO, el fuego se propaga a las 4 casillas adyacentes. */
     private void ejecutarPolvoraVampirica(Player owner, Player enemigo, int x, int y) {
         String res = aplicarDisparoHabilidad(owner, enemigo, x, y);
-        CellStatus postImpacto = enemigo.getTablero()[x][y];
-        if (postImpacto == CellStatus.TOCADO || postImpacto == CellStatus.HUNDIDO) {
+        if (res.contains("tocado") || res.contains("HUNDIDO")) {
             int[][] adj = {{-1,0},{1,0},{0,-1},{0,1}};
+            StringBuilder sb = new StringBuilder("¡Pólvora Vampírica! El fuego se propagó: ");
+            sb.append(res);
             for (int[] a : adj) {
                 int nx = x + a[0], ny = y + a[1];
                 if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
-                    aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                    sb.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
             }
-            state.setMensajeEstado("¡Pólvora Vampírica! El fuego se propagó desde (" + x + "," + y + ").");
+            state.setMensajeEstado(sb.toString());
         } else {
             state.setMensajeEstado("¡Pólvora Vampírica! " + res);
         }
@@ -438,7 +439,7 @@ public class GameEngine {
         enemigo.getEscudoCasillas().clear();
         enemigo.setEscudoTotalActivo(false);
 
-        StringBuilder msg = new StringBuilder("¡Reina Bess! Disparo de Saloma en (" + x + "," + y + "): ");
+        StringBuilder msg = new StringBuilder("¡Reina Bess! Saloma en (" + x + "," + y + "): ");
         // Ataque en área 2x2 (cuadrante inferior derecho desde x,y)
         for (int dx = 0; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {

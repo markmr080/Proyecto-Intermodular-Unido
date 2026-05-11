@@ -37,17 +37,19 @@
         @for (char of characters; track char.name; let i = $index) {
         <div class="character-card" [class.mobile-active]="i === currentMobileIndex">
           <div class="card-image-wrapper">
-            <img [src]="char.img" [alt]="char.name" (error)="handleImageError($event, char.localImg)">
+            <img [src]="char.img" [alt]="char.name">
             <div class="card-overlay">
               <div class="overlay-content">
-                <div class="stats-mini">
-                  <div class="stat">
-                    <span class="label">ATAQUE</span>
-                    <span class="value">{{ char.atk }}</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">SALUD</span>
-                    <span class="value">{{ char.hp }}</span>
+                <div class="fleet-mini">
+                  <span class="label">FLOTA DE COMBATE</span>
+                  <div class="ships-display">
+                    @for (size of char.fleet; track $index) {
+                      <div class="ship-indicator" [attr.data-size]="size">
+                        @for (seg of range(size); track $index) {
+                          <div class="segment"></div>
+                        }
+                      </div>
+                    }
                   </div>
                 </div>
                 <div class="abilities-container">

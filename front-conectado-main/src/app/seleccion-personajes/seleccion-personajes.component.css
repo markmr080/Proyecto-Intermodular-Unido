@@ -212,6 +212,98 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 15px;
+}
+
+.sp-abilities-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.sp-ability-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #b89158;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  position: relative;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+/* Colores por tipo solicitados */
+.sp-ability-circle.offensive { border-color: #e74c3c; }
+.sp-ability-circle.defensive { border-color: #3498db; }
+.sp-ability-circle.passive   { border-color: #95a5a6; }
+
+.sp-ability-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.sp-ability-circle:hover {
+  transform: translateY(-5px) scale(1.15);
+}
+
+.sp-ability-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp-ability-tooltip {
+  position: absolute;
+  bottom: 55px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  padding: 12px;
+  background: rgba(15, 12, 11, 0.98);
+  color: #e5d3b3;
+  border-radius: 8px;
+  border: 1px solid #b89158;
+  width: 200px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.sp-ability-group:hover .sp-ability-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.sp-ability-name {
+  display: block;
+  font-size: 0.85rem;
+  color: #d4af37;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(184, 145, 88, 0.3);
+  padding-bottom: 4px;
+}
+
+.sp-ability-desc {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #c0b3a0;
 }
 
 /* Footer con nombre */

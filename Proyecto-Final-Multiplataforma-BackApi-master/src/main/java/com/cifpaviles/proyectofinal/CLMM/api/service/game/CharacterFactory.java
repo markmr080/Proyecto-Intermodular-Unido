@@ -108,7 +108,7 @@ public class CharacterFactory {
                 "Los marineros no-muertos no temen a la muerte. 20% de probabilidad de ignorar el daño recibido.", SkillType.PASIVA, 0);
         GameCharacter c = new GameCharacter("Aranessa", "Reina Pirata de Sartosa.", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica",
-                "El fuego se propaga 2x2 si impacta un barco.", SkillType.OFENSIVA, 5));
+                "El fuego se propaga en cruz (4 casillas adyacentes) si impacta un barco.", SkillType.OFENSIVA, 5));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_2", "Disparo de Saloma",
                 "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels",

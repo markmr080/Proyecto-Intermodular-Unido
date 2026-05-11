@@ -18,4 +18,4 @@ Lista de tareas pendientes y mejoras para el proyecto Battleship:
     - Asegurar que todas las APIs necesarias estén funcionales.
 
 - [ ] **Segunda habilidad de Aranessa esta bugged**
-- [ ] **La peticion de echar de sala ha tardado mucho en responder**;
+- [ ] **La peticion de echar de sala ha tardado mucho en responder**

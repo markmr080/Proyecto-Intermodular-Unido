@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class GameSocketController {
@@ -340,7 +341,6 @@ public class GameSocketController {
      *     - Un posible evento 'rendirse' tardío no encuentre la sala ya eliminada.
      * Se llama tras cada disparo, habilidad ofensiva y evento rendirse.
      */
-    @org.springframework.scheduling.annotation.Async
     private void limpiarSalaFinalizada(String roomCode, GameEngine engine) {
         GameState state = engine.getState();
         if (state == null || state.isJuegoActivo()) return;
@@ -351,11 +351,16 @@ public class GameSocketController {
             finalizarPartidaBD(state);
         }
 
-        // Esperar 10 s antes de eliminar la sala de memoria
-        // (garantiza que ambos clientes reciben el gameState final)
-        try { Thread.sleep(10_000); } catch (InterruptedException ignored) {}
-        roomManager.removeRoom(roomCode);
-        System.out.println("[SALA] Sala " + roomCode + " eliminada de memoria tras fin de partida.");
+        // Ejecutar la espera y eliminación en un hilo separado para no bloquear el socket
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(10_000);
+                roomManager.removeRoom(roomCode);
+                System.out.println("[SALA] Sala " + roomCode + " eliminada de memoria tras fin de partida.");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 
     /** DTO para el evento 'rendirse'. */
