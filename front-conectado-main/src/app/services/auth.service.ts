@@ -83,7 +83,7 @@ export class AuthService {
     ].join('|');
 
     let hashHex = '';
-    
+
     // crypto.subtle SOLO está disponible en localhost o HTTPS (Secure Contexts).
     // Si se accede por IP en HTTP (ej. desde un móvil), crypto.subtle es undefined.
     if (crypto && crypto.subtle) {

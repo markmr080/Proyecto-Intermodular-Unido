@@ -114,6 +114,25 @@ export class Partida implements OnInit, OnDestroy {
           console.warn('Partida: El código recibido no coincide con la sala actual:', codigo, this.roomCode);
         }
       });
+
+    // Escuchar si expulsamos a alguien o alguien se va
+    this.socketService.partidaCancelada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(userId => {
+        if (this.player2 && this.player2.name === userId) {
+          console.log('El jugador 2 ha abandonado la sala');
+          this.player2 = null;
+        }
+      });
+
+    this.socketService.jugadorExpulsado$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(userId => {
+        if (this.player2 && this.player2.name === userId) {
+          console.log('Jugador expulsado con éxito');
+          this.player2 = null;
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -141,8 +160,10 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   expulsar() {
-    console.log('Expulsando jugador');
-    this.player2 = null;
+    if (this.player2 && this.isOwner) {
+      console.log('Expulsando jugador:', this.player2.name);
+      this.socketService.expulsarJugador(this.player2.name, this.roomCode);
+    }
   }
 
   aceptarJugador(player: any) {
@@ -156,8 +177,9 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   salir() {
-    if (this.isOwner && this.roomCode) {
-      this.socketService.cerrarSala(this.roomCode);
+    const user = this.authService.getCurrentUser();
+    if (user && this.roomCode) {
+      this.socketService.abandonarSala(user.username, this.roomCode);
     }
     this.router.navigate(['/lista-salas']);
   }

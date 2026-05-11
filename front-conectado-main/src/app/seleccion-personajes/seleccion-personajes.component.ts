@@ -99,6 +99,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
   // Modo test
   isTestMode = false;
+  showCancelModal = false;
+  motivoCancelacion = '';
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
@@ -169,6 +171,18 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
           console.log('¡Juego comenzado! Navegando a partida-activa');
           this.router.navigate(['/partida-activa', this.roomCode]);
         }
+      });
+    // Escuchar cancelación de partida
+    this.socketService.partidaCancelada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(userId => {
+        console.log('Partida cancelada por:', userId);
+        const user = this.authService.getCurrentUser();
+        this.motivoCancelacion = userId === user?.username 
+          ? 'Has abandonado la sala. La partida ha sido cancelada.' 
+          : 'El otro jugador ha abandonado la sala. La partida ha sido cancelada.';
+        this.showCancelModal = true;
+        this.limpiarTokensPartida();
       });
   }
 
@@ -246,6 +260,30 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     if (this.jugadorActual === 1) {
       this.socketService.comenzarJuego(this.roomCode);
     }
+  }
+
+  abandonar(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    
+    // Notificar al servidor (Lobby Socket)
+    this.socketService.abandonarSala(user.username, this.roomCode);
+    
+    // Si estamos solos o por alguna razón no recibimos el evento, limpiamos y salimos
+    this.limpiarTokensPartida();
+    this.router.navigate(['/menu']);
+  }
+
+  private limpiarTokensPartida(): void {
+    // Eliminar rastro de la partida para permitir nuevas
+    localStorage.removeItem(`personaje_${this.roomCode}`);
+    localStorage.removeItem(`test_mode_${this.roomCode}`);
+    // Podríamos limpiar más si hubiera tokens específicos de sesión de partida
+  }
+
+  cerrarModalYSalir(): void {
+    this.showCancelModal = false;
+    this.router.navigate(['/menu']);
   }
 
   /** Devuelve un array de longitud `n` para usar con @for en el template */

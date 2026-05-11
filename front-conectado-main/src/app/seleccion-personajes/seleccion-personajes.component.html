@@ -107,6 +107,10 @@
 
   <!-- ===== BOTONES ===== -->
   <div class="sp-actions">
+    <button class="sp-btn-abandonar" (click)="abandonar()">
+      ✖ Abandonar
+    </button>
+
     <button class="sp-btn-seleccionar" (click)="seleccionar()">
       @if ((jugadorActual === 1 && jugador1Listo) || (jugadorActual === 2 && jugador2Listo)) {
         ✔ Personaje elegido
@@ -133,5 +137,16 @@
       }
     }
   </div>
+
+  <!-- ===== MODAL CANCELACIÓN ===== -->
+  @if (showCancelModal) {
+    <div class="sp-modal-overlay">
+      <div class="sp-modal-content">
+        <h2 class="sp-modal-title">Partida Cancelada</h2>
+        <p class="sp-modal-text">{{ motivoCancelacion }}</p>
+        <button class="sp-modal-btn" (click)="cerrarModalYSalir()">Volver al Menú</button>
+      </div>
+    </div>
+  }
 
 </div>

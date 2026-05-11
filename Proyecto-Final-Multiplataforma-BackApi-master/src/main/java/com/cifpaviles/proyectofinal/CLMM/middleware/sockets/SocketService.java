@@ -200,5 +200,64 @@ public class SocketService {
                     server.getClient(j2Socket).sendEvent("juego-comenzado", codigoSala);
             }
         });
+
+        // Expulsar jugador de la sala (solo Admin)
+        server.addEventListener("expulsar-jugador", Map.class, (cliente, data, ackRequest) -> {
+            String codigoSala = (String) data.get("codigoSala");
+            String targetId = (String) data.get("targetId");
+            System.out.println("Lobby: Expulsando usuario " + targetId + " de la sala " + codigoSala);
+
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
+            if (partidaOpt.isPresent()) {
+                LobbyRoom partida = partidaOpt.get();
+                if (targetId.equals(partida.getJugador2())) {
+                    partida.setJugador2(null);
+                    partida.setNombreJugador2(null);
+                    partida.setAvatarJugador2(null);
+                    partida.setEstado("ESPERANDO");
+
+                    UUID targetSocket = userSockets.get(targetId);
+                    if (targetSocket != null) {
+                        server.getClient(targetSocket).sendEvent("sala-cerrada", "Has sido expulsado de la sala.");
+                    }
+                    // Notificar al dueño que el jugador se ha ido
+                    cliente.sendEvent("jugador-expulsado", targetId);
+                }
+            }
+        });
+
+        // Abandonar sala (tanto Admin como Invitado)
+        server.addEventListener("abandonar-sala", Map.class, (cliente, data, ackRequest) -> {
+            String codigoSala = (String) data.get("codigoSala");
+            String userId = (String) data.get("userId");
+            System.out.println("Lobby: Usuario " + userId + " abandona la sala " + codigoSala);
+
+            Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
+            if (partidaOpt.isPresent()) {
+                LobbyRoom partida = partidaOpt.get();
+                if (userId.equals(partida.getJugador1())) {
+                    // Si el admin abandona, se cierra la sala
+                    String j2Id = partida.getJugador2();
+                    if (j2Id != null) {
+                        UUID j2Socket = userSockets.get(j2Id);
+                        if (j2Socket != null) {
+                            server.getClient(j2Socket).sendEvent("sala-cerrada", "El administrador ha abandonado la sala.");
+                        }
+                    }
+                    lobbyManager.removeRoom(codigoSala);
+                } else if (userId.equals(partida.getJugador2())) {
+                    // Si el invitado abandona, la sala vuelve a estar disponible
+                    partida.setJugador2(null);
+                    partida.setNombreJugador2(null);
+                    partida.setAvatarJugador2(null);
+                    partida.setEstado("ESPERANDO");
+
+                    UUID j1Socket = userSockets.get(partida.getJugador1());
+                    if (j1Socket != null) {
+                        server.getClient(j1Socket).sendEvent("partida-cancelada", userId);
+                    }
+                }
+            }
+        });
     }
 }

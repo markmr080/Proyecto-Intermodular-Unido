@@ -7,7 +7,7 @@ import * as io from 'socket.io-client';
 })
 export class SocketService {
   private socket!: any;
-  
+
   // --- Subjects para Lobby ---
   public nuevaSolicitud$ = new Subject<any>();
   public solicitudAceptada$ = new Subject<string>();
@@ -17,6 +17,8 @@ export class SocketService {
   public partidaIniciada$ = new Subject<string>();
   public personajeSeleccionado$ = new Subject<any>();
   public juegoComenzado$ = new Subject<string>();
+  public partidaCancelada$ = new Subject<string>();
+  public jugadorExpulsado$ = new Subject<string>();
 
   // --- Subjects para Juego ---
   public gameState$ = new Subject<any>();
@@ -26,7 +28,10 @@ export class SocketService {
   public connect() {
     if (!this.socket || !this.socket.connected) {
       // Conectamos al backend Netty de WebSockets (PUERTO UNIFICADO 8081)
-      this.socket = io.connect(`http://${window.location.hostname}:8081`, {
+      const socketUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:8081'
+        : `https://${window.location.hostname}:8081`;
+      this.socket = io.connect(socketUrl, {
         transports: ['websocket'],
         autoConnect: true
       });
@@ -44,6 +49,8 @@ export class SocketService {
       this.socket.on('partida-iniciada', (codigo: string) => this.ngZone.run(() => this.partidaIniciada$.next(codigo)));
       this.socket.on('personaje-seleccionado', (data: any) => this.ngZone.run(() => this.personajeSeleccionado$.next(data)));
       this.socket.on('juego-comenzado', (codigo: string) => this.ngZone.run(() => this.juegoComenzado$.next(codigo)));
+      this.socket.on('partida-cancelada', (userId: string) => this.ngZone.run(() => this.partidaCancelada$.next(userId)));
+      this.socket.on('jugador-expulsado', (userId: string) => this.ngZone.run(() => this.jugadorExpulsado$.next(userId)));
 
       // --- Listeners de Juego ---
       this.socket.on('gameState', (state: any) => {
@@ -127,6 +134,14 @@ export class SocketService {
   /** Emite el evento de rendición. El backend declarará ganador al rival. */
   public rendirse(jugadorId: string, roomCode: string) {
     this.socket.emit('rendirse', { jugadorId, roomCode });
+  }
+
+  public abandonarSala(userId: string, codigoSala: string) {
+    this.socket.emit('abandonar-sala', { userId, codigoSala });
+  }
+
+  public expulsarJugador(targetId: string, codigoSala: string) {
+    this.socket.emit('expulsar-jugador', { targetId, codigoSala });
   }
 
   public disconnect() {
