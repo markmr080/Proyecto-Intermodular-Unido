@@ -69,7 +69,7 @@ public class CharacterFactory {
                 "Si aciertas a un barco enemigo, ganas un disparo extra.", SkillType.PASIVA, 0);
         GameCharacter c = new GameCharacter("Wulfrik", "Campeón de los dioses oscuros.", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_WUL_1", "Desafío del Errante",
-                "Fuerza al rival a revelar la posición aleatoria de un barco si fallas.", SkillType.OFENSIVA, 4));
+                "Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.", SkillType.OFENSIVA, 4));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_2", "Colmillo de los Mares",
                 "Impacta un área en línea horizontal de 3 casillas.", SkillType.OFENSIVA, 5));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_3", "Favor Ruinoso",
@@ -78,7 +78,7 @@ public class CharacterFactory {
     }
 
     private GameCharacter crearAislinn() {
-        Skill pasiva = new Skill("PAS_AIS", "Señor del Mar Alto Elfo", "15% probabilidad de ignorar escudos/niebla.",
+        Skill pasiva = new Skill("PAS_AIS", "Señor del Mar Alto Elfo", "20% probabilidad de ignorar escudos y protecciones.",
                 SkillType.PASIVA, 0);
         GameCharacter c = new GameCharacter("Aislinn", "Comandante de la guardia del mar.", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_AIS_1", "Corte de Lothern",
@@ -104,8 +104,8 @@ public class CharacterFactory {
     }
 
     private GameCharacter crearAranessa() {
-        Skill pasiva = new Skill("PAS_ARA", "Casco Reforzado",
-                "Tu barco más pequeño requiere dos impactos para hundirse.", SkillType.PASIVA, 0);
+        Skill pasiva = new Skill("PAS_ARA", "Tripulación de los Muertos",
+                "Los marineros no-muertos no temen a la muerte. 20% de probabilidad de ignorar el daño recibido.", SkillType.PASIVA, 0);
         GameCharacter c = new GameCharacter("Aranessa", "Reina Pirata de Sartosa.", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica",
                 "El fuego se propaga 2x2 si impacta un barco.", SkillType.OFENSIVA, 5));

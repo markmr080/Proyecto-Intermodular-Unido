@@ -12,9 +12,9 @@ import java.util.List;
  *
  * Pasivas aplicadas en procesarDisparo():
  *   - PAS_WUL (Wulfrik): disparo extra al acertar un BARCO
- *   - PAS_AIS (Aislinn): 20% de esquivar un impacto entrante
+ *   - PAS_AIS (Aislinn): 20% de ignorar escudos enemigos al disparar
  *   - PAS_LOK (Lokhir): al hundir, revela una celda BARCO adyacente del enemigo
- *   - PAS_ARA (Aranessa): las celdas con escudo absorben el primer impacto
+ *   - PAS_ARA (Aranessa): 20% de esquivar un impacto entrante (Tripulación de los Muertos)
  *
  * Habilidades activas gestionadas en ejecutarEfectoHabilidad():
  *   SKL_WUL_1, SKL_WUL_2, SKL_WUL_3
@@ -59,33 +59,36 @@ public class GameEngine {
         if (eraDisparoExtra) atacante.setTurnoExtraWulfrik(false);
         atacante.setHaAtacadoEsteTurno(true);
 
+        // Aislinn PAS_AIS: 20% de probabilidad de ignorar escudos
+        boolean ignoraEscudos = tieneHabilidadPasiva(atacante, "PAS_AIS") && Math.random() < 0.20;
+
         // Aranessa SKL_ARA_3: escudo total activo — el disparo falla automáticamente
-        if (enemigo.isEscudoTotalActivo()) {
+        if (enemigo.isEscudoTotalActivo() && !ignoraEscudos) {
             enemigo.setEscudoTotalActivo(false);
             atacante.incrementarHitsFallados();
             state.setMensajeEstado("¡El Escudo de Stromfels protegió a " + enemigo.getNombre() + "! Disparo bloqueado.");
             state.cambiarTurno();
             return;
+        } else if (enemigo.isEscudoTotalActivo() && ignoraEscudos) {
+            state.setMensajeEstado("¡Vientos de Magia! El disparo de Aislinn atraviesa el escudo total.");
         }
 
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
             // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3: escudo de casilla.
-            // El escudo absorbe el impacto: la celda SIGUE siendo BARCO (el barco queda intacto)
-            // y solo se consume el escudo. El atacante pierde el disparo pero la celda no desaparece.
-            if (enemigo.tieneEscudo(x, y)) {
+            if (enemigo.tieneEscudo(x, y) && !ignoraEscudos) {
                 enemigo.quitarEscudo(x, y);
-                // La celda permanece BARCO — el barco no recibe daño ni pierde vidas
                 atacante.incrementarHitsFallados();
                 state.setMensajeEstado("¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido. La celda sigue en pie.");
                 state.cambiarTurno();
                 return;
+            } else if (enemigo.tieneEscudo(x, y) && ignoraEscudos) {
+                state.setMensajeEstado("¡Vientos de Magia! El disparo de Aislinn ignora el escudo de la casilla.");
             }
 
-            // Aislinn PAS_AIS: 20% de esquivar
-            if (tieneHabilidadPasiva(enemigo, "PAS_AIS") && Math.random() < 0.20) {
-                enemigo.getTablero()[x][y] = CellStatus.AGUA_GOLPEADA;
+            // Aranessa PAS_ARA: 20% de esquivar (Tripulación de los Muertos)
+            if (tieneHabilidadPasiva(enemigo, "PAS_ARA") && Math.random() < 0.20) {
                 atacante.incrementarHitsFallados();
-                state.setMensajeEstado("¡Bruma del Mar! Aislinn esquivó el impacto.");
+                state.setMensajeEstado("¡La Tripulación de los Muertos mantiene el barco a flote! Aranessa ignoró el impacto.");
                 state.cambiarTurno();
                 return;
             }
@@ -167,7 +170,7 @@ public class GameEngine {
         Player enemigo = state.getEnemigo();
         switch (skill.getId()) {
             // --- Wulfrik ---
-            case "SKL_WUL_1": ejecutarDesafioErrante(owner, enemigo); break;
+            case "SKL_WUL_1": ejecutarDesafioErrante(owner, enemigo, x, y); break;
             case "SKL_WUL_2": ejecutarColmilloMares(owner, enemigo, x, y); break;
             case "SKL_WUL_3": ejecutarFavorRuinoso(owner); break;
             // --- Aislinn ---
@@ -180,7 +183,7 @@ public class GameEngine {
             case "SKL_LOK_3": ejecutarYelmoKraken(owner); break;
             // --- Aranessa ---
             case "SKL_ARA_1": ejecutarPolvoraVampirica(owner, enemigo, x, y); break;
-            case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo); break;
+            case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo, x, y); break;
             case "SKL_ARA_3": ejecutarHijaStromfels(owner); break;
             default: state.setMensajeEstado("Habilidad desconocida: " + skill.getId());
         }
@@ -188,15 +191,24 @@ public class GameEngine {
 
     // --- Wulfrik ---
 
-    /** SKL_WUL_1: Revela (marca en el tablero como REVELADA) la posicion de un BARCO enemigo sin atacarlo. */
-    private void ejecutarDesafioErrante(Player owner, Player enemigo) {
-        // Buscamos celdas BARCO no reveladas aun
-        List<int[]> barcos = celdasConEstado(enemigo.getTablero(), CellStatus.BARCO);
-        if (barcos.isEmpty()) { state.setMensajeEstado("No quedan barcos enemigos por descubrir."); return; }
-        int[] celda = barcos.get((int)(Math.random() * barcos.size()));
-        // Marcar la celda como REVELADA en el tablero del enemigo
-        enemigo.getTablero()[celda[0]][celda[1]] = CellStatus.REVELADA;
-        state.setMensajeEstado("Desafio del Errante! Barco avistado en (" + celda[0] + "," + celda[1] + ").");
+    /** SKL_WUL_1: Dispara a (x,y); si falla, revela la posicion de un BARCO enemigo aleatorio. */
+    private void ejecutarDesafioErrante(Player owner, Player enemigo, int x, int y) {
+        String res = aplicarDisparoHabilidad(owner, enemigo, x, y);
+        CellStatus postImpacto = enemigo.getTablero()[x][y];
+
+        // Solo si el disparo cae en agua (falla), se activa el revelado
+        if (postImpacto == CellStatus.AGUA_GOLPEADA) {
+            List<int[]> barcos = celdasConEstado(enemigo.getTablero(), CellStatus.BARCO);
+            if (!barcos.isEmpty()) {
+                int[] celda = barcos.get((int) (Math.random() * barcos.size()));
+                enemigo.getTablero()[celda[0]][celda[1]] = CellStatus.REVELADA;
+                state.setMensajeEstado("¡Desafío del Errante! Fallaste el tiro, pero avistaste un barco en (" + celda[0] + "," + celda[1] + ").");
+            } else {
+                state.setMensajeEstado("¡Desafío del Errante! " + res + " No quedan más barcos por descubrir.");
+            }
+        } else {
+            state.setMensajeEstado("¡Desafío del Errante! ¡Impacto directo! (No se activa el revelado).");
+        }
     }
 
     /** SKL_WUL_2: Dispara a 3 casillas en línea horizontal desde (x,y). */
@@ -420,11 +432,21 @@ public class GameEngine {
         }
     }
 
-    /** SKL_ARA_2: Dispara a las 4 esquinas del tablero enemigo. */
-    private void ejecutarDisparoSaloma(Player owner, Player enemigo) {
-        int[][] esquinas = {{0,0},{0,9},{9,0},{9,9}};
-        StringBuilder msg = new StringBuilder("¡Disparo de Saloma! Esquinas: ");
-        for (int[] e : esquinas) msg.append(aplicarDisparoHabilidad(owner, enemigo, e[0], e[1]));
+    /** SKL_ARA_2: Destruye escudos enemigos y dispara en área 2x2 centrada en (x,y). */
+    private void ejecutarDisparoSaloma(Player owner, Player enemigo, int x, int y) {
+        // "Destruye forzosamente nieblas o escudos": limpiar todos los escudos del enemigo
+        enemigo.getEscudoCasillas().clear();
+        enemigo.setEscudoTotalActivo(false);
+
+        StringBuilder msg = new StringBuilder("¡Reina Bess! Disparo de Saloma en (" + x + "," + y + "): ");
+        // Ataque en área 2x2 (cuadrante inferior derecho desde x,y)
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                int nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
+                    msg.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
+            }
+        }
         state.setMensajeEstado(msg.toString());
     }
 
