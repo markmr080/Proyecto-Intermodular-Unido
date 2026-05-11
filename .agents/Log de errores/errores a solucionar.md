@@ -50,5 +50,13 @@ Menu de personajes, quitar ataque y defensa y comprobar que sea muestren las hab
 
 Adaptar la interfaz a pantallas mas pequeñas. Diseño responsive no solo para moviles. 
 
-**IMPORTANTE** ARREGLAR RENDIMIENTO ACTUAL AL JUGAR PARTIDA. VA MUY LENTO. 
+**ENDPOINTS MIDDLEWARE**
+He analizado la conectividad entre el frontend y el backend para verificar el uso del middleware. Aquí tienes un resumen de los hallazgos:
 
+Estado de la Conexión
+Seguridad (Middleware Layer): ✅ SÍ. Gracias al auth.interceptor.ts en Angular y al JwtFilter.java en el backend, todas las peticiones HTTP a /api/** pasan obligatoriamente por el filtro de seguridad del middleware. Si no llevan el Token y el Fingerprint, son rechazadas.
+Rutas de Controladores: ⚠️ PARCIAL. Aunque la seguridad se aplica a todos, no todos los servicios llaman a controladores dentro del paquete middleware.
+Pasan por el paquete middleware: Autenticación (/api/auth) y Lobby (/api/lobby).
+Van directos al paquete api: Personajes (/api/personajes) y Estadísticas (/api/estadisticas).
+WebSockets (Puerto 8081): ❌ NO. La comunicación por WebSockets es totalmente directa al GameSocketController (paquete api) y no está pasando por ningún filtro de seguridad ni validación del middleware.
+He detallado todos los puntos y archivos afectados en el siguiente informe:
