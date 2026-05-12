@@ -96,7 +96,7 @@
   border-radius: 12px;
   border: 1.5px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.9);
-  color: #c9bca7;
+  color: #2c1e0b;
   font-size: 15px;
   transition: all 0.3s ease;
   outline: none;
@@ -285,9 +285,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(1px);
-  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,6 +306,7 @@
 
 .modal-content {
   background: rgba(20, 15, 12, 0.85);
+  border: 2px solid #b89158;
   border-radius: 20px;
   padding: 32px;
   width: 90%;
@@ -354,6 +355,8 @@
   margin: 0 0 12px 0;
   color: #c9bca7;
   font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .modal-content p {
