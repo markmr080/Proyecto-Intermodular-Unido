@@ -1,6 +1,8 @@
 # ENDPOINTS Y EVENTOS WEB SOCKET
 
-Este documento detalla todos los endpoints REST y los eventos de WebSocket que deben existir en el sistema, describiendo su funcionamiento y parámetros esperados.
+> **Actualizado:** 2026-05-12
+
+Este documento detalla todos los endpoints REST y los eventos de WebSocket que existen en el sistema, describiendo su funcionamiento y parámetros esperados.
 
 ## 1. Endpoints de Autenticación (`/api/auth`)
 
@@ -63,7 +65,8 @@ Una vez en `partida-activa`, la comunicación fluye constantemente entre los cli
 | `join-room` | `{jugadorId, jugadorNombre, roomCode}` | `gameState` | Mete al usuario a la sala técnica del combate en la memoria del GameEngine. Al unirse los dos, arranca la fase de COLOCACION. |
 | `colocar-barcos` | `{jugadorId, roomCode, tablero[10][10]}`| `gameState` | Envía la matriz con la posición de los 5 barcos. Cuando ambos envían, arranca la fase COMBATE. |
 | `atacar` | `{jugadorId, roomCode, x, y}` | `gameState` | Realiza un ataque básico en la coordenada enviada. El Engine procesa las reglas (hits, fallos) y actualiza el estado. |
-| `usar-habilidad` | `{jugadorId, roomCode, habilidadId}` | `gameState` | Invoca una mecánica especial del personaje (ej: disparo doble, bengala reveladora, curación). |
+| `usar-habilidad` | `{jugadorId, roomCode, habilidadId, x, y}` | `gameState` | Invoca una mecánica especial del personaje. `x,y` son las coordenadas de celda objetivo para habilidades de área (`-1,-1` para las que no necesitan objetivo). |
+| `rendirse` | `{jugadorId, roomCode}` | `gameState` final | ✅ **NUEVO**. El jugador que emite este evento pierde. El backend declara ganador al rival, guarda estadísticas en BD y difunde el estado final de la partida. |
 
 ### 4.3. El objeto `gameState`
 Cualquier acción en el tablero (Combate) hace que el servidor responda emitiendo un evento `gameState` a ambos clientes con el JSON completo y actualizado:

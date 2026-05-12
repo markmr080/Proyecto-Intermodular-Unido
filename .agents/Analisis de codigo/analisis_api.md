@@ -1,5 +1,7 @@
 # Análisis de la capa API (Backend)
 
+> **Actualizado:** 2026-05-12
+
 Este documento contiene un análisis estructurado de las clases del paquete `com.cifpaviles.proyectofinal.CLMM.api`, explicando la función de cada método y en qué lugar del sistema está referenciado o utilizado.
 
 ## 1. Configuración (`api.config`)
@@ -26,26 +28,37 @@ Configura el escaneo de los repositorios de MongoDB en el paquete específico `m
 
 ### `GameSocketController`
 Maneja toda la interacción de juego en tiempo real (WebSockets).
-- `start()`: Registra los eventos del servidor e inicia la escucha. (Referenciado por Spring Boot con `@PostConstruct`).
+- `start()`: Registra los eventos del servidor e inicia la escucha (`@PostConstruct`).
 - `onConnect(...) / onDisconnect(...)`: Registra la actividad de conexión/desconexión de un socket.
-- `onJoinRoom(...)`: Asigna a un cliente a una sala determinada. Instancia el estado del juego si no existe, o añade al jugador 2 al estado. Delega a `GameRoomManager` y `CharacterFactory`.
-- `onAtacar(...)`: Delega el procesamiento de un disparo en `GameEngine.procesarDisparo()`. Si la partida termina, guarda todo usando `finalizarPartidaBD()`. (Escuchado desde el frontend `atacar`).
-- `onUsarHabilidad(...)`: Delega la ejecución a `GameEngine.usarHabilidad()`.
-- `onColocarBarcos(...)`: Marca que un jugador colocó su flota. Cuando los dos jugadores están listos, inicia la fase `COMBATE` llamando a `iniciarPartidaBD()`.
-- `iniciarPartidaBD(GameState state)`: Crea una `PartidaEntity` en estado `EN_CURSO` en MySQL a través de `PartidaRepository`. (Método interno).
-- `finalizarPartidaBD(GameState state)`: Cierra la `PartidaEntity` guardando al ganador en MySQL y llama a `guardarStatsJugador()` para los datos de Mongo. (Método interno).
-- `guardarStatsJugador(...)`: Delega a `EstadisticasService` el almacenamiento de hits/fallos en MongoDB. (Método interno).
-- `difundirEstado(...)`: Notifica a los usuarios en la sala los cambios de estado. (Método interno).
+- `onJoinRoom(...)`: Asigna a un cliente a una sala. Crea estado nuevo si la sala no existe o si la partida anterior ya finalizó. El segundo jugador reemplaza al `enemigo-dummy`. Delega a `GameRoomManager` y `CharacterFactory`.
+- `onAtacar(...)`: Delega el procesamiento en `GameEngine.procesarDisparo()`. Llama a `limpiarSalaFinalizada()` para guardar y limpiar si termina. (Evento `atacar`).
+- `onUsarHabilidad(...)`: Delega en `GameEngine.usarHabilidad()` con coordenadas `x,y`. Llama también a `limpiarSalaFinalizada()`. (Evento `usar-habilidad`).
+- `onColocarBarcos(...)`: Cuando ambos jugadores colocan su flota, pasa a fase `COMBATE`, llama a `iniciarPartidaBD()` e inicia el timer compartido con `roomManager.startTimer(roomCode)`. (Evento `colocar-barcos`).
+- `onRendirse(...)`: ✅ **NUEVO**. Declara ganador al rival del jugador que se rinde. Difunde el estado final y llama a `limpiarSalaFinalizada()`. (Evento `rendirse`).
+- `iniciarPartidaBD(GameState state)`: Crea una `PartidaEntity` en estado `EN_CURSO` en MySQL. Guarda el ID de MySQL en el `GameState` para enlazarla al finalizar. (Método interno).
+- `finalizarPartidaBD(GameState state)`: Cierra la `PartidaEntity` con ganador y `fechaFin` en MySQL. Llama a `guardarStatsJugador()` para ambos jugadores en MongoDB. (Método interno).
+- `guardarStatsJugador(...)`: Delega en `EstadisticasService.guardarStatsPartida()` para persistir hits/fallos/barcos hundidos en MongoDB. (Método interno).
+- `limpiarSalaFinalizada(...)`: ✅ **NUEVO**. Si el juego terminó y no se han guardado stats aún, llama a `finalizarPartidaBD()`. Luego programa la eliminación de la sala con 10 segundos de retardo (hilo `CompletableFuture`) para que ambos clientes reciban el estado final. (Método interno).
+- `difundirEstado(...)`: Emite el evento `gameState` a todos los clientes de la sala. (Método interno).
+
+### `EstadisticasController` ✅ CREADO
+Controlador REST para exponer estadísticas de jugadores.
+- `getEstadisticasJugador(username)`: `GET /api/estadisticas/jugador/{username}`. Delega en `IEstadisticasService.getStatsAgregadas()` y devuelve un `StatsAgregadasDTO` con datos cruzados de MySQL y MongoDB.
+- **Referencias**: Llamado desde `AuthService.getUserStats()` en el frontend Angular.
 
 ### `LobbyController`
 Controlador REST para las salas de espera.
-- `getLobbyRooms()`, `createLobbyRoom(...)`, `deleteLobbyRoom(...)`: Métodos que interactúan directamente con la memoria volatil del `LobbyManager` (perteneciente a `middleware.sockets`).
-- **Referencias**: Endpoints invocados por peticiones HTTP del frontend (e.g. Angular).
+- `getLobbyRooms()`, `createLobbyRoom(...)`, `deleteLobbyRoom(...)`: Interactúan con el `LobbyManager` en memoria del paquete `middleware.sockets`.
+- **Referencias**: Endpoints invocados por `RoomService` del frontend Angular.
 
 ### `PartidaController`
 Controlador REST para revisar historial de partidas.
-- `listarPartidas()`, `listarPorEstado(...)`, `obtenerPartida(...)`, `eliminarPartida(...)`: Acceden a la base de datos MySQL vía `PartidaRepository` para consultar/borrar partidas históricas.
-- **Referencias**: Invocados por el frontend (rutas de administrador o historial).
+- `listarPartidas()`, `listarPorEstado(...)`, `obtenerPartida(...)`, `eliminarPartida(...)`: Acceden a `PartidaRepository` (MySQL) para consultar/borrar partidas históricas.
+- **Referencias**: Invocados por el frontend (historial o panel de administración).
+
+### `PersonajeController`
+Controlador REST para obtener el catálogo de personajes disponibles.
+- **Referencias**: Usado por el frontend en la vista de selección de personajes.
 
 ---
 
@@ -61,20 +74,24 @@ Mantiene la lógica pura de la batalla para una sala específica.
 - `finalizarJuego(...)`: Determina el ganador y marca el juego como inactivo. (Método interno).
 
 ### `GameRoomManager`
-Gestiona un HashMap en memoria concurrente con los GameEngine activos.
-- `getOrCreateRoom(...)`: Obtiene la sala de la memoria, si no está la instancia vacía. (Referenciado en `GameSocketController`).
-- `getRoom(...)`: Devuelve la sala existente o null.
-- `removeRoom(...)`: Purga la sala terminada de la memoria RAM.
+Gestiona los GameEngine y TurnTimerService activos en memoria (dos `ConcurrentHashMap` separados).
+- `getOrCreateRoom(roomCode)`: Devuelve el `GameEngine` existente o crea uno nuevo vacío. (Usado en `GameSocketController.onJoinRoom`).
+- `getRoom(roomCode)`: Devuelve el `GameEngine` existente o `null`. (Usado en `onAtacar`, `onUsarHabilidad`, etc.).
+- `startTimer(roomCode)`: ✅ **NUEVO**. Crea un `TurnTimerService` para la sala y lo inicia. Solo puede haber un timer por sala. Se llama al pasar a fase `COMBATE`. (Usado en `onColocarBarcos`).
+- `removeRoom(roomCode)`: Elimina la sala del mapa y detiene su timer (`timer.detener()`). Llamado por `limpiarSalaFinalizada()` tras 10 segundos.
 
 ### `CharacterFactory`
-Fábrica inyectable que construye las Clases Base de los Personajes.
-- `crearPersonaje(String tipo)`: Instancia la clase según el nombre (Artillero, Comandante), accede a `PersonajeRepository` y `PersonajeFlotaRepository` para leer los barcos que tiene el jugador, y devuelve un objeto `GameCharacter`. (Referenciado en `GameSocketController.onJoinRoom`).
+Fábrica inyectable que construye objetos `GameCharacter` con sus habilidades y flota.
+- `crearPersonaje(String tipo)`: Instancia el personaje según su ID (`WULFRIK`, `AISLINN`, `LOKHIR`, `ARANESSA`), carga sus barcos desde `PersonajeRepository` y `PersonajeFlotaRepository`. Devuelve un `GameCharacter` con sus habilidades activas y pasiva configuradas. (Usado en `GameSocketController.onJoinRoom`).
 
 ### `TurnTimerService`
-Servicio para controlar cronómetros en hilos background.
-- `iniciarCronometro()`: Inicia un hilo con `ScheduledExecutorService` restando un segundo cada iteración.
-- `actualizarSegundo()`, `manejarTiempoAgotado()`: Bajan el tiempo y ejecutan la acción de saltar el turno si se llega a 0.
-- **Referencias**: En proceso de integración. No utilizado explícitamente en el flujo de `GameSocketController` de momento.
+✅ **TOTALMENTE INTEGRADO**. Cronómetro dedicado por sala de juego.
+- `iniciarCronometro()`: Lanza un `ScheduledExecutorService` de un solo hilo que se ejecuta cada segundo.
+- `actualizarSegundo()`: Decrementa `tiempoRestante` en el `GameState`. Si llega a 0, llama a `manejarTiempoAgotado()`.
+- `manejarTiempoAgotado()`: Llama a `state.cambiarTurno()`, reiniciando el timer a 60s para el jugador activo.
+- `difundirEstado()`: Emite el evento `gameState` a todos los clientes de la sala en cada tick.
+- `detener()`: Llama a `scheduler.shutdown()` para liberar el hilo. Es invocado por `GameRoomManager.removeRoom()`.
+- **Instanciación**: Creado por `GameRoomManager.startTimer()`, que es llamado desde `GameSocketController.onColocarBarcos()` cuando ambos jugadores están listos.
 
 ---
 

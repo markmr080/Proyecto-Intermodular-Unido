@@ -1,8 +1,8 @@
 # 📊 Estado Actual del Proyecto — Warhammer Battleship
 
-> **Generado:** 2026-05-07  
-> **Fuentes de referencia:** Código fuente real del Backend y Frontend, documentación en `.agents`  
-> **Método:** Auditoría cruzada tras la ejecución de la migración de BBDD.
+> **Actualizado:** 2026-05-12  
+> **Fuentes de referencia:** Código fuente real del Backend y Frontend, documentación en `.agents`, historial de conversaciones  
+> **Método:** Auditoría completa del repositorio.
 
 ---
 
@@ -10,67 +10,96 @@
 
 | Área | Estado |
 |------|--------|
-| **Seguridad JWT + Middleware** | ✅ Implementado y funcional (incluye Fingerprinting) |
+| **Seguridad JWT + Middleware (Fingerprinting)** | ✅ Implementado y funcional |
 | **Gestión de Usuarios (CRUD) y Email** | ✅ Implementado |
-| **Configuración BBDD Híbrida (MySQL + Mongo)** | ✅ Completado (`JpaConfig` y `MongoConfig` creados) |
-| **Migración de Entidades (nuevo esquema)** | ✅ Completado (todas las fases de `plan_implementacion.md` ejecutadas) |
-| **Persistencia del Juego en Tiempo Real** | ✅ Completado (`GameSocketController` guarda en MySQL y Mongo) |
-| **Frontend adaptado al nuevo esquema** | ✅ Completado (`auth.service.ts` usa `username`) |
-| **Endpoint REST de Estadísticas** | ❌ **Pendiente (Falta Controlador)** |
-| **Archivos de Despliegue (Docker)** | ❌ **Pendiente** |
+| **Configuración BBDD Híbrida (MySQL + Mongo)** | ✅ Completado |
+| **Migración de Entidades (nuevo esquema)** | ✅ Completado |
+| **Motor de Juego (GameEngine)** | ✅ Completo — 4 personajes, pasivas y habilidades activas (12 SKL) |
+| **Persistencia del Juego en Tiempo Real** | ✅ Completo — `GameSocketController` guarda en MySQL y Mongo |
+| **Timer de turno sincronizado** | ✅ Completo — `TurnTimerService` integrado vía `GameRoomManager.startTimer()` |
+| **Evento `rendirse`** | ✅ Implementado — `onRendirse()` en `GameSocketController` |
+| **Endpoint REST de Estadísticas** | ✅ **`EstadisticasController` CREADO** (`/api/estadisticas/jugador/{username}`) |
+| **Frontend — resolución dinámica de host** | ✅ `SocketService` y `AuthService` usan `window.location.hostname` |
+| **Archivos de Despliegue (Docker)** | ✅ `docker-compose.yml` presente en la raíz del repositorio |
+| **Bugs de flujo de turnos** | ⚠️ Pendiente — doble turno observado en logs |
+| **Habilidades con errores** | ⚠️ Pendiente — `SKL_WUL_1` (Desafío del Errante) y `SKL_WUL_2` (Colmillo) sin confirmar |
+| **Seguridad WebSockets** | ⚠️ Sin filtro JWT — tráfico WS directo al `GameSocketController` |
+| **Token de recuperación de contraseña** | ⚠️ Se expone en la URL — requiere solución |
+| **Diseño Responsive** | ⚠️ Pendiente — la UI no está adaptada a pantallas pequeñas |
+| **Segunda partida tras finalizar** | ❌ Bug conocido — no se puede unir a una nueva sala |
 
-> [!SUCCESS]
-> **Gran parte del Plan de Implementación ya ha sido ejecutado.** El código base actual SÍ ha migrado de `nickname` a `username`, y se han creado todas las entidades de MySQL (`PartidaEntity` nueva, `PersonajeEntity`, `BarcosCatalogoEntity`) y el esquema de estadísticas de MongoDB (`PartidaStatsDocument`). 
-
-> [!WARNING]
-> **Riesgo Actual:** Aunque el Frontend ya pide los datos a `/api/estadisticas/jugador/{username}` y el `EstadisticasService` existe, **nunca se llegó a crear la clase `EstadisticasController`**, por lo que esa petición está fallando (HTTP 404) en la pantalla de Menú/Perfil.
+> [!NOTE]
+> La deuda técnica ya no bloquea el flujo principal del juego. La prioridad ahora es **corrección de bugs** y **experiencia de usuario**.
 
 ---
 
 ## 2. Auditoría del Código Backend
 
 ### ✅ 2.1 Migración de Base de Datos Híbrida
-Se ha ejecutado la reestructuración completa:
-- `application.properties` está configurado con las URI de MySQL y MongoDB.
-- Se han segregado las configuraciones en `api.config.JpaConfig` y `api.config.MongoConfig`.
+- `application.properties` configurado con URI de MySQL (`localhost:3306/prueba_prfinal`) y MongoDB (`localhost:27017/batalla_naval_stats`).
+- `JpaConfig` y `MongoConfig` segregan los repositorios para evitar conflictos de autoconfiguración.
 
 ### ✅ 2.2 Entidades e Interfaces
-- `UsuarioEntity`: Ahora usa `username` y `passwordHash`.
-- `PartidaEntity`: Relaciona lógicamente con el Host y el Ganador (`UsuarioEntity`), con Fechas de inicio/fin, eliminando los campos de stats ensuciados en MySQL.
-- Se crearon las entidades del core del juego: `PersonajeEntity`, `BarcosCatalogoEntity`, `PersonajeFlotaEntity`.
-- **MongoDB**: Existe la entidad documental `PartidaStatsDocument` y su repositorio `EstadisticasRepository`.
+- `UsuarioEntity` usa `username` y `passwordHash`.
+- `PartidaEntity` relaciona Host y Ganador (`UsuarioEntity`), con `fechaInicio`/`fechaFin` y `EstadoPartida`.
+- Entidades de juego: `PersonajeEntity`, `BarcosCatalogoEntity`, `PersonajeFlotaEntity`.
+- **MongoDB**: `PartidaStatsDocument` + `EstadisticasRepository`.
 
-### ✅ 2.3 Sockets y Persistencia del Motor
-En `GameSocketController`, los eventos `colocar-barcos` y `atacar` se han modificado para:
-- Crear una instancia en `PARTIDAS` (MySQL) llamando a `iniciarPartidaBD()`.
-- Al finalizar el juego, actualizar la tabla `PARTIDAS` declarando al ganador, e invocar a MongoDB para guardar 2 documentos (uno por cada jugador) con sus métricas exactas (`guardarStatsJugador()`).
+### ✅ 2.3 Motor del Juego — `GameEngine`
+Motor completamente funcional con lógica de reglas aislada (sin dependencias de Spring):
+- `procesarDisparo()` — gestiona impactos, fallos, hundimiento (DFS), pasivas de personajes.
+- `usarHabilidad()` — router hacia 12 habilidades activas (3 por personaje × 4 personajes).
+- **Pasivas implementadas**: `PAS_WUL` (tiro extra), `PAS_AIS` (ignora escudos 20%), `PAS_LOK` (revela adyacente al hundir), `PAS_ARA` (esquive 20%).
+- **Habilidades activas**: Todas implementadas en `ejecutarEfectoHabilidad()` con lógica real.
 
-### ❌ 2.4 Controlador de Estadísticas (Faltante Crítico)
-El servicio `EstadisticasService` calcula `StatsAgregadasDTO` sumando todas las estadísticas de Mongo y las victorias de MySQL de manera perfecta. Sin embargo, no hay ningún punto de acceso REST para que Angular obtenga esa información. **Se requiere crear `EstadisticasController`**.
+### ✅ 2.4 Timer de Turno Sincronizado
+- `TurnTimerService` corre en hilo background, descuenta 1 segundo/tick y difunde `gameState` por WebSocket.
+- `GameRoomManager` lo instancia con `startTimer(roomCode)` al pasar a fase `COMBATE`.
+- `removeRoom()` detiene el timer y elimina ambos maps (`activeRooms` + `activeTimers`) para evitar fugas de memoria.
+
+### ✅ 2.5 Evento `rendirse`
+- `onRendirse()` en `GameSocketController`: detecta el rendido, declara ganador al rival, difunde estado final y llama a `limpiarSalaFinalizada()`.
+
+### ✅ 2.6 EstadisticasController — CREADO
+```java
+@GetMapping("/jugador/{username}")
+public ResponseEntity<StatsAgregadasDTO> getEstadisticasJugador(@PathVariable String username)
+```
+El endpoint ya existe en `api.controller.EstadisticasController`. La petición del frontend (`/api/estadisticas/jugador/{username}`) debería resolverse correctamente.
+
+### ⚠️ 2.7 Bugs Conocidos del Backend
+- **Flujo de turnos**: Los logs muestran que el mismo jugador puede atacar dos veces seguidas en ciertos escenarios. Relacionado con `haAtacadoEsteTurno` / `turnoExtraWulfrik`.
+- **Sala zombie tras segunda partida**: `GameRoomManager` no reinicia el estado correctamente al crear una segunda partida en la misma sala.
 
 ---
 
 ## 3. Estado del Frontend
 
-| Componente | Estado tras migración |
+| Componente | Estado |
 |---|---|
-| Interfaz `StatsDTO` | ✅ Refactorizada para usar `username` y `hitsAcertados`. |
-| Login / Register / Update | ✅ Refactorizados para mandar JSONs con la propiedad `username`. |
-| Petición HTTP Estadísticas | ⚠️ Se hace a `http://localhost:8080/api/estadisticas/jugador/{username}`, pero el backend devuelve 404. |
+| `AuthService` | ✅ Fingerprinting, sliding session, resolución dinámica de URL |
+| `SocketService` | ✅ Resolución dinámica `localhost` vs producción; evento `rendirse` implementado |
+| `StatsDTO` | ✅ Refactorizada para `username`, `hitsAcertados`, `barcosHundidos` |
+| Login / Register / Update | ✅ JSON con `username` |
+| Petición estadísticas | ✅ Llama a `withMiddlewareToken` → `GET /api/estadisticas/jugador/{username}` |
+| Habilidades con coordenadas | ✅ `usarHabilidad(id, x, y)` emite las coordenadas requeridas |
+| Abandono / rendición | ✅ `rendirse()` y `disconnect()` implementados |
+| Token reset-password en URL | ⚠️ El token temporal aparece en la URL — riesgo de exposición |
+| Responsive / móvil | ⚠️ Layout no adaptado a pantallas pequeñas |
+| Segunda partida | ❌ No se puede unir a una nueva sala tras terminar una partida |
 
 ---
 
 ## 4. Arquitectura de Despliegue en Producción
 
-Se ha validado la estrategia de despliegue según el archivo `.agents/despliegue_produccion.md`.
-
-| Infraestructura | Decisión Final |
+| Infraestructura | Estado |
 |---|---|
-| **Servidor Host** | Ubuntu Server en Microsoft Azure |
-| **Orquestación** | Docker Compose |
-| **Bases de Datos** | Contenedores locales MySQL 8 y MongoDB oficial en el propio Ubuntu (Aislados). Se descarta el uso de MongoDB Atlas. |
-| **Backend** | Spring Boot `.jar` contenerizado (`backend-api`) |
-| **Frontend** | Contenedor Nginx (`frontend-web`) sirviendo estáticos de Angular y actuando de Proxy Inverso para solventar CORS. |
+| **`docker-compose.yml`** | ✅ Presente en la raíz del repositorio |
+| **Servicios definidos** | MySQL 8.0, MongoDB 7.0, Backend Spring Boot, Frontend Angular/Nginx |
+| **Variables de entorno Docker** | ✅ Configuradas (sobreescriben `application.properties` en contenedor) |
+| **`Dockerfile` Backend** | ⚠️ Pendiente de validar (existe directorio, falta confirmar) |
+| **`Dockerfile` Frontend (Nginx)** | ⚠️ Pendiente de validar |
+| **Credenciales en texto plano** | ⚠️ `application.properties` tiene contraseñas en claro — usar variables de entorno |
 
 ---
 
@@ -78,7 +107,11 @@ Se ha validado la estrategia de despliegue según el archivo `.agents/despliegue
 
 | Prioridad | Acción | Detalle |
 |---|---|---|
-| 🔴 **URGENTE** | **Crear `EstadisticasController`** | En el paquete `api.controller`. Exponer un método GET que devuelva el objeto `StatsAgregadasDTO` pidiéndoselo al `EstadisticasService`. |
-| 🟡 Media | **Archivos Docker** | Crear `Dockerfile` para Backend, `Dockerfile` para Nginx y el `docker-compose.yml` base. |
-| 🟡 Media | **Configurar Variables** | Migrar `application.properties` a `application-prod.properties` para enmascarar contraseñas. |
-| 🟢 Baja | **Refinar Semillas** | Insertar datos predeterminados en `Personajes` y `BarcosCatalogo` usando un archivo `data.sql` si fuera necesario para producción. |
+| 🔴 **URGENTE** | **Corregir flujo de turnos** | Revisar la lógica de `haAtacadoEsteTurno` en `GameEngine` y el doble disparo de Wulfrik. |
+| 🔴 **URGENTE** | **Corregir bug segunda partida** | `GameRoomManager` debe resetear el `GameEngine` de la sala al terminar para permitir nuevas partidas. |
+| 🟡 Media | **Proteger token reset-password** | No incluir el token JWT en la URL; usar un parámetro de formulario o cuerpo POST. |
+| 🟡 Media | **Validar Dockerfiles** | Confirmar que los `Dockerfile` del backend y frontend compilan correctamente. |
+| 🟡 Media | **Seguridad WebSockets** | Añadir validación de JWT en la conexión inicial de Socket.IO (handshake auth). |
+| 🟡 Media | **Habilidades Wulfrik** | Verificar `SKL_WUL_1` y el rango de `SKL_WUL_2` (línea de 3 celdas centrada). |
+| 🟢 Baja | **Diseño Responsive** | Adaptar tableros y modales a pantallas pequeñas y táctiles. |
+| 🟢 Baja | **Mensajes de acción** | Revisar y limpiar los mensajes de estado mostrados en partida. |

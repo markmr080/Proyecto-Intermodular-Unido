@@ -1,18 +1,26 @@
 # Análisis Detallado del Frontend (Angular)
 
+> **Actualizado:** 2026-05-12
+
 Este documento detalla la estructura y componentes principales del proyecto cliente en Angular (`front-conectado-main`), centrándose en explicar pormenorizadamente los controladores `.ts` y las referencias entre las plantillas `.html` (botones, formularios) y la lógica subyacente.
 
 ## 1. Servicios Base (`src/app/services`)
 
 ### `AuthService`
 Es el núcleo de la seguridad y comunicación HTTP del frontend con el middleware.
-- **Fingerprinting**: Genera un hash temporal en memoria (`generarFingerprint()`) para evitar el robo del token.
-- **Aislamiento de la BD**: Todas sus llamadas (login, register, update) envían primero las credenciales internas `middleware_admin` para entrar a la zona segura y allí validar o procesar la petición.
-- **Persistencia**: `saveToken()`, `logout()` y lectura guardan los datos en `sessionStorage` (volátil por pestaña).
+- **Resolución dinámica de host**: Las URLs base `API_URL` y `STATS_URL` se construyen comprobando `window.location.hostname`. Si es `localhost` usa `http://localhost:8080`; en producción usa la misma IP/dominio de la página.
+- **Fingerprinting**: Genera un hash SHA-256 en memoria (`generarFingerprint()`). En contextos HTTP no seguros (sin HTTPS), usa un fallback simple de hash de 32 bits para mantener compatibilidad.
+- **Aislamiento de la BD**: Todas sus llamadas (login, register, update) pasan primero por `withMiddlewareToken()` para obtener el token de `middleware_admin` y así entrar a la zona segura.
+- **Persistencia**: `saveToken()`, `logout()` y lectura guardan los datos en `sessionStorage` (volátil por pestaña). El fingerprint solo vive en memoria (variable privada `cachedFingerprint`).
+- **Estadísticas**: `getUserStats(username)` llama a `GET /api/estadisticas/jugador/{username}` con token de middleware y fingerprint.
 
 ### `SocketService`
 Gestiona la conexión WebSocket (Puerto 8081).
-- **Lobby y Tablero**: Expone métodos imperativos para enviar eventos (`solicitarUnirse`, `atacar`) y variables reactivas `Subject` (`gameState$`, `solicitudAceptada$`) para que los componentes se suscriban a las respuestas en tiempo real del servidor.
+- **Resolución dinámica de host**: La URL de conexión se construye en `connect()` comprobando `window.location.hostname`. En `localhost` usa `http://localhost:8081`; en producción usa `https://{hostname}` para pasar por el proxy Nginx.
+- **Lobby y Tablero**: Expone métodos imperativos para enviar eventos (`solicitarUnirse`, `atacar`, `usarHabilidad(id, x, y)`) y `Subject` reactivos para que los componentes se suscriban.
+- **Evento `rendirse`**: Método `rendirse(jugadorId, roomCode)` que emite el evento `rendirse` al backend para declarar al rival ganador.
+- **Habilidades con coordenadas**: `usarHabilidad(id, x, y)` admite coordenadas de celda para habilidades de área (`x=-1, y=-1` para las que no necesitan objetivo).
+- **Limpieza**: `disconnect()` cierra el socket correctamente.
 
 ### `RoomService`
 Servicio para llamadas HTTP clásicas (`GET`, `POST`, `DELETE`) al endpoint `/api/lobby` para gestionar las salas de espera pre-partida.
@@ -94,7 +102,8 @@ A continuación, se detalla qué hace exactamente cada archivo `.ts` y cómo los
 - Representa la culminación en tiempo real. En el arranque conecta el WebSocket (`socketService.connect()`) y entra explícitamente a la sala técnica de la batalla (`joinRoom`).
 - Se suscribe a `gameState$`. Cuando el backend manda una actualización JSON, la guarda, evalúa de quién es el turno (`esMiTurno`) y extrae los tableros modificados al modelo visual.
 - **Fase Colocación**: Lógica pesada local. Almacena las siluetas de los barcos (`colocarBarcoEnCelda()`), previene que un barco se ponga encima de otro o fuera de los límites (usando la variable booleana `orientation: H/V`), y cuando están todos (`currentShipIndex == 5`), permite mandar la matriz local hacia el backend mediante `enviarTablero()`.
-- **Fase Combate**: Si la variable de estado es "COMBATE", se habilitan los clickers sobre el tablero enemigo (`atacarCasilla(x,y)`) que mandan por socket las coordenadas exactas X e Y, o las habilidades (`usarHabilidad(id)`).
+- **Fase Combate**: Si la variable de estado es "COMBATE", se habilitan los clickers sobre el tablero enemigo (`atacarCasilla(x,y)`) que mandan por socket las coordenadas exactas X e Y. Las habilidades (`usarHabilidad(id)`) también envian las coordenadas `x,y` seleccionadas para habilidades de área.
+- **Condición de ataque corregida**: La guarda de ataque es `if (gameState?.fase !== 'COMBATE' || !esMiTurno) return;` (ya no usa `faseReaccion` que bloqueaba erroneamente a J2).
 
 **Referencias de Botones y Áreas Clicables (`partida-activa.component.html`):**
 - **Botón "Orientación: Horizontal / Vertical"**: Usado en Fase Colocación con `(click)="cambiarOrientacion()"`.
