@@ -169,13 +169,14 @@
 }
 
 .avatar-container img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
   border: 3px solid #b89158;
   background: #111;
-  padding: 5px;
+  padding: 2px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
 }
 
 .stats p {
@@ -215,10 +216,11 @@
 }
 
 .passive-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
   border: 1px solid #b89158;
+  object-fit: cover;
 }
 
 .passive-skill:hover {
@@ -513,8 +515,8 @@
 }
 
 .ability-circle {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   border: 2px solid;
   background: rgba(0, 0, 0, 0.6);

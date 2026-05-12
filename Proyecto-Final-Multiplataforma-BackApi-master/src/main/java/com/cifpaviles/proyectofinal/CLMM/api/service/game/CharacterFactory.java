@@ -66,53 +66,53 @@ public class CharacterFactory {
 
     private GameCharacter crearWulfrik() {
         Skill pasiva = new Skill("PAS_WUL", "Cazador de Naves",
-                "Si aciertas a un barco enemigo, ganas un disparo extra.", SkillType.PASIVA, 0, "imagenes/wulfrik_habilidades/pasiva.png");
-        GameCharacter c = new GameCharacter("Wulfrik", "Campeón de los dioses oscuros.", pasiva);
+                "Si aciertas a un barco enemigo, ganas un disparo extra.", SkillType.PASIVA, 0, "/imagenes/wulfrik_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Wulfrik", "Campeón de los dioses oscuros.", "/imagenes/wulfrik.jpg", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_WUL_1", "Desafío del Errante",
-                "Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.", SkillType.OFENSIVA, 4, "imagenes/wulfrik_habilidades/ofensiva1.png"));
+                "Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.", SkillType.OFENSIVA, 4, "/imagenes/wulfrik_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_2", "Colmillo de los Mares",
-                "Impacta un área en línea horizontal de 3 casillas.", SkillType.OFENSIVA, 5, "imagenes/wulfrik_habilidades/ofensiva2.png"));
+                "Impacta un área en línea horizontal de 3 casillas.", SkillType.OFENSIVA, 5, "/imagenes/wulfrik_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_3", "Favor Ruinoso",
-                "Escuda una casilla. Falla automática para el enemigo.", SkillType.DEFENSIVA, 4, "imagenes/wulfrik_habilidades/defensiva.png"));
+                "Escuda una casilla. Falla automática para el enemigo.", SkillType.DEFENSIVA, 4, "/imagenes/wulfrik_habilidades/defensiva.png"));
         return c;
     }
 
     private GameCharacter crearAislinn() {
         Skill pasiva = new Skill("PAS_AIS", "Señor del Mar Alto Elfo", "20% probabilidad de ignorar escudos y protecciones.",
-                SkillType.PASIVA, 0, "imagenes/aislinn_habilidades/pasiva.png");
-        GameCharacter c = new GameCharacter("Aislinn", "Comandante de la guardia del mar.", pasiva);
+                SkillType.PASIVA, 0, "/imagenes/aislinn_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Aislinn", "Comandante de la guardia del mar.", "/imagenes/aislinn.jpg", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_AIS_1", "Corte de Lothern",
-                "Dos disparos independientes en dos casillas separadas.", SkillType.OFENSIVA, 4, "imagenes/aislinn_habilidades/ofensiva1.png"));
+                "Dos disparos independientes en dos casillas separadas.", SkillType.OFENSIVA, 4, "/imagenes/aislinn_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_AIS_2", "Ira de Mathlann", "Golpea en forma de cruz (5 casillas).",
-                SkillType.OFENSIVA, 6, "imagenes/aislinn_habilidades/ofensiva2.png"));
+                SkillType.OFENSIVA, 6, "/imagenes/aislinn_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_AIS_3", "Bruma Marina",
-                "Oculta área 2x2. Si acierta, el golpe se anula.", SkillType.DEFENSIVA, 5, "imagenes/aislinn_habilidades/defensiva.png"));
+                "Oculta área 2x2. Si acierta, el golpe se anula.", SkillType.DEFENSIVA, 5, "/imagenes/aislinn_habilidades/defensiva.png"));
         return c;
     }
 
     private GameCharacter crearLokhir() {
         Skill pasiva = new Skill("PAS_LOK", "Saqueador Especialista",
-                "Al hundir un barco, revela una casilla del siguiente.", SkillType.PASIVA, 0, "imagenes/lokhir_habilidades/pasiva.png");
-        GameCharacter c = new GameCharacter("Lokhir", "Corsario de Karond Kar.", pasiva);
+                "Al hundir un barco, revela una casilla del siguiente.", SkillType.PASIVA, 0, "/imagenes/lokhir_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Lokhir", "Corsario de Karond Kar.", "/imagenes/lokhir.webp", pasiva);
         c.anadirHabilidadActiva(
-                new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara a 3 casillas en diagonal.", SkillType.OFENSIVA, 4, "imagenes/lokhir_habilidades/ofensiva1.png"));
+                new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara a 3 casillas en diagonal.", SkillType.OFENSIVA, 4, "/imagenes/lokhir_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_LOK_2", "Furia Corsaria",
-                "Bengalas en área 3x3. Revela barcos sin causar daño.", SkillType.OFENSIVA, 5, "imagenes/lokhir_habilidades/ofensiva2.png"));
+                "Bengalas en área 3x3. Revela barcos sin causar daño.", SkillType.OFENSIVA, 5, "/imagenes/lokhir_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_LOK_3", "Yelmo del Kraken", "Reubica uno de tus barcos enteros.",
-                SkillType.DEFENSIVA, 6, "imagenes/lokhir_habilidades/defensiva.png"));
+                SkillType.DEFENSIVA, 6, "/imagenes/lokhir_habilidades/defensiva.png"));
         return c;
     }
 
     private GameCharacter crearAranessa() {
         Skill pasiva = new Skill("PAS_ARA", "Tripulación de los Muertos",
-                "Los marineros no-muertos no temen a la muerte. 20% de probabilidad de ignorar el daño recibido.", SkillType.PASIVA, 0, "imagenes/aranessa_habilidades/pasiva.png");
-        GameCharacter c = new GameCharacter("Aranessa", "Reina Pirata de Sartosa.", pasiva);
+                "Los marineros no-muertos no temen a la muerte. 20% de probabilidad de ignorar el daño recibido.", SkillType.PASIVA, 0, "/imagenes/aranessa_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Aranessa", "Reina Pirata de Sartosa.", "/imagenes/Aranessa (1).jpg", pasiva);
         c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica",
-                "El fuego se propaga en cruz (4 casillas adyacentes) si impacta un barco.", SkillType.OFENSIVA, 5, "imagenes/aranessa_habilidades/ofensiva1.png"));
+                "El fuego se propaga en cruz (4 casillas adyacentes) si impacta un barco.", SkillType.OFENSIVA, 5, "/imagenes/aranessa_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_2", "Disparo de Saloma",
-                "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4, "imagenes/aranessa_habilidades/ofensiva2.png"));
+                "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels",
-                "Anula por un turno completo cualquier disparo.", SkillType.DEFENSIVA, 6, "imagenes/aranessa_habilidades/defensiva.png"));
+                "Anula por un turno completo cualquier disparo.", SkillType.DEFENSIVA, 6, "/imagenes/aranessa_habilidades/defensiva.png"));
         return c;
     }
 }

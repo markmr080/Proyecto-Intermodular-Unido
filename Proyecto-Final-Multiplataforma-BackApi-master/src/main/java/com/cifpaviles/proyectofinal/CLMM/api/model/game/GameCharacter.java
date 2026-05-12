@@ -13,15 +13,17 @@ import java.util.Map;
 public class GameCharacter {
     private String nombre;
     private String descripcion;
+    private String imagen;
     private Skill habilidadPasiva;
     private List<Skill> habilidadesActivas;
     
     // Mapa: Tipo de Barco -> Cantidad permitida
     private Map<String, Integer> flotaPermitida;
 
-    public GameCharacter(String nombre, String descripcion, Skill pasiva) {
+    public GameCharacter(String nombre, String descripcion, String imagen, Skill pasiva) {
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.imagen = imagen;
         this.habilidadPasiva = pasiva;
         this.habilidadesActivas = new ArrayList<>();
         this.flotaPermitida = new HashMap<>();
@@ -73,6 +75,7 @@ public class GameCharacter {
 
     public String getNombre() { return nombre; }
     public String getDescripcion() { return descripcion; }
+    public String getImagen() { return imagen; }
     public Skill getHabilidadPasiva() { return habilidadPasiva; }
     public List<Skill> getHabilidadesActivas() { return habilidadesActivas; }
     public Map<String, Integer> getFlotaPermitida() { return flotaPermitida; }

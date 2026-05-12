@@ -34,8 +34,8 @@
             <p class="player-subtitle">{{ miJugador?.nombre }}</p>
             <div class="avatar-container">
               <img
-                [src]="miJugador?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (miJugador?.personaje?.nombre || miJugador?.nombre)"
-                alt="Mi Avatar">
+                [src]="miJugador?.personaje?.imagen || miJugador?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (miJugador?.personaje?.nombre || miJugador?.nombre)"
+                alt="Mi Personaje">
             </div>
             <div class="stats">
               <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
@@ -54,8 +54,8 @@
           <p class="player-subtitle">{{ enemigo?.nombre }}</p>
           <div class="avatar-container">
             <img
-              [src]="enemigo?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (enemigo?.personaje?.nombre || enemigo?.nombre)"
-              alt="Enemigo Avatar">
+              [src]="enemigo?.personaje?.imagen || enemigo?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + (enemigo?.personaje?.nombre || enemigo?.nombre)"
+              alt="Enemigo Personaje">
           </div>
           <div class="stats">
             <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->

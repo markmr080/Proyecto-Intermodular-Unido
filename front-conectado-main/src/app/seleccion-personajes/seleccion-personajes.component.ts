@@ -43,39 +43,39 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
   personajes: Personaje[] = [
     { 
-      id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: 'https://i.redd.it/m4wl1apwe6p21.jpg', barcos: FLOTA_WULFRIK,
+      id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: '/imagenes/wulfrik.jpg', barcos: FLOTA_WULFRIK,
       abilities: [
-        { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra.', type: 'passive', icon: 'imagenes/wulfrik_habilidades/pasiva.png' },
-        { name: 'Desafío del Errante', desc: 'Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.', type: 'offensive', icon: 'imagenes/wulfrik_habilidades/ofensiva1.png' },
-        { name: 'Colmillo de los Mares', desc: 'Impacta un área en línea horizontal de 3 casillas.', type: 'offensive', icon: 'imagenes/wulfrik_habilidades/ofensiva2.png' },
-        { name: 'Favor Ruinoso', desc: 'Escuda una casilla propia aleatoria.', type: 'defensive', icon: 'imagenes/wulfrik_habilidades/defensiva.png' }
+        { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra.', type: 'passive', icon: '/imagenes/wulfrik_habilidades/pasiva.png' },
+        { name: 'Desafío del Errante', desc: 'Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva1.png' },
+        { name: 'Colmillo de los Mares', desc: 'Impacta un área en línea horizontal de 3 casillas.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva2.png' },
+        { name: 'Favor Ruinoso', desc: 'Escuda una casilla propia aleatoria.', type: 'defensive', icon: '/imagenes/wulfrik_habilidades/defensiva.png' }
       ]
     },
     { 
-      id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847', barcos: FLOTA_AISLINN,
+      id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: '/imagenes/aislinn.jpg', barcos: FLOTA_AISLINN,
       abilities: [
-        { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: 'imagenes/aislinn_habilidades/pasiva.png' },
-        { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: 'imagenes/aislinn_habilidades/ofensiva1.png' },
-        { name: 'Ira de Mathlann', desc: 'Golpea en forma de cruz (5 casillas).', type: 'offensive', icon: 'imagenes/aislinn_habilidades/ofensiva2.png' },
-        { name: 'Bruma Marina', desc: 'Oculta 4 casillas propias aleatorias.', type: 'defensive', icon: 'imagenes/aislinn_habilidades/defensiva.png' }
+        { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: '/imagenes/aislinn_habilidades/pasiva.png' },
+        { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva1.png' },
+        { name: 'Ira de Mathlann', desc: 'Golpea en forma de cruz (5 casillas).', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva2.png' },
+        { name: 'Bruma Marina', desc: 'Oculta 4 casillas propias aleatorias.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
       ]
     },
     { 
-      id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es', barcos: FLOTA_LOKHIR,
+      id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: '/imagenes/lokhir.webp', barcos: FLOTA_LOKHIR,
       abilities: [
-        { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: 'imagenes/lokhir_habilidades/pasiva.png' },
-        { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: 'imagenes/lokhir_habilidades/ofensiva1.png' },
-        { name: 'Furia Corsaria', desc: 'Bengalas en área 3x3. Revela barcos sin causar daño.', type: 'offensive', icon: 'imagenes/lokhir_habilidades/ofensiva2.png' },
-        { name: 'Yelmo del Kraken', desc: 'Reubica uno de tus barcos enteros.', type: 'defensive', icon: 'imagenes/lokhir_habilidades/defensiva.png' }
+        { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
+        { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
+        { name: 'Furia Corsaria', desc: 'Bengalas en área 3x3. Revela barcos sin causar daño.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva2.png' },
+        { name: 'Yelmo del Kraken', desc: 'Reubica uno de tus barcos enteros.', type: 'defensive', icon: '/imagenes/lokhir_habilidades/defensiva.png' }
       ]
     },
     { 
-      id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142', barcos: FLOTA_ARANESSA,
+      id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: '/imagenes/Aranessa (1).jpg', barcos: FLOTA_ARANESSA,
       abilities: [
-        { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: 'imagenes/aranessa_habilidades/pasiva.png' },
-        { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: 'imagenes/aranessa_habilidades/ofensiva1.png' },
-        { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: 'imagenes/aranessa_habilidades/ofensiva2.png' },
-        { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: 'imagenes/aranessa_habilidades/defensiva.png' }
+        { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
+        { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },
+        { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
+        { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
       ]
     }
   ];

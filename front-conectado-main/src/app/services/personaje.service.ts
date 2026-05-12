@@ -11,6 +11,8 @@ export interface PersonajeFlota {
 export interface PersonajeBackend {
   id: number;
   nombre: string;
+  imagen: string;
+  habilidadPasiva?: any;
   flota: PersonajeFlota[];
 }
 
