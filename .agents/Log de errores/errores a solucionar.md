@@ -41,8 +41,15 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ## ⚠️ PENDIENTES
 
-Importante:
-Hay que comprobar que pasa si uno de los jugadores cierra la ventana del explorador. Habria que mirar de en el momento que cierre el jugador la ventana, al otro le salga un modal con un timer de 30 segundos que ponga "nombre de jugador abandono la partida, la partida se cerrara en 30 segundos". Si se reconecta antes de los 30 segundos, se reanuda la partida. De lo contrario que tire al lobby y elimine la sala. El funcionamiento debe ser igual al boton de rendicion. El jugador que abandona le cuenta la partida como perdida y al que no, como ganada. 
+EL boton de jugar desaparece con la resolucion demasiado alta. Deberia desaparecer sobre 768px
+Opciones para la navbar:
+- A partir de la pantalla creacion de sala deberia desaparecer la nav bar. Quitarla.
+- O dejarla y ajustar que pasa en la sala y sockets en base a si un jugador le da a algun boton del menu y se sale. 
+
+Boton de salir de sala en movil deberia estar debajo, igual que en el perfil. 
+
+
+
 
 ### 🟡 Habilidad: `SKL_WUL_1` — Desafío del Errante no responde
 **Síntoma**: La habilidad no produce efecto visible en el frontend.  

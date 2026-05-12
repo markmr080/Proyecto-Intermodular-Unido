@@ -47,6 +47,11 @@ public class GameSocketController {
      */
     private final ConcurrentHashMap<UUID, String[]> sessionToRoom = new ConcurrentHashMap<>();
     /**
+     * Mapea jugadorId → UUID (sessionId) del socket activo del jugador.
+     * Se usa para notificarle cuando su gracia de reconexión expira.
+     */
+    private final ConcurrentHashMap<String, UUID> jugadorSockets = new ConcurrentHashMap<>();
+    /**
      * Mapea jugadorId → ScheduledFuture del timer de gracia de reconexión.
      * Si el jugador vuelve antes de 30s, se cancela el Future.
      */
@@ -81,7 +86,11 @@ public class GameSocketController {
 
     @OnDisconnect
     public void onDisconnect(SocketIOClient client) {
+        // Limpiar el mapa de sockets activos del jugador
         String[] info = sessionToRoom.remove(client.getSessionId());
+        // Limpiar también si era el socket activo del jugador en jugadorSockets
+        jugadorSockets.values().remove(client.getSessionId());
+
         if (info == null) return; // No estaba en ninguna sala de juego activa
 
         String roomCode  = info[0];
@@ -114,6 +123,17 @@ public class GameSocketController {
                 state.setMensajeEstado("¡" + state.getJugadorPorId(ganadorId).getNombre()
                         + " gana! El rival abandonó la partida.");
                 difundirEstado(roomCode, state);
+
+                // Notificar al jugador desconectado (si tiene un nuevo socket abierto,
+                // por ejemplo desde el menú) que su reconexión ya no es posible.
+                UUID socketDesconectado = jugadorSockets.get(jugadorId);
+                if (socketDesconectado != null) {
+                    var clienteDesconectado = server.getClient(socketDesconectado);
+                    if (clienteDesconectado != null) {
+                        clienteDesconectado.sendEvent("reconexion-expirada", roomCode);
+                    }
+                }
+
                 limpiarSalaFinalizada(roomCode, eng);
                 System.out.println("[DESCONEXION] Partida finalizada por abandono de " + jugadorId);
             }
@@ -135,6 +155,9 @@ public class GameSocketController {
             client.joinRoom(roomCode);
             sessionToRoom.put(client.getSessionId(),
                 new String[]{roomCode, jugadorId, mensaje.getJugadorNombre() != null ? mensaje.getJugadorNombre() : jugadorId});
+
+            // Actualizar el mapa de sockets activos del jugador (para notificarle si su gracia expira)
+            jugadorSockets.put(jugadorId, client.getSessionId());
 
             // Si hay un timer de gracia activo para este jugador, cancelarlo (se reconectó)
             ScheduledFuture<?> pendingTimer = reconnectTimers.remove(jugadorId);

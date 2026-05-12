@@ -94,11 +94,13 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   // --- Modo targeting para habilidades de área ---
   // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
   private readonly HABILIDADES_CON_TARGET = new Set([
+    'SKL_WUL_1', // Desafío del Errante — disparo + reveal
     'SKL_WUL_2', // Colmillo de los Mares — horizontal 3
     'SKL_AIS_2', // Ira de Mathlann — cruz
     'SKL_LOK_1', // Andanada Druchii — diagonal
     'SKL_LOK_2', // Furia Corsaria — revelar 3x3
     'SKL_ARA_1', // Pólvora Vampírica — propagación
+    'SKL_ARA_2', // Disparo de Saloma — area 2x2
   ]);
   /** ID de la habilidad que espera que el jugador clique una celda; null si no hay targeting activo. */
   habilidadPendiente: string | null = null;

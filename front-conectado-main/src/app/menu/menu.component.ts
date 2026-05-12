@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService, UserDB } from '../services/auth.service';
+import { SocketService } from '../services/socket.service';
+import { RoomService } from '../services/room.service';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -13,6 +16,9 @@ import { AuthService, UserDB } from '../services/auth.service';
 export class MenuComponent implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
+  socketService = inject(SocketService);
+  roomService = inject(RoomService);
+  private subscriptions = new Subscription();
 
   currentUser: UserDB | undefined;
 
@@ -100,19 +106,68 @@ export class MenuComponent implements OnInit {
         const session = JSON.parse(raw);
         const username = this.authService.getCurrentUsername();
         if (session.roomCode && session.username === username) {
-          this.roomCodeReconexion = session.roomCode;
-          // Pequeño delay para que el menú se pinte primero
-          setTimeout(() => {
-            this.mostrarPopupReconexion = true;
-          }, 600);
+          // VERIFICACIÓN: Comprobar con el servidor si la sala sigue activa
+          this.roomService.isSalaActiva(session.roomCode).subscribe({
+            next: (resp) => {
+              if (resp.activa) {
+                this.roomCodeReconexion = session.roomCode;
+                // Pequeño delay para que el menú se pinte primero
+                setTimeout(() => {
+                  this.mostrarPopupReconexion = true;
+                }, 600);
+              } else {
+                // La sala ya no existe o no está activa -> limpiar
+                localStorage.removeItem(this.SESSION_KEY);
+              }
+            },
+            error: () => {
+              // Si hay error (ej. servidor caído), mejor no mostrar nada
+              localStorage.removeItem(this.SESSION_KEY);
+            }
+          });
         }
       }
     } catch (e) { /* ignorar */ }
+
+    // Escuchar si la reconexión expira mientras estamos en el menú
+    this.subscriptions.add(
+      this.socketService.reconexionExpirada$.subscribe((roomCode) => {
+        if (roomCode === this.roomCodeReconexion) {
+          console.log('[Menu] La reconexión ha expirado. Cerrando popup.');
+          this.mostrarPopupReconexion = false;
+          localStorage.removeItem(this.SESSION_KEY);
+        }
+      })
+    );
+    
+    // Conectar al socket para poder recibir el evento anterior
+    this.socketService.connect();
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.socketService.registrarUsuario(user.username);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   reconectarAPartida(): void {
-    this.mostrarPopupReconexion = false;
-    this.router.navigate(['/partida-activa', this.roomCodeReconexion]);
+    // Verificar una última vez antes de navegar
+    this.roomService.isSalaActiva(this.roomCodeReconexion).subscribe({
+      next: (resp) => {
+        if (resp.activa) {
+          this.mostrarPopupReconexion = false;
+          this.router.navigate(['/partida-activa', this.roomCodeReconexion]);
+        } else {
+          alert('La partida ya no está disponible (el tiempo de reconexión ha expirado).');
+          this.descartarReconexion();
+        }
+      },
+      error: () => {
+        this.descartarReconexion();
+      }
+    });
   }
 
   descartarReconexion(): void {

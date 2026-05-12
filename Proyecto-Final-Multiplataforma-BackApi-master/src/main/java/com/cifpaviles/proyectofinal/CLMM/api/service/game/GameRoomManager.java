@@ -62,6 +62,17 @@ public class GameRoomManager {
     }
 
     /**
+     * Comprueba si una sala existe en memoria y su partida sigue activa.
+     * Usado por el endpoint REST para que el frontend valide la reconexión.
+     */
+    public boolean isRoomActive(String roomCode) {
+        GameEngine engine = activeRooms.get(roomCode);
+        return engine != null
+                && engine.getState() != null
+                && engine.getState().isJuegoActivo();
+    }
+
+    /**
      * Elimina la sala de memoria y detiene su cronómetro.
      * Llamar al finalizar la partida para liberar recursos.
      */

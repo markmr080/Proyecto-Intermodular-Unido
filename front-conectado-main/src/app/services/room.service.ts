@@ -22,6 +22,11 @@ export class RoomService {
   private readonly API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:8080/api/lobby'
     : `https://${window.location.hostname}/api/lobby`;
+
+  private readonly API_PARTIDAS_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:8080/api/partidas'
+    : `https://${window.location.hostname}/api/partidas`;
+
   private http = inject(HttpClient);
 
   getRooms(): Observable<Room[]> {
@@ -47,5 +52,9 @@ export class RoomService {
         error: (err) => observer.error(err)
       });
     });
+  }
+
+  isSalaActiva(code: string): Observable<{ activa: boolean }> {
+    return this.http.get<{ activa: boolean }>(`${this.API_PARTIDAS_URL}/sala-activa/${code}`);
   }
 }

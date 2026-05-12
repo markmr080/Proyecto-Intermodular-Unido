@@ -33,6 +33,8 @@ export class SocketService {
   public miDesconexion$ = new Subject<void>();
   /** Emite cuando la conexión WebSocket propia se reestablece. */
   public miReconexion$ = new Subject<void>();
+  /** Emite cuando el tiempo de reconexión de una partida ha expirado en el servidor. */
+  public reconexionExpirada$ = new Subject<string>();
 
   constructor(private ngZone: NgZone) { }
 
@@ -87,6 +89,11 @@ export class SocketService {
     });
     this.socket.on('jugador-reconectado', (jugadorId: string) => {
       this.ngZone.run(() => this.jugadorReconectado$.next(jugadorId));
+    });
+
+    this.socket.on('reconexion-expirada', (roomCode: string) => {
+      console.log('[SocketService] Reconexión expirada para sala:', roomCode);
+      this.ngZone.run(() => this.reconexionExpirada$.next(roomCode));
     });
 
     // --- Desconexión propia (pérdida de red o servidor caído) ---
