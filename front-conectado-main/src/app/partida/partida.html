@@ -65,7 +65,7 @@
       </div>
 
       <!-- Settings Box -->
-      <div class="ajustes-box">
+      <div class="ajustes-box" (click)="abrirAjustes()">
         <h3>Ajustes de la partida</h3>
         <p class="ajustes-content">
           @if (isOwner) {
@@ -76,8 +76,24 @@
         </p>
       </div>
 
+      <!-- Settings Modal -->
+      <div class="modal-backdrop" *ngIf="showSettingsModal" (click)="cerrarAjustes()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <button class="close-btn" (click)="cerrarAjustes()">✕</button>
+          <h3>Ajustes de la partida</h3>
+          <p>
+            @if (isOwner) {
+            Aquí van todas las configuraciones de los dioses, mapas, etc...
+            } @else {
+            Solo el creador puede modificar los ajustes de la partida.
+            }
+          </p>
+          <button class="btn-modal-confirm" (click)="cerrarAjustes()">Entendido</button>
+        </div>
+      </div>
+
       <!-- Action Bottom Right -->
-      <button class="btn-empezar btn-test" (click)="testPartida()" style="background-color: #ff9800; margin-bottom: 10px;">[TEST]
+      <button class="btn-empezar btn-test" (click)="testPartida()" style="background-color: #ff9800;">[TEST]
         Partida contra IA</button>
 
       @if (isOwner) {

@@ -25,6 +25,7 @@ export class Partida implements OnInit, OnDestroy {
   isOwner = false;
   roomCode = '';
   currentRoom: Room | undefined;
+  showSettingsModal = false;
 
   timeRemaining = '15:00';
   private totalSeconds = 15 * 60;
@@ -191,6 +192,17 @@ export class Partida implements OnInit, OnDestroy {
 
   testPartida() {
     this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode, testMode: 'true' } });
+  }
+
+  abrirAjustes() {
+    // Solo mostramos el modal en dispositivos móviles (<= 600px)
+    if (window.innerWidth <= 600) {
+      this.showSettingsModal = true;
+    }
+  }
+
+  cerrarAjustes() {
+    this.showSettingsModal = false;
   }
 }
 
