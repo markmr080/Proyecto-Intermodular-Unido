@@ -38,4 +38,10 @@ export class App {
     const isAuthRoute = hideOnRoutes.some(route => this.currentRoute().startsWith(route));
     return this.isLoggedIn() && !isAuthRoute;
   }
+
+  logout() {
+    localStorage.removeItem('game_active_session');
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }
