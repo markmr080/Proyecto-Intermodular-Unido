@@ -121,9 +121,14 @@ public class GameSocketController {
         if (engine != null && engine.getState() != null) {
             String turnoAntes = engine.getState().getTurnoActualId();
             System.out.println("[ATACAR] jugadorId=" + mensaje.getJugadorId()
-                + " | turnoAntes=" + turnoAntes);
+                + " | turnoAntes=" + turnoAntes
+                + " | xy=(" + mensaje.getX() + "," + mensaje.getY() + ")");
 
             engine.procesarDisparo(mensaje.getJugadorId(), mensaje.getX(), mensaje.getY());
+
+            String turnoDespues = engine.getState().getTurnoActualId();
+            System.out.println("[ATACAR] resultado: turnoDespues=" + turnoDespues
+                + (turnoAntes.equals(turnoDespues) ? " ⚠️ TURNO NO CAMBIÓ" : " ✅ turno cambiado"));
 
             difundirEstado(mensaje.getRoomCode(), engine.getState());
 

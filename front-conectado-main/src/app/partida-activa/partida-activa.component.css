@@ -56,7 +56,7 @@
 .turn-indicator {
   font-size: 1.8rem;
   font-weight: 900;
-  text-shadow: 0 0 15px rgba(0,0,0,0.8);
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
   letter-spacing: 1px;
 }
 
@@ -76,25 +76,30 @@
 }
 
 .timer {
-  display: none; /* Eliminado del header */
+  display: none;
+  /* Eliminado del header */
 }
 
 .game-message {
-  display: none; /* Eliminado del header */
+  display: none;
+  /* Eliminado del header */
 }
 
 .header-placeholder {
-  width: 150px; /* Para mantener simetría con el logo/título de la izquierda */
+  width: 150px;
+  /* Para mantener simetría con el logo/título de la izquierda */
 }
 
 /* GRID PRINCIPAL 3 COLUMNAS */
 .layout-grid {
   display: grid;
-  grid-template-columns: 350px 1fr 350px; /* Columnas laterales algo más anchas para las tarjetas */
+  grid-template-columns: 350px 1fr 350px;
+  /* Columnas laterales algo más anchas para las tarjetas */
   gap: 40px;
   padding: 30px 60px;
   flex: 1;
-  align-items: start; /* Alineación arriba para control total */
+  align-items: start;
+  /* Alineación arriba para control total */
   max-width: 1800px;
   margin: 0 auto;
   width: 100%;
@@ -114,11 +119,13 @@
   backdrop-filter: blur(10px);
   border: 2px solid #b89158;
   border-radius: 12px;
-  /* overflow: hidden; */ /* Eliminado para evitar que los tooltips se corten */
+  /* overflow: hidden; */
+  /* Eliminado para evitar que los tooltips se corten */
   transition: all 0.3s ease;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   padding: 20px;
-  flex: 1; /* Ocupar espacio equitativo */
+  flex: 1;
+  /* Ocupar espacio equitativo */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -199,7 +206,8 @@
   font-size: 0.85rem;
   color: #e5d3b3;
   cursor: help;
-  position: relative; /* Para el tooltip */
+  position: relative;
+  /* Para el tooltip */
   transition: all 0.3s;
 }
 
@@ -274,7 +282,8 @@
   border: 2px solid #b89158;
   border-radius: 12px;
   padding: 20px;
-  /* overflow: hidden; */ /* Eliminado para evitar que los tooltips se corten */
+  /* overflow: hidden; */
+  /* Eliminado para evitar que los tooltips se corten */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   color: #e5d3b3;
   flex: 1;
@@ -318,16 +327,19 @@
   backdrop-filter: blur(10px);
   border: 2px solid #b89158;
   border-radius: 12px;
-  padding: 12px 15px; /* Reducido */
+  padding: 12px 15px;
+  /* Reducido */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px; /* Reducido */
+  gap: 8px;
+  /* Reducido */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 .info-item .label {
-  font-size: 0.75rem; /* Más pequeño */
+  font-size: 0.75rem;
+  /* Más pequeño */
   font-weight: 800;
   letter-spacing: 1.5px;
   color: #d4af37;
@@ -339,20 +351,24 @@
 }
 
 .timer-info .value {
-  font-size: 1.8rem; /* Reducido de 2.2rem */
+  font-size: 1.8rem;
+  /* Reducido de 2.2rem */
   font-weight: 900;
   color: #f1c40f;
   text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
 }
 
 .action-info .action-message {
-  font-size: 0.85rem; /* Un poco más compacto */
+  font-size: 0.85rem;
+  /* Un poco más compacto */
   font-style: italic;
   color: #e5d3b3;
   text-align: center;
   line-height: 1.3;
-}/* Estilos específicos para la fase de colocación */
-.placement-info .placement-steps p, 
+}
+
+/* Estilos específicos para la fase de colocación */
+.placement-info .placement-steps p,
 .placement-info .placement-waiting p {
   margin: 5px 0;
   font-size: 0.9rem;
@@ -369,7 +385,8 @@
   font-weight: 800;
 }
 
-.btn-orientacion-v, .btn-listo-v {
+.btn-orientacion-v,
+.btn-listo-v {
   padding: 14px;
   font-size: 0.9rem;
   font-weight: 800;
@@ -409,7 +426,8 @@
 }
 
 .combat-actions-vertical {
-  margin-top: auto; /* Empujar los botones al final de la columna si hay espacio */
+  margin-top: auto;
+  /* Empujar los botones al final de la columna si hay espacio */
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -417,14 +435,16 @@
   border-top: 1px solid rgba(184, 145, 88, 0.3);
 }
 
-.btn-ver-mi-tablero-v, .btn-rendirse-v {
+.btn-ver-mi-tablero-v,
+.btn-rendirse-v {
   padding: 14px;
   font-size: 0.9rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); /* Transición más fluida */
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  /* Transición más fluida */
   clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
   border: none;
   position: relative;
@@ -458,7 +478,8 @@
 }
 
 /* Efecto activo (clic) */
-.btn-ver-mi-tablero-v:active, .btn-rendirse-v:active {
+.btn-ver-mi-tablero-v:active,
+.btn-rendirse-v:active {
   transform: translateY(0) scale(0.98);
   transition: all 0.1s;
 }
@@ -503,10 +524,16 @@
   filter: grayscale(100%);
 }
 
-.ability-circle.offensive { border-color: #ff4757; }
+.ability-circle.offensive {
+  border-color: #ff4757;
+}
+
 /* Hover de fondo eliminado a petición del usuario */
 
-.ability-circle.defensive { border-color: #1e90ff; }
+.ability-circle.defensive {
+  border-color: #1e90ff;
+}
+
 /* Hover de fondo eliminado a petición del usuario */
 
 .ability-img-icon {
@@ -524,7 +551,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -591,7 +618,7 @@
   padding: 10px;
   position: absolute;
   z-index: 10;
-  bottom: 125%; 
+  bottom: 125%;
   left: 50%;
   margin-left: -100px;
   opacity: 0;
@@ -619,7 +646,8 @@
   padding: 25px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  align-self: start; /* Mantener arriba */
+  align-self: start;
+  /* Mantener arriba */
 }
 
 .board-title {
@@ -627,7 +655,8 @@
   font-size: 2.2rem;
   letter-spacing: 4px;
   margin-top: 0;
-  margin-bottom: 15px; /* Reducido para que el tablero suba un poco */
+  margin-bottom: 15px;
+  /* Reducido para que el tablero suba un poco */
   color: #e5d3b3;
   text-transform: uppercase;
   font-weight: 900;
@@ -639,7 +668,8 @@
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   gap: 2px;
-  background: #b89158; /* Rejilla dorada sólida como la anterior */
+  background: #b89158;
+  /* Rejilla dorada sólida como la anterior */
   border: 6px solid #b89158;
   width: 100%;
   max-width: min(800px, 75vh);
@@ -650,7 +680,8 @@
 }
 
 .cell {
-  background: #1e3c5a; /* Azul mar sólido como el anterior */
+  background: #1e3c5a;
+  /* Azul mar sólido como el anterior */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -667,28 +698,39 @@
 }
 
 /* Estados de las celdas */
-.casilla-agua { background: rgba(30, 60, 90, 0.5); }
-.casilla-fallo { 
+.casilla-agua {
+  background: rgba(30, 60, 90, 0.5);
+}
+
+.casilla-fallo {
   background: rgba(10, 31, 51, 0.8);
   filter: saturate(0.5);
 }
-.casilla-tocado { 
+
+.casilla-tocado {
   background: rgba(211, 47, 47, 0.3);
   box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.5);
   animation: hit-pulse 1s infinite alternate;
 }
-.casilla-hundido { 
+
+.casilla-hundido {
   background: rgba(127, 0, 0, 0.6);
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
 }
-.casilla-barco { 
+
+.casilla-barco {
   background: rgba(139, 195, 74, 0.2);
   border: 1px solid rgba(139, 195, 74, 0.4);
 }
 
 @keyframes hit-pulse {
-  from { background-color: rgba(211, 47, 47, 0.3); }
-  to { background-color: rgba(211, 47, 47, 0.6); }
+  from {
+    background-color: rgba(211, 47, 47, 0.3);
+  }
+
+  to {
+    background-color: rgba(211, 47, 47, 0.6);
+  }
 }
 
 .casilla-revelada {
@@ -698,21 +740,33 @@
 }
 
 @keyframes radar-pulse {
-  0%   { box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.4); background: rgba(255, 200, 0, 0.1); }
-  50%  { box-shadow: inset 0 0 18px rgba(255, 200, 0, 0.8); background: rgba(255, 200, 0, 0.25); }
-  100% { box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.4); background: rgba(255, 200, 0, 0.1); }
+  0% {
+    box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.4);
+    background: rgba(255, 200, 0, 0.1);
+  }
+
+  50% {
+    box-shadow: inset 0 0 18px rgba(255, 200, 0, 0.8);
+    background: rgba(255, 200, 0, 0.25);
+  }
+
+  100% {
+    box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.4);
+    background: rgba(255, 200, 0, 0.1);
+  }
 }
 
 .placement-controls {
   text-align: center;
   margin-bottom: 15px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #b89158;
 }
 
-.btn-orientacion, .btn-listo {
+.btn-orientacion,
+.btn-listo {
   background: linear-gradient(to bottom, #d4af37, #aa7c11);
   border: 2px solid #ffd700;
   color: #1f1209;
@@ -727,7 +781,8 @@
   margin-top: 10px;
 }
 
-.btn-orientacion:hover, .btn-listo:hover {
+.btn-orientacion:hover,
+.btn-listo:hover {
   transform: scale(1.05);
   box-shadow: 0 0 25px rgba(212, 175, 55, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.8);
   filter: brightness(1.1);
@@ -762,7 +817,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* RESPONSIVE BÁSICO */
@@ -777,8 +834,14 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
   }
-  .column-left { flex-direction: row; }
-  .column-right { flex-direction: row; }
+
+  .column-left {
+    flex-direction: row;
+  }
+
+  .column-right {
+    flex-direction: row;
+  }
 }
 
 /* ===== BOTÓN VER MI TABLERO ===== */
@@ -797,6 +860,7 @@
   letter-spacing: 1px;
   clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
 }
+
 .btn-ver-mi-tablero:hover {
   background: #b89158;
   color: #111;
@@ -816,8 +880,15 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal-mi-tablero-header {
@@ -826,6 +897,7 @@
   justify-content: space-between;
   margin-bottom: 16px;
 }
+
 .modal-mi-tablero-header h3 {
   margin: 0;
   font-size: 1.2rem;
@@ -834,9 +906,10 @@
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 .btn-cerrar-mi-tablero {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #e5d3b3;
   width: 30px;
   height: 30px;
@@ -848,7 +921,10 @@
   justify-content: center;
   transition: background 0.2s;
 }
-.btn-cerrar-mi-tablero:hover { background: rgba(220,53,69,0.4); }
+
+.btn-cerrar-mi-tablero:hover {
+  background: rgba(220, 53, 69, 0.4);
+}
 
 /* Leyenda de colores */
 .mi-tablero-leyenda {
@@ -859,22 +935,41 @@
   font-size: 0.8rem;
   color: #c9bca7;
 }
-.leyenda-item { display: flex; align-items: center; gap: 6px; }
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .leyenda-color {
   width: 14px;
   height: 14px;
   border-radius: 3px;
   display: inline-block;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.barco-color   { background: #2a6496; }
-.tocado-color  { background: #e67e22; }
-.hundido-color { background: #c0392b; }
-.fallo-color   { background: rgba(100,150,255,0.3); }
+
+.barco-color {
+  background: #2a6496;
+}
+
+.tocado-color {
+  background: #e67e22;
+}
+
+.hundido-color {
+  background: #c0392b;
+}
+
+.fallo-color {
+  background: rgba(100, 150, 255, 0.3);
+}
 
 /* Tablero dentro del modal (sin clickable) */
 .mi-tablero-modal {
-  pointer-events: none; /* no se puede clicar, solo ver */
+  pointer-events: none;
+  /* no se puede clicar, solo ver */
 }
 
 /* Contenedor de los botones de acción durante el combate */
@@ -899,6 +994,7 @@
   letter-spacing: 1px;
   clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
 }
+
 .btn-rendirse:hover {
   background: #c0392b;
   color: #fff;
@@ -958,6 +1054,7 @@
   text-transform: uppercase;
   box-shadow: 0 0 15px rgba(192, 57, 43, 0.4);
 }
+
 .btn-confirmar-rendirse:hover {
   background: #e74c3c;
   transform: translateY(-2px);
@@ -976,6 +1073,7 @@
   transition: all 0.3s;
   text-transform: uppercase;
 }
+
 .btn-cancelar-rendirse:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
@@ -1001,28 +1099,42 @@
 }
 
 @keyframes pulse-border {
-  from { box-shadow: 0 0 8px rgba(255, 111, 0, 0.4); }
-  to   { box-shadow: 0 0 20px rgba(255, 111, 0, 0.9); }
+  from {
+    box-shadow: 0 0 8px rgba(255, 111, 0, 0.4);
+  }
+
+  to {
+    box-shadow: 0 0 20px rgba(255, 111, 0, 0.9);
+  }
 }
 
 .btn-cancelar-target {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   color: #fff;
   padding: 4px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
 }
-.btn-cancelar-target:hover { background: rgba(255,255,255,0.30); }
+
+.btn-cancelar-target:hover {
+  background: rgba(255, 255, 255, 0.30);
+}
 
 /* Tablero enemigo en modo targeting: cursor crosshair especial + borde pulsante */
 .targeting-active {
   border-color: #ff6f00 !important;
   box-shadow: 0 0 20px rgba(255, 111, 0, 0.7);
 }
-.targeting-active .cell { cursor: crosshair; }
-.targeting-active .cell:hover { background: rgba(255, 111, 0, 0.35) !important; }
+
+.targeting-active .cell {
+  cursor: crosshair;
+}
+
+.targeting-active .cell:hover {
+  background: rgba(255, 111, 0, 0.35) !important;
+}
 
 /* ===== MODAL FIN DE PARTIDA ===== */
 
@@ -1040,8 +1152,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Tarjeta central del modal */
@@ -1060,8 +1177,15 @@
 }
 
 @keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Variante victoria (verde dorado) */
@@ -1092,8 +1216,15 @@
   text-transform: uppercase;
 }
 
-.victoria .modal-titulo { color: #d4af37; text-shadow: 0 0 20px rgba(212, 175, 55, 0.6); }
-.derrota  .modal-titulo { color: #ef5350; text-shadow: 0 0 20px rgba(239, 83, 80, 0.6); }
+.victoria .modal-titulo {
+  color: #d4af37;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+}
+
+.derrota .modal-titulo {
+  color: #ef5350;
+  text-shadow: 0 0 20px rgba(239, 83, 80, 0.6);
+}
 
 /* Mensaje descriptivo */
 .modal-mensaje {
@@ -1273,16 +1404,33 @@
   font-weight: 800;
   text-align: center;
   box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
-  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
 
 /* Resaltado durante el arrastre (Previsualización) */
@@ -1314,7 +1462,106 @@
 }
 
 @keyframes pulse-battle {
-  0% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.02); filter: brightness(1.2); }
-  100% { transform: scale(1); filter: brightness(1); }
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* ===== ETIQUETA DINÁMICA DEL TABLERO CENTRAL ===== */
+.board-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.4s ease;
+}
+
+/* Label en turno de ataque: dorado/ámbar */
+.board-label.turno-ataque {
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+/* Label en turno de defensa: azul frío */
+.board-label.turno-defensa {
+  color: #5dade2;
+  background: rgba(30, 144, 255, 0.08);
+  border: 1px solid rgba(30, 144, 255, 0.35);
+  text-shadow: 0 0 10px rgba(30, 144, 255, 0.4);
+  animation: defensa-pulse 2s ease-in-out infinite;
+}
+
+/* Label de transición (1.5s tras recibir turno): naranja — impacto visible */
+.board-label.turno-transicion {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.5);
+  text-shadow: 0 0 12px rgba(255, 152, 0, 0.5);
+  animation: impacto-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes impacto-pulse {
+  from {
+    border-color: rgba(255, 152, 0, 0.3);
+    box-shadow: none;
+  }
+
+  to {
+    border-color: rgba(255, 152, 0, 0.9);
+    box-shadow: 0 0 16px rgba(255, 120, 0, 0.4);
+  }
+}
+
+@keyframes defensa-pulse {
+  0% {
+    border-color: rgba(30, 144, 255, 0.2);
+  }
+
+  50% {
+    border-color: rgba(30, 144, 255, 0.7);
+    box-shadow: 0 0 12px rgba(30, 144, 255, 0.3);
+  }
+
+  100% {
+    border-color: rgba(30, 144, 255, 0.2);
+  }
+}
+
+/* ===== TABLERO EN MODO DEFENSA (turno enemigo) ===== */
+/* Hereda todos los estilos de .board; solo cambia el borde para distinguirlo visualmente */
+.mi-tablero-defensa {
+  border-color: #5dade2;
+  box-shadow: 0 0 30px rgba(30, 144, 255, 0.25), 0 0 60px rgba(0, 0, 0, 0.7);
+  cursor: default;
+  /* No es clickable durante el turno enemigo */
+}
+
+/* Las celdas del tablero de defensa no muestran cursor de crosshair */
+.mi-tablero-defensa .cell {
+  cursor: default;
+}
+
+.mi-tablero-defensa .cell:hover {
+  background: #1e3c5a;
+  /* Sin efecto hover — no se puede atacar */
+  box-shadow: none;
 }
