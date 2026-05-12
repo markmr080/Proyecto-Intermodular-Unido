@@ -77,6 +77,20 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   cuentaAtrasDesconexion = 30;
   private desconexionInterval: any;
 
+  // --- Modal de reconexión PROPIA ---
+  mostrarModalReconexionPropia = false;
+  cuentaAtrasPropia = 30;
+  reconectando = false;
+  private reconexionInterval: any;
+  private reconexionTimeout: any;
+  private personajeIdGuardado = 'WULFRIK';
+  private avatarGuardado = '';
+  /** Clave de localStorage para sesión activa de partida. */
+  private readonly SESSION_KEY = 'game_active_session';
+  /** Evita guardar la sesión más de una vez. */
+  private sessionGuardada = false;
+
+
   // --- Modo targeting para habilidades de área ---
   // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
   private readonly HABILIDADES_CON_TARGET = new Set([
@@ -132,23 +146,41 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
 
-    // Recuperar el personaje elegido por este jugador (clave con username para evitar colisiones)
-    const personajeId = localStorage.getItem(`personaje_${this.roomCode}_${this.myUsername}`)
-                     || localStorage.getItem(`personaje_${this.roomCode}`)  // fallback legacy
-                     || 'WULFRIK';
+    // Recuperar el personaje y avatar para poder reconectar
+    const user = this.authService.getCurrentUser();
+    this.personajeIdGuardado = localStorage.getItem(`personaje_${this.roomCode}_${this.myUsername}`)
+                   || localStorage.getItem(`personaje_${this.roomCode}`)
+                   || 'WULFRIK';
+    this.avatarGuardado = user?.profilePicture || `https://api.dicebear.com/7.x/adventurer/svg?seed=${this.myUsername}`;
+
+    // ── DETECCIÓN DE SESIÓN ACTIVA (pestaña cerrada y reabierta) ──────────────
+    // Si el jugador estaba en COMBATE y cerró la pestaña, mostramos el popup de
+    // reconexión de inmediato para que sepa que se está reincorporando a la sala.
+    try {
+      const raw = localStorage.getItem(this.SESSION_KEY);
+      if (raw) {
+        const session = JSON.parse(raw);
+        if (session.roomCode === this.roomCode && session.username === this.myUsername) {
+          console.log('[PartidaActiva] Sesión activa detectada → mostrando popup de reconexión.');
+          this.mostrarModalReconexionPropia = true;
+          this.cuentaAtrasPropia = 30;
+          this.reconectando = false;
+          this.iniciarCuentaAtrasPropia();
+        }
+      }
+    } catch (e) { /* localStorage no disponible, ignorar */ }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
     const intentarJoinRoom = () => {
-      const user = this.authService.getCurrentUser();
-      const avatarUrl = user?.profilePicture || `https://api.dicebear.com/7.x/adventurer/svg?seed=${this.myUsername}`;
-      
-      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername, '| personaje:', personajeId, '| avatar:', avatarUrl);
-      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode, personajeId, avatarUrl);
+      const userFresh = this.authService.getCurrentUser();
+      const avatarUrl = userFresh?.profilePicture || `https://api.dicebear.com/7.x/adventurer/svg?seed=${this.myUsername}`;
+      console.log('[PartidaActiva] Emitiendo join-room con jugadorId:', this.myUsername, '| personaje:', this.personajeIdGuardado, '| avatar:', avatarUrl);
+      this.socketService.joinRoom(this.myUsername, this.myDisplayName, this.roomCode, this.personajeIdGuardado, avatarUrl);
     };
 
     setTimeout(() => {
       intentarJoinRoom();
-      // Segundo intento de seguridad tras 1.5s adicionales
       setTimeout(intentarJoinRoom, 1500);
     }, 500);
 
@@ -207,11 +239,34 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         }
       }
 
+      // ── GUARDAR sesión activa cuando la partida comienza de verdad ─────────
+      if (state?.juegoActivo === true && state?.fase === 'COMBATE' && !this.sessionGuardada) {
+        this.sessionGuardada = true;
+        try {
+          localStorage.setItem(this.SESSION_KEY, JSON.stringify({
+            roomCode: this.roomCode,
+            username: this.myUsername
+          }));
+          console.log('[PartidaActiva] Sesión activa guardada en localStorage.');
+        } catch (e) { /* ignorar */ }
+      }
+
+      // ── OCULTAR popup de reconexión cuando llega un gameState válido ────────
+      // Significa que la reconexión al backend fue exitosa.
+      if (this.mostrarModalReconexionPropia) {
+        console.log('[PartidaActiva] gameState recibido → reconexión exitosa. Cerrando popup.');
+        if (this.reconexionInterval) clearInterval(this.reconexionInterval);
+        if (this.reconexionTimeout) clearTimeout(this.reconexionTimeout);
+        this.mostrarModalReconexionPropia = false;
+        this.reconectando = false;
+      }
+
       // Detectar fin de partida para mostrar el modal de victoria/derrota
       if (state?.juegoActivo === false && !this.mostrarModal) {
         this.soyGanador = state?.ganadorId === this.myUsername;
         this.mostrarModal = true;
-        // Limpiar el flag de modo test al terminar
+        // Limpiar sesión activa y flag de modo test al terminar
+        localStorage.removeItem(this.SESSION_KEY);
         localStorage.removeItem(`test_mode_${this.roomCode}`);
       }
 
@@ -258,13 +313,88 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         if (this.desconexionInterval) clearInterval(this.desconexionInterval);
       }
     });
+
+    // --- Desconexión PROPIA en tiempo real (pérdida de red / servidor caído) ---
+    this.socketService.miDesconexion$.subscribe(() => {
+      if (this.mostrarModal) return; // La partida ya terminó, no mostrar
+      console.log('[PartidaActiva] WebSocket propio perdido → mostrando popup de reconexión.');
+      this.mostrarModalReconexionPropia = true;
+      this.cuentaAtrasPropia = 30;
+      this.reconectando = false;
+      this.iniciarCuentaAtrasPropia();
+    });
+
+    // El socket se reconectó automáticamente (socket.io retry)
+    this.socketService.miReconexion$.subscribe(() => {
+      if (!this.mostrarModalReconexionPropia) return;
+      console.log('[PartidaActiva] Socket reconectado automáticamente. Reincorporando a la sala.');
+      this.ejecutarReconexion();
+    });
   }
 
   ngOnDestroy(): void {
     if (this.transitionTimeout) clearTimeout(this.transitionTimeout);
     if (this.transitionTimeoutAtaque) clearTimeout(this.transitionTimeoutAtaque);
     if (this.desconexionInterval) clearInterval(this.desconexionInterval);
+    if (this.reconexionInterval) clearInterval(this.reconexionInterval);
+    if (this.reconexionTimeout) clearTimeout(this.reconexionTimeout);
     this.socketService.disconnect();
+  }
+
+  /**
+   * Inicia la cuenta atrás de 30s para el popup de reconexión propia.
+   * Reutilizado tanto en la detección via localStorage como en el evento socket disconnect.
+   */
+  private iniciarCuentaAtrasPropia(): void {
+    if (this.reconexionInterval) clearInterval(this.reconexionInterval);
+    this.reconexionInterval = setInterval(() => {
+      this.cuentaAtrasPropia--;
+      if (this.cuentaAtrasPropia <= 0) {
+        clearInterval(this.reconexionInterval);
+        this.mostrarModalReconexionPropia = false;
+        // Si el tiempo expiró sin reconectar, limpiar la sesión
+        localStorage.removeItem(this.SESSION_KEY);
+      }
+    }, 1000);
+  }
+
+  /**
+   * Ejecuta la reconexión: cancela la cuenta atrás, marca "reconectando" y emite join-room.
+   * Llamado tanto desde el botón manual como cuando socket.io reconecta solo.
+   */
+  reconectarAPartida(): void {
+    if (this.reconectando) return;
+    this.reconectando = true;
+    if (this.reconexionInterval) clearInterval(this.reconexionInterval);
+    this.socketService.reconnectToRoom(
+      this.myUsername,
+      this.myDisplayName,
+      this.roomCode,
+      this.personajeIdGuardado,
+      this.avatarGuardado
+    );
+    // Ocultamos el popup tras un breve instante para dar feedback visual
+    this.reconexionTimeout = setTimeout(() => {
+      this.mostrarModalReconexionPropia = false;
+      this.reconectando = false;
+    }, 2000);
+  }
+
+  /** Llamado cuando socket.io reconecta automáticamente — evita duplicar la lógica. */
+  private ejecutarReconexion(): void {
+    this.reconectando = true;
+    if (this.reconexionInterval) clearInterval(this.reconexionInterval);
+    this.socketService.joinRoom(
+      this.myUsername,
+      this.myDisplayName,
+      this.roomCode,
+      this.personajeIdGuardado,
+      this.avatarGuardado
+    );
+    this.reconexionTimeout = setTimeout(() => {
+      this.mostrarModalReconexionPropia = false;
+      this.reconectando = false;
+    }, 2000);
   }
 
   // --- Lógica Visual y Datos Helper ---
@@ -661,6 +791,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     this.roomService.deleteRoom(this.roomCode).subscribe({
       error: () => {} // Ignorar error si la sala ya fue eliminada
     });
+    localStorage.removeItem(this.SESSION_KEY);
     localStorage.removeItem(`test_mode_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}_${this.myUsername}`);

@@ -1,27 +1,31 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { AuthService, UserDB } from '../services/auth.service';
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
-export class MenuComponent {
+export class MenuComponent implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
 
   currentUser: UserDB | undefined;
 
   showPlayModal = false;
-  playMode: 'select' | 'join' = 'select'; // 'select' para elegir crear/unir, 'join' para meter código
+  playMode: 'select' | 'join' = 'select';
   roomCode = '';
-
   showProfileModal = false;
-
   currentMobileIndex = 0;
+
+  // --- Popup de reconexión ---
+  mostrarPopupReconexion = false;
+  roomCodeReconexion = '';
+  private readonly SESSION_KEY = 'game_active_session';
 
   nextChar() {
     this.currentMobileIndex = (this.currentMobileIndex + 1) % this.characters.length;
@@ -85,15 +89,40 @@ export class MenuComponent {
   constructor() {
     this.authService.user$.subscribe(user => {
       this.currentUser = user;
-      if (!user && this.router.url !== '/login') {
-        // Opcional: solo redirigir si no estamos ya en login
-        // this.router.navigate(['/login']);
-      }
     });
   }
 
+  ngOnInit(): void {
+    // Comprobar si hay una sesión de partida activa pendiente de reconexion
+    try {
+      const raw = localStorage.getItem(this.SESSION_KEY);
+      if (raw) {
+        const session = JSON.parse(raw);
+        const username = this.authService.getCurrentUsername();
+        if (session.roomCode && session.username === username) {
+          this.roomCodeReconexion = session.roomCode;
+          // Pequeño delay para que el menú se pinte primero
+          setTimeout(() => {
+            this.mostrarPopupReconexion = true;
+          }, 600);
+        }
+      }
+    } catch (e) { /* ignorar */ }
+  }
+
+  reconectarAPartida(): void {
+    this.mostrarPopupReconexion = false;
+    this.router.navigate(['/partida-activa', this.roomCodeReconexion]);
+  }
+
+  descartarReconexion(): void {
+    localStorage.removeItem(this.SESSION_KEY);
+    this.mostrarPopupReconexion = false;
+  }
+
   logout() {
-    this.authService.logout();   // borra token, usuario y fingerprint de sessionStorage
+    localStorage.removeItem(this.SESSION_KEY); // Limpiar sesión activa al salir
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

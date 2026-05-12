@@ -353,5 +353,52 @@
     </div>
   </div>
 
+  <!-- ===== MODAL: RECONEXIÓN PROPIA ===== -->
+  <div class="modal-overlay reconexion-propia-overlay" *ngIf="mostrarModalReconexionPropia">
+    <div class="modal-reconexion-propia-card">
+
+      <div class="reconexion-icon-ring" [class.reconectando-ring]="reconectando">
+        <span class="reconexion-icon">{{ reconectando ? '🔄' : '⚠️' }}</span>
+      </div>
+
+      <h3 class="reconexion-title">{{ reconectando ? 'Reconectando…' : 'Conexión Perdida' }}</h3>
+
+      <p class="reconexion-msg" *ngIf="!reconectando">
+        Se ha interrumpido tu conexión con el servidor.<br>
+        Tienes <strong>{{ cuentaAtrasPropia }}s</strong> para reconectarte antes de perder la partida.
+      </p>
+      <p class="reconexion-msg reconexion-msg--ok" *ngIf="reconectando">
+        Volviendo a la batalla…<br>¡Aguanta!
+      </p>
+
+      <!-- Cuenta atrás circular -->
+      <div class="reconexion-timer-ring" *ngIf="!reconectando">
+        <svg class="timer-svg" viewBox="0 0 80 80">
+          <circle class="timer-bg" cx="40" cy="40" r="34"/>
+          <circle class="timer-arc reconexion-arc" cx="40" cy="40" r="34"
+            [style.stroke-dashoffset]="213.5 - (213.5 * cuentaAtrasPropia / 30)"/>
+        </svg>
+        <span class="timer-number">{{ cuentaAtrasPropia }}</span>
+      </div>
+
+      <!-- Spinner cuando está reconectando -->
+      <div class="reconexion-spinner" *ngIf="reconectando">
+        <div class="spinner-ring"></div>
+      </div>
+
+      <button
+        id="btn-reconectar-partida"
+        class="btn-reconectar"
+        (click)="reconectarAPartida()"
+        [disabled]="reconectando">
+        {{ reconectando ? '⏳ Conectando…' : '🔌 Reconectarme' }}
+      </button>
+
+      <p class="reconexion-hint" *ngIf="!reconectando">
+        La partida se perderá automáticamente en {{ cuentaAtrasPropia }}s
+      </p>
+    </div>
+  </div>
+
 </div>
 </div>

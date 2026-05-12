@@ -77,4 +77,28 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== POPUP TOAST: PARTIDA ACTIVA PENDIENTE ===== -->
+  <div class="reconexion-toast" *ngIf="mostrarPopupReconexion" role="alert">
+    <button class="reconexion-toast-close" (click)="descartarReconexion()" title="Descartar">✕</button>
+
+    <div class="toast-icon-ring">
+      <span class="toast-icon">⚔️</span>
+    </div>
+
+    <div class="toast-content">
+      <p class="toast-titulo">¡Tienes una partida en curso!</p>
+      <p class="toast-msg">
+        Sala <strong>{{ roomCodeReconexion }}</strong> te está esperando.<br>
+        El tiempo de reconexión está corriendo.
+      </p>
+      <button
+        id="btn-volver-partida"
+        class="toast-btn-reconectar"
+        (click)="reconectarAPartida()">
+        ⚔️ Volver a la Batalla
+      </button>
+    </div>
+  </div>
+
 </div>
