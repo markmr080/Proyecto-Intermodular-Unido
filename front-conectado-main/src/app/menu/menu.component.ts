@@ -89,6 +89,15 @@ export class MenuComponent implements OnInit {
         { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
         { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
       ]
+    },
+    {
+      name: 'Ikit Claw', fleet: [4, 3, 3, 2, 2], img: '/imagenes/ikitclaw.jpg',
+      abilities: [
+        { name: 'Ingeniero Brujo de Skryre', desc: '15% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.', type: 'passive', icon: '/imagenes/ikitclaw_habilidades/pasiva.png' },
+        { name: 'Rayo de Piedra Bruja', desc: 'Lanza un rayo potente que impacta una casilla y revela las adyacentes.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva1.png' },
+        { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikit_habilidades/ofensiva2.png' },
+        { name: 'Escudo de Piedra Bruja', desc: 'Protege un área de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikit_habilidades/defensiva.png' }
+      ]
     }
   ];
 
@@ -139,7 +148,7 @@ export class MenuComponent implements OnInit {
         }
       })
     );
-    
+
     // Conectar al socket para poder recibir el evento anterior
     this.socketService.connect();
     const user = this.authService.getCurrentUser();

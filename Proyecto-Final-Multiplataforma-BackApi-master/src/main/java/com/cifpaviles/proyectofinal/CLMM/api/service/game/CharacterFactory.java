@@ -43,6 +43,9 @@ public class CharacterFactory {
             case "ARANESSA":
                 baseCharacter = crearAranessa();
                 break;
+            case "IKIT":
+                baseCharacter = crearIkit();
+                break;
             default:
                 baseCharacter = crearWulfrik(); // Default
         }
@@ -113,6 +116,18 @@ public class CharacterFactory {
                 "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels",
                 "Anula por un turno completo cualquier disparo.", SkillType.DEFENSIVA, 6, "/imagenes/aranessa_habilidades/defensiva.png"));
+        return c;
+    }
+    private GameCharacter crearIkit() {
+        Skill pasiva = new Skill("PAS_IKT", "Ingeniero de Piedra Bruja",
+                "15% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.", SkillType.PASIVA, 0, "/imagenes/ikitclaw_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Ikit Claw", "El Gran Arquitecto de la Destrucción.", "/imagenes/ikitclaw.jpg", pasiva);
+        c.anadirHabilidadActiva(new Skill("SKL_IKT_1", "Rayo de Rayo Brujo",
+                "Lanza un rayo potente que impacta una casilla y revela las adyacentes.", SkillType.OFENSIVA, 4, "/imagenes/ikitclaw_habilidades/ofensiva1.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_IKT_2", "Cohete de Muerte",
+                "Impacta un área masiva de 3x3 casillas.", SkillType.OFENSIVA, 8, "/imagenes/ikit_habilidades/ofensiva2.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_IKT_3", "Escudo de Energía Bruja",
+                "Protege un área de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikit_habilidades/defensiva.png"));
         return c;
     }
 }

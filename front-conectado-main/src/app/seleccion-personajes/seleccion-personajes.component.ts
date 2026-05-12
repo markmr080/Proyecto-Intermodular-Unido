@@ -20,10 +20,11 @@ export interface Personaje {
 }
 
 // Flotas únicas por personaje (coinciden con DataInitializer en el backend)
-const FLOTA_WULFRIK:  Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
-const FLOTA_AISLINN:  Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
-const FLOTA_LOKHIR:   Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_WULFRIK: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
+const FLOTA_AISLINN: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_LOKHIR: Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
 const FLOTA_ARANESSA: Barco[] = [{ tamano: 4 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
+const FLOTA_IKIT: Barco[] = [{ tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
 
 @Component({
   selector: 'app-seleccion-personajes',
@@ -42,8 +43,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   personajes: Personaje[] = [
-    { 
-      id: 1, nombre: 'Wulfrik',  tipo: 'WULFRIK',  imagen: '/imagenes/wulfrik.jpg', barcos: FLOTA_WULFRIK,
+    {
+      id: 1, nombre: 'Wulfrik', tipo: 'WULFRIK', imagen: '/imagenes/wulfrik.jpg', barcos: FLOTA_WULFRIK,
       abilities: [
         { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra.', type: 'passive', icon: '/imagenes/wulfrik_habilidades/pasiva.png' },
         { name: 'Desafío del Errante', desc: 'Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva1.png' },
@@ -51,8 +52,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Favor Ruinoso', desc: 'Escuda una casilla propia aleatoria.', type: 'defensive', icon: '/imagenes/wulfrik_habilidades/defensiva.png' }
       ]
     },
-    { 
-      id: 2, nombre: 'Aislinn', tipo: 'AISLINN',  imagen: '/imagenes/aislinn.jpg', barcos: FLOTA_AISLINN,
+    {
+      id: 2, nombre: 'Aislinn', tipo: 'AISLINN', imagen: '/imagenes/aislinn.jpg', barcos: FLOTA_AISLINN,
       abilities: [
         { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: '/imagenes/aislinn_habilidades/pasiva.png' },
         { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva1.png' },
@@ -60,8 +61,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Bruma Marina', desc: 'Oculta 4 casillas propias aleatorias.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
       ]
     },
-    { 
-      id: 3, nombre: 'Lokhir',  tipo: 'LOKHIR',   imagen: '/imagenes/lokhir.webp', barcos: FLOTA_LOKHIR,
+    {
+      id: 3, nombre: 'Lokhir', tipo: 'LOKHIR', imagen: '/imagenes/lokhir.webp', barcos: FLOTA_LOKHIR,
       abilities: [
         { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
         { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
@@ -69,13 +70,22 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Yelmo del Kraken', desc: 'Reubica uno de tus barcos enteros.', type: 'defensive', icon: '/imagenes/lokhir_habilidades/defensiva.png' }
       ]
     },
-    { 
+    {
       id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: '/imagenes/Aranessa (1).jpg', barcos: FLOTA_ARANESSA,
       abilities: [
         { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
         { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },
         { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
         { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
+      ]
+    },
+    {
+      id: 5, nombre: 'Ikit Claw', tipo: 'IKIT', imagen: '/imagenes/ikitclaw.jpg', barcos: FLOTA_IKIT,
+      abilities: [
+        { name: 'Ingeniero Brujo de Skryre', desc: '15% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.', type: 'passive', icon: '/imagenes/ikitclaw_habilidades/pasiva.png' },
+        { name: 'Rayo de Piedra Bruja', desc: 'Lanza un rayo potente que impacta una casilla y revela las adyacentes.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva1.png' },
+        { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikit_habilidades/ofensiva2.png' },
+        { name: 'Escudo de Piedra Bruja', desc: 'Protege un área de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikit_habilidades/defensiva.png' }
       ]
     }
   ];
@@ -135,8 +145,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         };
 
         const j2Name = (this.currentRoom.nombreJugador2 && this.currentRoom.nombreJugador2 !== ownerName)
-                       ? this.currentRoom.nombreJugador2
-                       : (user.username !== ownerName ? user.username : 'Jugador 2');
+          ? this.currentRoom.nombreJugador2
+          : (user.username !== ownerName ? user.username : 'Jugador 2');
 
         this.jugador2 = {
           username: j2Name,
@@ -179,8 +189,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       .subscribe(userId => {
         console.log('Partida cancelada por:', userId);
         const user = this.authService.getCurrentUser();
-        this.motivoCancelacion = userId === user?.username 
-          ? 'Has abandonado la sala. La partida ha sido cancelada.' 
+        this.motivoCancelacion = userId === user?.username
+          ? 'Has abandonado la sala. La partida ha sido cancelada.'
           : 'El otro jugador ha abandonado la sala. La partida ha sido cancelada.';
         this.showCancelModal = true;
         this.limpiarTokensPartida();
@@ -266,7 +276,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
     // Seleccionamos personaje aleatorio para J2
     this.seleccionJugador2 = Math.floor(Math.random() * this.personajes.length);
-    
+
     // Aseguramos que J1 ha seleccionado (el botón ya lo valida, pero reforzamos la lógica)
     if (!this.jugador1Listo) return;
 
@@ -292,10 +302,10 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   abandonar(): void {
     const user = this.authService.getCurrentUser();
     if (!user) return;
-    
+
     // Notificar al servidor (Lobby Socket)
     this.socketService.abandonarSala(user.username, this.roomCode);
-    
+
     // Si estamos solos o por alguna razón no recibimos el evento, limpiamos y salimos
     this.limpiarTokensPartida();
     this.router.navigate(['/menu']);
