@@ -665,8 +665,8 @@
 
 .board {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-rows: repeat(10, minmax(0, 1fr));
   gap: 2px;
   background: #b89158;
   /* Rejilla dorada sólida como la anterior */
@@ -689,6 +689,8 @@
   cursor: crosshair;
   transition: all 0.2s ease;
   position: relative;
+  overflow: hidden;
+  line-height: 1;
 }
 
 .cell:hover {
@@ -1850,5 +1852,344 @@
   color: #7a6b58;
   font-size: 0.8rem;
   margin: 0;
+}
+
+/* ===================================================
+   RESPONSIVE DESIGN (PANTALLA COMPLETA SIN SCROLL EN MÓVILES)
+   =================================================== */
+
+@media (max-width: 1200px) {
+  .layout-grid {
+    grid-template-columns: 280px 1fr 280px;
+    gap: 20px;
+    padding: 20px 30px;
+  }
+}
+
+@media (max-width: 992px) {
+  /* Evitar cualquier scroll en body/html para móviles y tablets */
+  html, body {
+    overflow: hidden !important;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: fixed; /* Esto mata cualquier scroll en iOS/Android de raíz */
+    width: 100%;
+  }
+
+  .partida-wrapper, .partida-container {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed; /* Mantiene la app clavada a la pantalla */
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+  }
+
+  /* Header más compacto y flexible */
+  .game-header {
+    height: auto;
+    min-height: 50px;
+    padding: 8px 15px;
+    flex-wrap: wrap; /* Permitir que el texto salte de línea si es largo */
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto; /* No encoger, no crecer */
+  }
+
+  .game-header h2 {
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .turn-indicator {
+    font-size: 0.95rem;
+    white-space: normal;
+    text-align: center;
+    order: unset;
+    padding-bottom: 0;
+  }
+
+  .header-placeholder {
+    display: none;
+  }
+
+  /* Grid principal ocupa el espacio, pero permite scroll interno si el contenido es mayor que la pantalla */
+  .layout-grid {
+    padding: 5px 0;
+    gap: 5px;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto; /* Fundamental para que no se corten las habilidades o el tablero si la pantalla es muy pequeña */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: auto;
+  }
+
+  /* Modales escalados para que nunca se corten en tablets ni móviles */
+  .modal-card, .modal-rendirse-card, .modal-desconexion-card, .modal-reconexion-propia-card, .modal-mi-tablero-card {
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+
+  /* --- COLUMNA IZQUIERDA (Jugadores) --- */
+  .column-left {
+    flex-direction: row;
+    gap: 5px;
+    flex: 0 0 auto;
+    height: auto;
+    padding: 0 5px; /* Devolvemos el padding horizontal interior */
+  }
+
+  .skills-top-group {
+    flex-direction: row;
+    gap: 5px;
+    margin: 0;
+    flex: 1;
+  }
+
+  .player-card {
+    padding: 4px; /* Más compacto */
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+    border-width: 1px;
+  }
+
+  .player-card h3 {
+    font-size: 0.85rem;
+    border: none;
+    padding: 0;
+    margin: 0;
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
+  }
+
+  /* Ocultar elementos innecesarios para ahorrar espacio */
+  .player-subtitle, .passive-skill, .avatar-container {
+    display: none !important;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+
+  .stats p {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  /* --- COLUMNA CENTRAL (Tablero) --- */
+  .column-center {
+    flex: 1 1 auto; /* Toma el espacio disponible o crece si es necesario */
+    padding: 10px 0; /* Un poco de margen vertical para respirar */
+    min-height: 250px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* CENTRAR HORIZONTALMENTE */
+    justify-content: center; /* CENTRADO VERTICAL DEL TABLERO */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .board-title, .board-label {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    padding: 2px 5px;
+    flex: 0 0 auto;
+    white-space: normal;
+    text-align: center;
+    min-height: 44px; /* Evita que el texto cambie de tamaño y añada scrollbars repentinos */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .board {
+    border-width: 2px;
+    gap: 1px;
+    /* Al quitar aspect-ratio y poner width 100%, el tablero se estira para ocupar todo el espacio a su derecha e izquierda, llenando el contenedor */
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    margin: 0 auto; /* Forzar centrado horizontal */
+    align-self: center; /* Clavarlo al centro del flex (horizontal) */
+    justify-self: center; /* Clavarlo al centro del flex (vertical) */
+    flex-shrink: 0;
+    box-sizing: border-box; /* IMPRESCINDIBLE para que el borde no añada anchura extra y cause scroll horizontal */
+  }
+
+  .cell {
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* --- COLUMNA DERECHA (Habilidades y Botones) --- */
+  .column-right {
+    flex: 0 0 auto;
+    gap: 5px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    height: auto;
+    padding: 0 5px; /* Devolvemos el padding interior */
+  }
+
+  .game-info-top {
+    flex-direction: row;
+    gap: 5px;
+    margin-bottom: 0;
+    width: 100%;
+  }
+
+  .info-item {
+    padding: 5px;
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .info-item .label {
+    border: none;
+    padding: 0;
+    width: auto;
+    font-size: 0.65rem;
+  }
+
+  .timer-info .value {
+    font-size: 1.2rem;
+  }
+
+  .action-info {
+    display: none; /* Ocultar última acción para ahorrar espacio en móviles */
+  }
+
+  /* Habilidades */
+  .skills-box {
+    padding: 5px;
+    flex: 1;
+    min-width: 0;
+    border-width: 1px;
+  }
+
+  .skills-box h3 {
+    font-size: 0.75rem;
+    padding: 0;
+    margin-bottom: 5px;
+    border: none;
+  }
+
+  .abilities-container {
+    margin: 0;
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+
+  .ability-circle {
+    width: 36px;
+    height: 36px;
+  }
+  
+  /* Fase Colocación: Barcos */
+  .ships-list-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+  }
+  
+  .ship-token-item {
+    padding: 4px 8px;
+    flex: 1 1 40%;
+  }
+  
+  .ship-size-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+  }
+  
+  .segment {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .orientation-control-standalone {
+    margin: 5px 0;
+    width: 100%;
+  }
+  
+  .btn-toggle-orientation {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  
+  /* Botones de acción final (Rendirse / Ver Tablero) */
+  .combat-actions-vertical {
+    flex-direction: row;
+    width: 100%;
+    gap: 5px;
+    padding: 5px 0 0 0;
+    border-top: none;
+  }
+
+  .btn-ver-mi-tablero-v, .btn-rendirse-v {
+    padding: 8px 5px;
+    font-size: 0.7rem;
+    flex: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .board {
+    max-height: calc(100dvh - 190px); 
+  }
+  
+  /* Modales más ajustados para móvil pequeño */
+  .modal-card, .modal-rendirse-card, .modal-desconexion-card, .modal-reconexion-propia-card {
+    min-width: unset;
+    width: 95%;
+    padding: 15px;
+    margin: 10px;
+  }
+
+  .modal-mi-tablero-card {
+    width: 95%;
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .mi-tablero-modal {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .mi-tablero-leyenda {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+    font-size: 0.75rem;
+  }
 }
 

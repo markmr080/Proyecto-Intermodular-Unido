@@ -49,6 +49,9 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ---
 
+### ~~🟢 Diseño no responsive~~
+**RESUELTO (2026-05-12).** Se han añadido media queries en `partida-activa.component.css` para adaptar la interfaz a tablets y móviles. Se ha implementado un diseño a pantalla completa para dispositivos móviles, estructurado íntegramente con `flexbox` dinámico y bloqueando cualquier scroll nativo de la página mediante `position: fixed` en el wrapper. Para evitar que componentes o modales se corten si la pantalla es muy corta, se ha dotado al contenedor principal y a todos los modales de un scroll interno inteligente (`overflow-y: auto` y `max-height: 90dvh`). El tablero central conserva su tamaño máximo ocupando fluidamente los espacios laterales, y se le han aplicado reglas de flexbox estrictas (`align-self: center`, `justify-self: center` y `margin: 0 auto`) para clavarlo en el mismísimo centro geométrico de la pantalla de forma absoluta, manteniendo íntegramente las dimensiones deseadas.
+
 ---
 
 ## ⚠️ PENDIENTES
@@ -76,12 +79,6 @@ Boton de salir de sala en movil deberia estar debajo, igual que en el perfil.
 ### 🟡 Seguridad WebSockets sin autenticación JWT
 **Estado**: La conexión Socket.IO al puerto 8081 no pasa por ningún filtro de seguridad. Cualquier cliente puede emitir eventos de juego.  
 **Solución propuesta**: Añadir validación del JWT en el `handshake` de Socket.IO (parámetro `auth` del cliente) y verificarlo en el `onConnect` del servidor.
-
----
-
-### 🟢 Diseño no responsive
-**Síntoma**: La UI no está adaptada a pantallas pequeñas ni a dispositivos táctiles. Los tableros y modales se desbordan.  
-**Acción**: Revisar breakpoints CSS en `partida-activa` y componentes de lobby.
 
 ---
 
