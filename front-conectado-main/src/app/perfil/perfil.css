@@ -27,9 +27,7 @@
   z-index: 2;
   width: 100%;
   max-width: 1000px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
+  display: flex;
   gap: 40px;
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -47,24 +45,16 @@
 }
 
 .panel-left {
-  grid-column: 1;
-  grid-row: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Separación entre grupos de info */
+  justify-content: space-between;
 }
 
 .panel-right {
-  grid-column: 2;
-  grid-row: 1 / span 2; /* Que ocupe toda la altura de la derecha */
+  flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.bottom-actions {
-  grid-column: 1;
-  grid-row: 2;
-  margin-top: -20px; /* Ajuste para que pegue más al panel de arriba si sobra espacio */
 }
 
 /* --- Left Panel --- */
@@ -559,9 +549,20 @@
     gap: 30px;
   }
 
+  /* Para mover el botón de Regresar al final en móvil:
+     Hacemos que los paneles se comporten como contenedores 'fantasma'
+     para que sus hijos directos sean hermanos flex del contenedor principal. */
+  .panel-left {
+    display: contents;
+  }
+
+  .user-main-info { order: 1; }
+  .avatar-selection { order: 2; }
+  .panel-right { order: 3; }
+  .bottom-actions { order: 4; }
+
   .bottom-actions {
     margin-top: 0;
-    order: 3; /* Asegura que vaya al final */
   }
 
   /* Tablet overlapping fix */
