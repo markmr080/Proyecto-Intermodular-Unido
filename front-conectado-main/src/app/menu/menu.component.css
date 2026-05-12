@@ -35,14 +35,11 @@
   height: 80px;
 }
 
-.nav-left .logo-text {
-  color: #e5d3b3;
-  font-size: 28px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin: 0;
-  text-shadow: 0 0 10px rgba(184, 145, 88, 0.5);
+.nav-logo {
+  height: 90px;
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(184, 145, 88, 0.6));
+  cursor: pointer;
 }
 
 .nav-center {
@@ -138,6 +135,21 @@
   background: rgba(220, 53, 69, 0.8);
   border-color: #dc3545;
   color: white;
+}
+
+.mobile-logo-container {
+  display: none;
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  z-index: 5;
+}
+
+.mobile-logo {
+  max-width: 280px;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(184, 145, 88, 0.5));
 }
 
 /* --- Main Layout --- */
@@ -709,9 +721,14 @@
     /* Hide username on small screens for better fit */
   }
 
+  .mobile-logo-container {
+    display: flex;
+  }
+
   .menu-container {
     padding: 10px 0 40px 0;
-    /* Elimina márgenes laterales que empujaban todo fuera */
+    flex-direction: column;
+    justify-content: flex-start;
   }
 
   /* Arrow-based Carousel for character cards on mobile */
