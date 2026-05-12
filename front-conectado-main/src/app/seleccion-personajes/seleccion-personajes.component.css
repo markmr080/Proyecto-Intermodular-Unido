@@ -536,33 +536,187 @@
 /* ================================================================
    RESPONSIVE
    ================================================================ */
-@media (max-width: 700px) {
-  .sp-jugadores-panel {
-    position: static;
-    justify-content: center;
-  }
-
-  .sp-carousel-area {
-    gap: 1rem;
-  }
-
-  .sp-personaje-card {
-    width: 290px;
-  }
-
-  .sp-actions {
+@media (max-width: 600px) {
+  /* 
+     REORGANIZACIÓN MÓVIL SIN SCROLL (Zero Scroll)
+     Optimizamos cada píxel para que todo quepa en una sola pantalla.
+  */
+  .sp-wrapper {
+    display: flex;
     flex-direction: column;
-    width: 100%;
-  }
-
-  .sp-btn-seleccionar,
-  .sp-btn-empezar {
-    width: 100%;
+    align-items: center;
+    justify-content: flex-start; /* Empezamos desde arriba */
+    gap: 0.4rem;
+    padding: 0.6rem;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden; /* Prohibido el scroll */
+    box-sizing: border-box;
   }
 
   .sp-titulo {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     text-align: center;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  /* PANEL JUGADORES: Miniatura */
+  .sp-jugadores-panel {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    margin: 0;
+  }
+
+  .sp-jugador-card {
+    width: 60px; /* Mucho más pequeño */
+    padding: 0.3rem;
+    gap: 0.1rem;
+    border-radius: 6px;
+  }
+
+  .sp-jugador-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .sp-jugador-nombre {
+    font-size: 0.55rem;
+    max-width: 55px;
+  }
+
+  /* Ocultamos el hint o lo hacemos mínimo */
+  .sp-hint {
+    display: none; 
+  }
+
+  /* CARRUSEL: Ultra-compacto */
+  .sp-carousel-area {
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    flex: 1; /* Ocupa el espacio restante pero con límites */
+    min-height: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .sp-personaje-card {
+    width: 280px; /* Aumentado de 240px */
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Permitimos que crezca si hay espacio */
+    min-height: 0;
+  }
+
+  .sp-card-image-wrapper {
+    height: 250px; /* Aumentado significativamente de 190px */
+    flex-shrink: 0;
+    flex-grow: 1; /* Forzamos que intente ocupar más espacio */
+    aspect-ratio: auto;
+  }
+
+  .sp-abilities-container {
+    gap: 8px;
+  }
+
+  .sp-ability-circle {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sp-char-name {
+    font-size: 0.95rem;
+  }
+
+  .sp-card-footer {
+    padding: 6px;
+  }
+
+  /* FLOTA: De lista vertical a grid horizontal */
+  .sp-flota-panel {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .sp-flota-titulo {
+    display: none; /* Ahorramos espacio */
+  }
+
+  .sp-barcos-lista {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .sp-barco-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    grid-template-columns: none; /* Desactivamos grid desktop */
+  }
+
+  .sp-barco-label {
+    font-size: 0.5rem;
+  }
+
+  .sp-barco-casillas {
+    gap: 1.5px;
+  }
+
+  .sp-casilla {
+    width: 10px;
+    height: 6px;
+  }
+
+  .sp-barco-size {
+    display: none; /* Redundante con las casillas */
+  }
+
+  .sp-dots {
+    padding: 0.3rem 0;
+  }
+
+  .sp-arrow {
+    font-size: 1.8rem;
+    padding: 0;
+  }
+
+  /* ACCIONES: Layout de rejilla para ahorrar altura */
+  .sp-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "seleccionar empezar"
+      "abandonar abandonar";
+    width: 100%;
+    gap: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .sp-btn-seleccionar,
+  .sp-btn-empezar,
+  .sp-btn-abandonar {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    margin: 0;
+    border-radius: 4px;
+  }
+
+  .sp-btn-seleccionar { grid-area: seleccionar; }
+  .sp-btn-empezar { grid-area: empezar; }
+  .sp-btn-abandonar { 
+    grid-area: abandonar;
+    padding: 0.35rem; /* El de abandonar aún más pequeño */
   }
 }
 
