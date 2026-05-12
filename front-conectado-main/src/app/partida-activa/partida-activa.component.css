@@ -209,6 +209,16 @@
   position: relative;
   /* Para el tooltip */
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.passive-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #b89158;
 }
 
 .passive-skill:hover {
@@ -1591,7 +1601,7 @@
   max-width: 380px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 0 60px rgba(0,0,0,0.9), 0 0 30px rgba(184,145,88,0.2);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(184, 145, 88, 0.2);
   animation: scaleIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -1613,8 +1623,15 @@
 }
 
 @keyframes desconexion-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 145, 88, 0.4); }
-  50%       { box-shadow: 0 0 0 12px rgba(184, 145, 88, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(184, 145, 88, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(184, 145, 88, 0);
+  }
 }
 
 .desconexion-title {
@@ -1685,12 +1702,32 @@
   margin: 0;
 }
 
-@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
 /* ===== MODAL: RECONEXIÓN PROPIA ===== */
 .reconexion-propia-overlay {
-  z-index: 2000; /* Por encima de todo, incluido el overlay de desconexión del rival */
+  z-index: 2000;
+  /* Por encima de todo, incluido el overlay de desconexión del rival */
 }
 
 .modal-reconexion-propia-card {
@@ -1734,13 +1771,27 @@
 }
 
 @keyframes reconexion-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); }
-  50%       { box-shadow: 0 0 0 14px rgba(231, 76, 60, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 0 14px rgba(231, 76, 60, 0);
+  }
 }
 
 @keyframes reconexion-pulse-ok {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.5); }
-  50%       { box-shadow: 0 0 0 14px rgba(39, 174, 96, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 0 14px rgba(39, 174, 96, 0);
+  }
 }
 
 /* Título */
@@ -1754,7 +1805,7 @@
   transition: color 0.4s;
 }
 
-.reconectando-ring ~ h3.reconexion-title,
+.reconectando-ring~h3.reconexion-title,
 .modal-reconexion-propia-card .reconexion-title {
   /* Cuando reconectando = true el emoji ya cambia, el color se mantiene */
 }
@@ -1808,7 +1859,9 @@
 }
 
 @keyframes spinner-rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Botón de reconexión */
@@ -1867,17 +1920,21 @@
 }
 
 @media (max-width: 992px) {
+
   /* Evitar cualquier scroll en body/html para móviles y tablets */
-  html, body {
+  html,
+  body {
     overflow: hidden !important;
     height: 100%;
     margin: 0;
     padding: 0;
-    position: fixed; /* Esto mata cualquier scroll en iOS/Android de raíz */
+    position: fixed;
+    /* Esto mata cualquier scroll en iOS/Android de raíz */
     width: 100%;
   }
 
-  .partida-wrapper, .partida-container {
+  .partida-wrapper,
+  .partida-container {
     height: 100dvh;
     min-height: 100dvh;
     max-height: 100dvh;
@@ -1886,7 +1943,8 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    position: fixed; /* Mantiene la app clavada a la pantalla */
+    position: fixed;
+    /* Mantiene la app clavada a la pantalla */
     top: 0;
     left: 0;
     box-sizing: border-box;
@@ -1897,10 +1955,12 @@
     height: auto;
     min-height: 50px;
     padding: 8px 15px;
-    flex-wrap: wrap; /* Permitir que el texto salte de línea si es largo */
+    flex-wrap: wrap;
+    /* Permitir que el texto salte de línea si es largo */
     justify-content: center;
     gap: 8px;
-    flex: 0 0 auto; /* No encoger, no crecer */
+    flex: 0 0 auto;
+    /* No encoger, no crecer */
   }
 
   .game-header h2 {
@@ -1928,7 +1988,8 @@
     gap: 5px;
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto; /* Fundamental para que no se corten las habilidades o el tablero si la pantalla es muy pequeña */
+    overflow-y: auto;
+    /* Fundamental para que no se corten las habilidades o el tablero si la pantalla es muy pequeña */
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -1937,7 +1998,11 @@
   }
 
   /* Modales escalados para que nunca se corten en tablets ni móviles */
-  .modal-card, .modal-rendirse-card, .modal-desconexion-card, .modal-reconexion-propia-card, .modal-mi-tablero-card {
+  .modal-card,
+  .modal-rendirse-card,
+  .modal-desconexion-card,
+  .modal-reconexion-propia-card,
+  .modal-mi-tablero-card {
     max-height: 90dvh;
     overflow-y: auto;
   }
@@ -1948,7 +2013,8 @@
     gap: 5px;
     flex: 0 0 auto;
     height: auto;
-    padding: 0 5px; /* Devolvemos el padding horizontal interior */
+    padding: 0 5px;
+    /* Devolvemos el padding horizontal interior */
   }
 
   .skills-top-group {
@@ -1959,7 +2025,8 @@
   }
 
   .player-card {
-    padding: 4px; /* Más compacto */
+    padding: 4px;
+    /* Más compacto */
     flex-direction: row;
     align-items: center;
     justify-content: center;
@@ -1980,7 +2047,9 @@
   }
 
   /* Ocultar elementos innecesarios para ahorrar espacio */
-  .player-subtitle, .passive-skill, .avatar-container {
+  .player-subtitle,
+  .passive-skill,
+  .avatar-container {
     display: none !important;
   }
 
@@ -1997,28 +2066,34 @@
 
   /* --- COLUMNA CENTRAL (Tablero) --- */
   .column-center {
-    flex: 1 1 auto; /* Toma el espacio disponible o crece si es necesario */
-    padding: 10px 0; /* Un poco de margen vertical para respirar */
+    flex: 1 1 auto;
+    /* Toma el espacio disponible o crece si es necesario */
+    padding: 10px 0;
+    /* Un poco de margen vertical para respirar */
     min-height: 250px;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    align-items: center; /* CENTRAR HORIZONTALMENTE */
-    justify-content: center; /* CENTRADO VERTICAL DEL TABLERO */
+    align-items: center;
+    /* CENTRAR HORIZONTALMENTE */
+    justify-content: center;
+    /* CENTRADO VERTICAL DEL TABLERO */
     background: transparent;
     border: none;
     box-shadow: none;
     overflow: visible;
   }
 
-  .board-title, .board-label {
+  .board-title,
+  .board-label {
     font-size: 0.85rem;
     margin-bottom: 5px;
     padding: 2px 5px;
     flex: 0 0 auto;
     white-space: normal;
     text-align: center;
-    min-height: 44px; /* Evita que el texto cambie de tamaño y añada scrollbars repentinos */
+    min-height: 44px;
+    /* Evita que el texto cambie de tamaño y añada scrollbars repentinos */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2032,11 +2107,15 @@
     width: 100%;
     max-height: 100%;
     max-width: 100%;
-    margin: 0 auto; /* Forzar centrado horizontal */
-    align-self: center; /* Clavarlo al centro del flex (horizontal) */
-    justify-self: center; /* Clavarlo al centro del flex (vertical) */
+    margin: 0 auto;
+    /* Forzar centrado horizontal */
+    align-self: center;
+    /* Clavarlo al centro del flex (horizontal) */
+    justify-self: center;
+    /* Clavarlo al centro del flex (vertical) */
     flex-shrink: 0;
-    box-sizing: border-box; /* IMPRESCINDIBLE para que el borde no añada anchura extra y cause scroll horizontal */
+    box-sizing: border-box;
+    /* IMPRESCINDIBLE para que el borde no añada anchura extra y cause scroll horizontal */
   }
 
   .cell {
@@ -2052,7 +2131,8 @@
     flex-wrap: wrap;
     justify-content: center;
     height: auto;
-    padding: 0 5px; /* Devolvemos el padding interior */
+    padding: 0 5px;
+    /* Devolvemos el padding interior */
   }
 
   .game-info-top {
@@ -2069,7 +2149,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .info-item .label {
     border: none;
     padding: 0;
@@ -2082,7 +2162,8 @@
   }
 
   .action-info {
-    display: none; /* Ocultar última acción para ahorrar espacio en móviles */
+    display: none;
+    /* Ocultar última acción para ahorrar espacio en móviles */
   }
 
   /* Habilidades */
@@ -2110,7 +2191,7 @@
     width: 36px;
     height: 36px;
   }
-  
+
   /* Fase Colocación: Barcos */
   .ships-list-container {
     flex-direction: row;
@@ -2118,33 +2199,33 @@
     gap: 5px;
     margin-top: 5px;
   }
-  
+
   .ship-token-item {
     padding: 4px 8px;
     flex: 1 1 40%;
   }
-  
+
   .ship-size-badge {
     width: 18px;
     height: 18px;
     font-size: 0.6rem;
   }
-  
+
   .segment {
     width: 10px;
     height: 10px;
   }
-  
+
   .orientation-control-standalone {
     margin: 5px 0;
     width: 100%;
   }
-  
+
   .btn-toggle-orientation {
     padding: 8px 10px;
     font-size: 0.8rem;
   }
-  
+
   /* Botones de acción final (Rendirse / Ver Tablero) */
   .combat-actions-vertical {
     flex-direction: row;
@@ -2154,7 +2235,8 @@
     border-top: none;
   }
 
-  .btn-ver-mi-tablero-v, .btn-rendirse-v {
+  .btn-ver-mi-tablero-v,
+  .btn-rendirse-v {
     padding: 8px 5px;
     font-size: 0.7rem;
     flex: 1;
@@ -2163,11 +2245,14 @@
 
 @media (max-width: 576px) {
   .board {
-    max-height: calc(100dvh - 190px); 
+    max-height: calc(100dvh - 190px);
   }
-  
+
   /* Modales más ajustados para móvil pequeño */
-  .modal-card, .modal-rendirse-card, .modal-desconexion-card, .modal-reconexion-propia-card {
+  .modal-card,
+  .modal-rendirse-card,
+  .modal-desconexion-card,
+  .modal-reconexion-propia-card {
     min-width: unset;
     width: 95%;
     padding: 15px;
@@ -2192,4 +2277,3 @@
     font-size: 0.75rem;
   }
 }
-

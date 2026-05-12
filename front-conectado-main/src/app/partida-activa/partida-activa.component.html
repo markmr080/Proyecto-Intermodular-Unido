@@ -40,6 +40,7 @@
             <div class="stats">
               <p>🚢 Barcos restantes: <strong>{{ misBarcosRestantes }}</strong></p>
               <div class="passive-skill" *ngIf="miJugador?.personaje?.habilidadPasiva">
+                <img [src]="miJugador?.personaje?.habilidadPasiva?.icono" alt="Pasiva" class="passive-icon" *ngIf="miJugador?.personaje?.habilidadPasiva?.icono">
                 <strong>Pasiva:</strong> {{miJugador?.personaje?.habilidadPasiva?.nombre}}
                 <span class="tooltip">{{miJugador?.personaje?.habilidadPasiva?.descripcion}}</span>
               </div>
@@ -60,6 +61,7 @@
             <!-- Mostramos las celdas BARCO intactas en el tablero del enemigo -->
             <p>🚢 Barcos restantes: <strong>{{ barcosEnemigoRestantes }}</strong></p>
             <div class="passive-skill" *ngIf="enemigo?.personaje?.habilidadPasiva">
+              <img [src]="enemigo?.personaje?.habilidadPasiva?.icono" alt="Pasiva" class="passive-icon" *ngIf="enemigo?.personaje?.habilidadPasiva?.icono">
               <strong>Pasiva:</strong> {{enemigo?.personaje?.habilidadPasiva?.nombre}}
               <span class="tooltip">{{enemigo?.personaje?.habilidadPasiva?.descripcion}}</span>
             </div>

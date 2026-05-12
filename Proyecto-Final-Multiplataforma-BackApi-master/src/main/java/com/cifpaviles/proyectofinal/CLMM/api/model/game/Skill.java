@@ -8,17 +8,19 @@ public class Skill {
     private String nombre;
     private String descripcion;
     private SkillType tipo;
+    private String icono;
     
     // GestiÃ³n de enfriamiento (Cooldown) basado en turnos
     private int cooldownMax;    // CuÃ¡ntos turnos hay que esperar tras usarla
     private int cooldownActual; // CuÃ¡ntos turnos faltan actualmente (0 = lista)
 
-    public Skill(String id, String nombre, String descripcion, SkillType tipo, int cooldownMax) {
+    public Skill(String id, String nombre, String descripcion, SkillType tipo, int cooldownMax, String icono) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipo = tipo;
         this.cooldownMax = cooldownMax;
+        this.icono = icono;
         this.cooldownActual = 0; // Empieza lista para usar
     }
 
@@ -52,6 +54,7 @@ public class Skill {
     public String getNombre() { return nombre; }
     public String getDescripcion() { return descripcion; }
     public SkillType getTipo() { return tipo; }
+    public String getIcono() { return icono; }
     public int getCooldownActual() { return cooldownActual; }
     public int getCooldownMax() { return cooldownMax; }
 
