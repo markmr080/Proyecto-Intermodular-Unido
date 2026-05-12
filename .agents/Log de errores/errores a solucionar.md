@@ -41,21 +41,6 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ## ⚠️ PENDIENTES
 
-### 🔴 Bug: Flujo de turnos — doble turno del mismo jugador
-**Síntoma** (observado en logs del servidor):
-```
-[ATACAR] jugadorId=marcosmr76 | turnoAntes=marcosmr76
-[ATACAR] jugadorId=marcosmr76 | turnoAntes=marcosmr76
-```
-El mismo jugador puede atacar varias veces consecutivas. Posiblemente relacionado con la lógica `haAtacadoEsteTurno` / `turnoExtraWulfrik` en `GameEngine.procesarDisparo()` cuando Wulfrik no es el personaje activo.
-
----
-
-### 🔴 Bug: Segunda partida inaccesible tras finalizar la primera
-**Síntoma**: Al terminar una partida y crear/unirse a una nueva sala con el mismo `roomCode`, el frontend no recibe respuesta del backend.  
-**Causa probable**: `limpiarSalaFinalizada()` programa la eliminación de la sala con 10s de retraso, pero si se intenta entrar antes de que el engine se reinicie, el estado queda en un limbo. `GameRoomManager.getOrCreateRoom()` puede devolver el engine antiguo con `juegoActivo=false`.
-
----
 
 ### 🟡 Habilidad: `SKL_WUL_1` — Desafío del Errante no responde
 **Síntoma**: La habilidad no produce efecto visible en el frontend.  
