@@ -213,9 +213,9 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       this.seleccionJugador2 = this.indiceActual;
     }
 
-    // Guardar el personaje seleccionado para enviarlo en join-room
+    // Clave con username para evitar colisiones si dos jugadores usan el mismo navegador/dispositivo
     const tipoPersonaje = this.personajes[this.indiceActual].tipo;
-    localStorage.setItem(`personaje_${this.roomCode}`, tipoPersonaje);
+    localStorage.setItem(`personaje_${this.roomCode}_${user.username}`, tipoPersonaje);
 
     // Notificar al otro jugador
     this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual);
@@ -243,9 +243,9 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     // Aseguramos que J1 ha seleccionado (el botón ya lo valida, pero reforzamos la lógica)
     if (!this.jugador1Listo) return;
 
-    // Guardar el personaje elegido por J1 para que partida-activa lo use en join-room
+    // Guardar el personaje elegido por J1 con su username en la clave
     const tipoPersonaje = this.personajes[this.seleccionJugador1!].tipo;
-    localStorage.setItem(`personaje_${this.roomCode}`, tipoPersonaje);
+    localStorage.setItem(`personaje_${this.roomCode}_${user.username}`, tipoPersonaje);
 
     // Activamos el modo test en el storage para que la pantalla de partida lo sepa
     localStorage.setItem(`test_mode_${this.roomCode}`, 'true');
@@ -275,10 +275,13 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   }
 
   private limpiarTokensPartida(): void {
-    // Eliminar rastro de la partida para permitir nuevas
+    const user = this.authService.getCurrentUser();
+    // Eliminar con la clave por username (nueva) y la clave legacy sin username
+    if (user) {
+      localStorage.removeItem(`personaje_${this.roomCode}_${user.username}`);
+    }
     localStorage.removeItem(`personaje_${this.roomCode}`);
     localStorage.removeItem(`test_mode_${this.roomCode}`);
-    // Podríamos limpiar más si hubiera tokens específicos de sesión de partida
   }
 
   cerrarModalYSalir(): void {

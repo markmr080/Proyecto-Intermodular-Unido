@@ -23,7 +23,13 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class GameSocketController {
@@ -34,6 +40,18 @@ public class GameSocketController {
     private final PartidaRepository partidaRepository;
     private final UsuarioRepository usuarioRepository;
     private final IEstadisticasService estadisticasService;
+
+    /**
+     * Mapea sessionId → {roomCode, jugadorId} para saber de qué sala desconectar
+     * cuando un cliente pierde la conexión abruptamente (cierre de pestaña).
+     */
+    private final ConcurrentHashMap<UUID, String[]> sessionToRoom = new ConcurrentHashMap<>();
+    /**
+     * Mapea jugadorId → ScheduledFuture del timer de gracia de reconexión.
+     * Si el jugador vuelve antes de 30s, se cancela el Future.
+     */
+    private final ConcurrentHashMap<String, ScheduledFuture<?>> reconnectTimers = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
     @Autowired
     public GameSocketController(SocketIOServer server, 
@@ -63,8 +81,47 @@ public class GameSocketController {
 
     @OnDisconnect
     public void onDisconnect(SocketIOClient client) {
-        System.out.println("Cliente desconectado: " + client.getSessionId());
-        // En una implementación real, buscaríamos de qué sala era y le daríamos por perdido.
+        String[] info = sessionToRoom.remove(client.getSessionId());
+        if (info == null) return; // No estaba en ninguna sala de juego activa
+
+        String roomCode  = info[0];
+        String jugadorId = info[1];
+        String nombreJugador = info.length > 2 ? info[2] : jugadorId;
+
+        GameEngine engine = roomManager.getRoom(roomCode);
+        if (engine == null || engine.getState() == null || !engine.getState().isJuegoActivo()) return;
+
+        System.out.println("[DESCONEXION] " + jugadorId + " se desconectó de sala " + roomCode + ". Grace period 30s.");
+
+        // Notificar al rival para que muestre el modal de espera
+        server.getRoomOperations(roomCode).sendEvent("jugador-desconectado", jugadorId + "|" + nombreJugador);
+
+        // Programar la derrota automática si no regresa en 30 segundos
+        ScheduledFuture<?> future = scheduler.schedule(() -> {
+            reconnectTimers.remove(jugadorId);
+            GameEngine eng = roomManager.getRoom(roomCode);
+            if (eng == null || eng.getState() == null || !eng.getState().isJuegoActivo()) return;
+
+            GameState state = eng.getState();
+            // Comprueba que el jugador que se fue sigue sin estar conectado
+            // (si se reconectó, el flag habrá cambiado)
+            if (state.isJugadorDesconectado(jugadorId)) {
+                String ganadorId = state.getJugador1().getId().equals(jugadorId)
+                        ? state.getJugador2().getId()
+                        : state.getJugador1().getId();
+                state.setJuegoActivo(false);
+                state.setGanadorId(ganadorId);
+                state.setMensajeEstado("¡" + state.getJugadorPorId(ganadorId).getNombre()
+                        + " gana! El rival abandonó la partida.");
+                difundirEstado(roomCode, state);
+                limpiarSalaFinalizada(roomCode, eng);
+                System.out.println("[DESCONEXION] Partida finalizada por abandono de " + jugadorId);
+            }
+        }, 30, TimeUnit.SECONDS);
+
+        reconnectTimers.put(jugadorId, future);
+        // Marcar al jugador como desconectado en el estado
+        engine.getState().setJugadorDesconectado(jugadorId, true);
     }
 
     @OnEvent("join-room")
@@ -74,8 +131,22 @@ public class GameSocketController {
             String jugadorId = mensaje.getJugadorId();
             System.out.println("JOIN-ROOM RECIBIDO. Jugador: " + jugadorId + " | Sala: " + roomCode);
             
-            // Añadir al canal Socket.IO de la sala (idempotente si ya está)
+            // Registrar la sesión en el mapa para detectar desconexiones
             client.joinRoom(roomCode);
+            sessionToRoom.put(client.getSessionId(),
+                new String[]{roomCode, jugadorId, mensaje.getJugadorNombre() != null ? mensaje.getJugadorNombre() : jugadorId});
+
+            // Si hay un timer de gracia activo para este jugador, cancelarlo (se reconectó)
+            ScheduledFuture<?> pendingTimer = reconnectTimers.remove(jugadorId);
+            if (pendingTimer != null && !pendingTimer.isDone()) {
+                pendingTimer.cancel(false);
+                GameEngine eng = roomManager.getRoom(roomCode);
+                if (eng != null && eng.getState() != null) {
+                    eng.getState().setJugadorDesconectado(jugadorId, false);
+                    server.getRoomOperations(roomCode).sendEvent("jugador-reconectado", jugadorId);
+                    System.out.println("[RECONEXION] " + jugadorId + " se reconectó a tiempo.");
+                }
+            }
             
             GameEngine engine = roomManager.getOrCreateRoom(roomCode);
             
@@ -121,9 +192,14 @@ public class GameSocketController {
         if (engine != null && engine.getState() != null) {
             String turnoAntes = engine.getState().getTurnoActualId();
             System.out.println("[ATACAR] jugadorId=" + mensaje.getJugadorId()
-                + " | turnoAntes=" + turnoAntes);
+                + " | turnoAntes=" + turnoAntes
+                + " | xy=(" + mensaje.getX() + "," + mensaje.getY() + ")");
 
             engine.procesarDisparo(mensaje.getJugadorId(), mensaje.getX(), mensaje.getY());
+
+            String turnoDespues = engine.getState().getTurnoActualId();
+            System.out.println("[ATACAR] resultado: turnoDespues=" + turnoDespues
+                + (turnoAntes.equals(turnoDespues) ? " ⚠️ TURNO NO CAMBIÓ" : " ✅ turno cambiado"));
 
             difundirEstado(mensaje.getRoomCode(), engine.getState());
 

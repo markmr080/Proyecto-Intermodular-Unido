@@ -19,8 +19,8 @@ export interface Room {
   providedIn: 'root'
 })
 export class RoomService {
-  private readonly API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:8080/api/lobby' 
+  private readonly API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:8080/api/lobby'
     : `https://${window.location.hostname}/api/lobby`;
   private http = inject(HttpClient);
 

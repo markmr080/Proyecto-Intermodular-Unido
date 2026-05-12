@@ -1,62 +1,96 @@
-# ✅ TODOS LOS ERRORES RESUELTOS (2026-05-08)
+# 🐛 Log de Errores — Warhammer Battleship
 
-## ~~El timer de la sala no es compartido entre los dos jugadores.~~
-**RESUELTO.** El `TurnTimerService` ahora difunde `gameState` por WebSocket cada segundo.
+> **Actualizado:** 2026-05-12
 
 ---
 
-## ~~El jugador ataca y no pasa de turno / timer se queda en 20s~~
+## ✅ RESUELTOS
 
-**RESUELTO.** Había dos bugs que se bloqueaban mutuamente:
+### ~~Timer de la sala no compartido entre jugadores~~
+**RESUELTO (2026-05-08).** `TurnTimerService` difunde `gameState` por WebSocket cada segundo desde `GameRoomManager.startTimer()`.
 
-**Bug A — Frontend bloqueaba los ataques durante `faseReaccion`:**
+---
+
+### ~~El jugador ataca y no pasa de turno / timer se queda en 20s~~
+**RESUELTO (2026-05-08).** Había dos bugs:
+
+**Bug A — Frontend bloqueaba ataques durante `faseReaccion`:**
 ```typescript
-// ❌ ANTES (partida-activa.component.ts)
-if (... || this.gameState.faseReaccion) return; // bloqueaba a J2 siempre
-
+// ❌ ANTES
+if (... || this.gameState.faseReaccion) return;
 // ✅ AHORA
 if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
 ```
-Como J2 nunca podía atacar, `faseReaccion` era siempre `false` cuando alguien disparaba.
 
-**Bug B — Backend tenía lógica de reacción innecesariamente compleja:**
-Como `faseReaccion` siempre era `false`, el `if/else` siempre iba al `else`
-→ siempre llamaba `activarFaseReaccion()` → timer a 20s, turno no cambiaba "de verdad".
-
-**Solución:** Se elimina la fase de reacción del flujo de ataque. Ahora cada disparo válido
-llama directamente a `cambiarTurno()`: flags reseteados, timer=60s, turno al otro jugador.
-
+**Bug B — Backend llamaba siempre a `activarFaseReaccion()`:**
 ```java
-// ❌ ANTES (GameEngine.java)
+// ❌ ANTES
 if (state.isFaseReaccion()) { state.cambiarTurno(); }
 else { activarFaseReaccion(); } // siempre llegaba aquí → timer=20s
-
-// ✅ AHORA — simple y directo
+// ✅ AHORA
 state.cambiarTurno(); // timer=60s, turno al otro jugador
 ```
+Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
-**Archivos modificados:**
-- `GameEngine.java` — `procesarDisparo()` llama a `cambiarTurno()` directamente. Se elimina `activarFaseReaccion()`.
-- `partida-activa.component.ts` — Se elimina `this.gameState.faseReaccion` de la condición de ataque.
+---
 
+### ~~Falta EstadisticasController~~
+**RESUELTO.** `EstadisticasController` creado en `api.controller`. Expone `GET /api/estadisticas/jugador/{username}` delegando en `EstadisticasService.getStatsAgregadas()`.
 
-## Errores actuales. ##
+---
 
-Se muestra el token en el url de cambiar contraseña, asegurar que sea un token temporal y no haya forma de usarlo fuera de la pestaña cambiar contraseña.
+## ⚠️ PENDIENTES
 
-Si se termina una partida y se crea otra no se puede acceder a ella. No llegan las peticiones. 
+Importante:
+Hay que comprobar que pasa si uno de los jugadores cierra la ventana del explorador. Habria que mirar de en el momento que cierre el jugador la ventana, al otro le salga un modal con un timer de 30 segundos que ponga "nombre de jugador abandono la partida, la partida se cerrara en 30 segundos". Si se reconecta antes de los 30 segundos, se reanuda la partida. De lo contrario que tire al lobby y elimine la sala. El funcionamiento debe ser igual al boton de rendicion. El jugador que abandona le cuenta la partida como perdida y al que no, como ganada. 
 
-Menu de personajes, quitar ataque y defensa y comprobar que sea muestren las habilidades reales del personaje. 
+### 🟡 Habilidad: `SKL_WUL_1` — Desafío del Errante no responde
+**Síntoma**: La habilidad no produce efecto visible en el frontend.  
+**Causa a investigar**: Posiblemente el frontend no envía las coordenadas `x,y` al usar la habilidad (`usarHabilidad(id, x=-1, y=-1)`), pero `ejecutarDesafioErrante` las necesita para determinar si fue agua o barco. (Error array index out of bounds)
 
-Adaptar la interfaz a pantallas mas pequeñas. Diseño responsive no solo para moviles. 
+---
 
-**ENDPOINTS MIDDLEWARE**
-He analizado la conectividad entre el frontend y el backend para verificar el uso del middleware. Aquí tienes un resumen de los hallazgos:
+### 🟡 Habilidad: `SKL_WUL_2` — Colmillo de los Mares — rango incorrecto
+**Síntoma**: La línea de 3 casillas empieza en la celda seleccionada y va hacia la derecha (`y`, `y+1`, `y+2`). El comportamiento esperado es que la celda seleccionada sea el centro (`y-1`, `y`, `y+1`).  Tambien si hundes un barco pasa de turno automaticamente. Si hace encima de un barco de 3, se seleccionar la casilla izquierda y derecha. La central queda sin marcar. Se tendrian que marcar todas. Se puede deber a un conflicto con la habilidad pasiva de wulfrik.
+**Archivo**: `GameEngine.java` → `ejecutarColmilloMares()`. Cambiar `dy=0..2` por `dy=-1..1`.
 
-Estado de la Conexión
-Seguridad (Middleware Layer): ✅ SÍ. Gracias al auth.interceptor.ts en Angular y al JwtFilter.java en el backend, todas las peticiones HTTP a /api/** pasan obligatoriamente por el filtro de seguridad del middleware. Si no llevan el Token y el Fingerprint, son rechazadas.
-Rutas de Controladores: ⚠️ PARCIAL. Aunque la seguridad se aplica a todos, no todos los servicios llaman a controladores dentro del paquete middleware.
-Pasan por el paquete middleware: Autenticación (/api/auth) y Lobby (/api/lobby).
-Van directos al paquete api: Personajes (/api/personajes) y Estadísticas (/api/estadisticas).
-WebSockets (Puerto 8081): ❌ NO. La comunicación por WebSockets es totalmente directa al GameSocketController (paquete api) y no está pasando por ningún filtro de seguridad ni validación del middleware.
-He detallado todos los puntos y archivos afectados en el siguiente informe:
+---
+
+### 🟡 Token de recuperación de contraseña en la URL
+**Síntoma**: El enlace de reset-password incluye el JWT en la query string (visible en el historial del navegador y logs de servidor).  
+**Solución propuesta**: Enviar el token en el cuerpo del formulario POST en lugar de como parámetro GET en la URL.
+
+---
+
+### 🟡 Seguridad WebSockets sin autenticación JWT
+**Estado**: La conexión Socket.IO al puerto 8081 no pasa por ningún filtro de seguridad. Cualquier cliente puede emitir eventos de juego.  
+**Solución propuesta**: Añadir validación del JWT en el `handshake` de Socket.IO (parámetro `auth` del cliente) y verificarlo en el `onConnect` del servidor.
+
+---
+
+### 🟢 Diseño no responsive
+**Síntoma**: La UI no está adaptada a pantallas pequeñas ni a dispositivos táctiles. Los tableros y modales se desbordan.  
+**Acción**: Revisar breakpoints CSS en `partida-activa` y componentes de lobby.
+
+---
+
+### 🟢 Mensajes de acción en partida
+**Síntoma**: Los mensajes de estado (`mensajeEstado`) no siempre se muestran correctamente en el frontend o son poco descriptivos.
+
+---
+
+---
+
+### 🟢 Mensajes de acción en partida
+**Síntoma**: Cuando un jugador se escuda con la habilidad de wulfrik Favor Ruinoso sale el mensaje de que casilla se ha protegido a ambos jugadores.
+
+---
+
+## 📋 Conectividad Middleware — Resumen
+
+| Capa | Estado |
+|---|---|
+| HTTP `/api/**` | ✅ Pasa por `JwtFilter` + Fingerprint en todas las peticiones |
+| `/api/auth` y `/api/lobby` | ✅ Controladores en paquete `middleware` |
+| `/api/personajes` y `/api/estadisticas` | ⚠️ Controladores en paquete `api` (fuera del middleware) |
+| WebSockets (puerto 8081) | ❌ Sin filtro de seguridad — acceso directo a `GameSocketController` |

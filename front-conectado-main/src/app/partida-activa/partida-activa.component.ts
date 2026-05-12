@@ -53,6 +53,30 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   /** Controla la visibilidad del diálogo de confirmación de rendición. */
   mostrarConfirmacionRendirse = false;
 
+  /**
+   * Cuando el turno vuelve al jugador (enemigo atacó → ahora es mi turno),
+   * este flag permanece true durante TRANSITION_DELAY ms para que el jugador
+   * vea el impacto en su propio tablero antes de que la vista cambie.
+   */
+  mostrarTableroTemporal = false;
+  /**
+   * Cuando el jugador ataca y el turno pasa al enemigo (yo atacó → turno enemigo),
+   * este flag permanece true durante TRANSITION_DELAY ms para que el jugador
+   * vea el resultado de su propio disparo en el tablero enemigo.
+   */
+  mostrarTableroEnemigoTemporal = false;
+  private turnoAnteriorEraMio = false;
+  private transitionTimeout: any;
+  private transitionTimeoutAtaque: any;
+  /** Milisegundos que el tablero permanece visible tras cambiar el turno. */
+  private readonly TRANSITION_DELAY = 1500;
+
+  // --- Modal de desconexión del rival ---
+  mostrarModalDesconexion = false;
+  nombreJugadorDesconectado = '';
+  cuentaAtrasDesconexion = 30;
+  private desconexionInterval: any;
+
   // --- Modo targeting para habilidades de área ---
   // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
   private readonly HABILIDADES_CON_TARGET = new Set([
@@ -108,8 +132,10 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
 
-    // Recuperar el personaje elegido en la pantalla de selección
-    const personajeId = localStorage.getItem(`personaje_${this.roomCode}`) || 'WULFRIK';
+    // Recuperar el personaje elegido por este jugador (clave con username para evitar colisiones)
+    const personajeId = localStorage.getItem(`personaje_${this.roomCode}_${this.myUsername}`)
+                     || localStorage.getItem(`personaje_${this.roomCode}`)  // fallback legacy
+                     || 'WULFRIK';
 
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
     const intentarJoinRoom = () => {
@@ -139,6 +165,32 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       });
       this.gameState = state;
       this.actualizarTablerosVisuales();
+
+      // Detectar transición «turno enemigo → turno propio»:
+      // Si el turno acaba de volver a nosotros, mostrar nuestro tablero 1.5s
+      // para que el jugador vea el impacto del rival antes de la vista de ataque.
+      const esMiTurnoAhora = state?.turnoActualId === this.myUsername;
+
+      if (state?.fase === 'COMBATE') {
+        if (esMiTurnoAhora && !this.turnoAnteriorEraMio) {
+          // Enemigo acabó de atacar → mostrar MI tablero brevemente
+          this.mostrarTableroTemporal = true;
+          this.mostrarTableroEnemigoTemporal = false;
+          if (this.transitionTimeout) clearTimeout(this.transitionTimeout);
+          this.transitionTimeout = setTimeout(() => {
+            this.mostrarTableroTemporal = false;
+          }, this.TRANSITION_DELAY);
+        } else if (!esMiTurnoAhora && this.turnoAnteriorEraMio) {
+          // YO acabó de atacar → mostrar tablero ENEMIGO brevemente con el impacto
+          this.mostrarTableroEnemigoTemporal = true;
+          this.mostrarTableroTemporal = false;
+          if (this.transitionTimeoutAtaque) clearTimeout(this.transitionTimeoutAtaque);
+          this.transitionTimeoutAtaque = setTimeout(() => {
+            this.mostrarTableroEnemigoTemporal = false;
+          }, this.TRANSITION_DELAY);
+        }
+      }
+      this.turnoAnteriorEraMio = esMiTurnoAhora;
 
       // Inicializar la flota desde el personaje la primera vez que llega el estado
       if (!this.flotaInicializada && state?.fase === 'COLOCACION') {
@@ -179,9 +231,39 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Escuchar desconexión del rival
+    this.socketService.jugadorDesconectado$.subscribe(({ jugadorId, nombre }) => {
+      if (jugadorId === this.myUsername) return; // yo mismo — ignorar
+      console.log('[PartidaActiva] Rival desconectado:', nombre);
+      this.nombreJugadorDesconectado = nombre;
+      this.cuentaAtrasDesconexion = 30;
+      this.mostrarModalDesconexion = true;
+      if (this.desconexionInterval) clearInterval(this.desconexionInterval);
+      this.desconexionInterval = setInterval(() => {
+        this.cuentaAtrasDesconexion--;
+        if (this.cuentaAtrasDesconexion <= 0) {
+          clearInterval(this.desconexionInterval);
+          // El backend ya processó la derrota; el modal se cerrará cuando llegue el gameState final
+          this.mostrarModalDesconexion = false;
+        }
+      }, 1000);
+    });
+
+    // Escuchar reconexión del rival
+    this.socketService.jugadorReconectado$.subscribe((jugadorId) => {
+      if (this.mostrarModalDesconexion) {
+        console.log('[PartidaActiva] Rival reconectado:', jugadorId);
+        this.mostrarModalDesconexion = false;
+        if (this.desconexionInterval) clearInterval(this.desconexionInterval);
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    if (this.transitionTimeout) clearTimeout(this.transitionTimeout);
+    if (this.transitionTimeoutAtaque) clearTimeout(this.transitionTimeoutAtaque);
+    if (this.desconexionInterval) clearInterval(this.desconexionInterval);
     this.socketService.disconnect();
   }
 
@@ -581,6 +663,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     });
     localStorage.removeItem(`test_mode_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}`);
+    localStorage.removeItem(`personaje_${this.roomCode}_${this.myUsername}`);
     this.router.navigate(['/lista-salas']);
   }
 
