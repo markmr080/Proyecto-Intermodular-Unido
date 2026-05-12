@@ -1,1 +1,20 @@
-<router-outlet />
+<div class="app-container" [class.with-nav]="showMobileNav">
+  <router-outlet />
+</div>
+
+@if (showMobileNav) {
+  <nav class="mobile-bottom-nav">
+    <a routerLink="/menu" routerLinkActive="active" class="nav-item">
+      <span class="material-symbols-outlined">home</span>
+      <span class="nav-label">Menú</span>
+    </a>
+    <a routerLink="/lista-salas" routerLinkActive="active" class="nav-item">
+      <span class="material-symbols-outlined">swords</span>
+      <span class="nav-label">Jugar</span>
+    </a>
+    <a routerLink="/perfil" routerLinkActive="active" class="nav-item">
+      <span class="material-symbols-outlined">person</span>
+      <span class="nav-label">Perfil</span>
+    </a>
+  </nav>
+}

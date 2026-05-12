@@ -687,14 +687,7 @@
   }
 
   .nav-center {
-    position: relative;
-    left: auto;
-    transform: none;
-    width: 100%;
-    order: 3;
-    height: auto;
-    display: flex;
-    justify-content: center;
+    display: none;
   }
 
   .btn-play-massive {

@@ -1,0 +1,106 @@
+/* Root styles for the app container */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: padding-bottom 0.3s ease;
+}
+
+/* Add padding when navbar is present on mobile */
+@media (max-width: 768px) {
+  .app-container.with-nav {
+    padding-bottom: 70px;
+  }
+}
+
+/* Premium Mobile Bottom Navbar */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(15, 12, 11, 0.95); /* matching project dark brown */
+  backdrop-filter: blur(15px);
+  border-top: 2px solid #b89158; /* matching project gold border */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.8);
+  padding: 0 10px;
+  display: none; /* Hidden by default (desktop) */
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+  }
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e5d3b3; /* parchment color from project */
+  text-decoration: none;
+  flex: 1;
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  gap: 4px;
+}
+
+.nav-item .material-symbols-outlined {
+  font-size: 28px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+/* Active State Styles */
+.nav-item.active {
+  color: #d4af37; /* project gold */
+}
+
+.nav-item.active .material-symbols-outlined {
+  transform: translateY(-5px);
+  color: #f1c40f;
+  text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+}
+
+.nav-item.active .nav-label {
+  opacity: 1;
+  color: #f1c40f;
+}
+
+/* Selection Indicator Dot */
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  width: 4px;
+  height: 4px;
+  background: #f1c40f;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #f1c40f;
+}
+
+/* Hover Micro-interaction */
+.nav-item:hover .material-symbols-outlined {
+  color: #d4af37;
+}
+
+/* Prevent text selection and blue highlight on mobile */
+.nav-item {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
