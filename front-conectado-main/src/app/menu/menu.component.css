@@ -868,3 +868,135 @@
     padding: 5px;
   }
 }
+
+/* ===== TOAST: PARTIDA ACTIVA PENDIENTE ===== */
+.reconexion-toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: linear-gradient(135deg, rgba(15, 10, 8, 0.97), rgba(30, 20, 10, 0.97));
+  border: 2px solid #d4af37;
+  border-radius: 16px;
+  padding: 20px 24px 20px 20px;
+  max-width: 360px;
+  width: calc(100vw - 48px);
+  box-shadow:
+    0 0 0 4px rgba(212, 175, 55, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(212, 175, 55, 0.2);
+  animation: toastSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(80px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Botón de cierre */
+.reconexion-toast-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: rgba(229, 211, 179, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+  transition: color 0.2s;
+}
+
+.reconexion-toast-close:hover {
+  color: #e5d3b3;
+}
+
+/* Icono */
+.toast-icon-ring {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  border: 2px solid #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: toastIconPulse 1.8s ease-in-out infinite;
+}
+
+.toast-icon {
+  font-size: 22px;
+}
+
+@keyframes toastIconPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.45); }
+  50%       { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+}
+
+/* Contenido de texto */
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-titulo {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.toast-msg {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  color: #b0a390;
+  line-height: 1.5;
+}
+
+.toast-msg strong {
+  color: #e5d3b3;
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+/* Botón CTA */
+.toast-btn-reconectar {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #c0392b, #96281b);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.45);
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.toast-btn-reconectar:hover {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  box-shadow: 0 6px 22px rgba(231, 76, 60, 0.6);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.toast-btn-reconectar:active {
+  transform: translateY(0) scale(0.98);
+}
