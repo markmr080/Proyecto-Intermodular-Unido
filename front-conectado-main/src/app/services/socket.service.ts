@@ -22,6 +22,8 @@ export class SocketService {
 
   // --- Subjects para Juego ---
   public gameState$ = new Subject<any>();
+  public jugadorDesconectado$ = new Subject<{ jugadorId: string; nombre: string }>();
+  public jugadorReconectado$  = new Subject<string>();
 
   constructor(private ngZone: NgZone) { }
 
@@ -56,6 +58,15 @@ export class SocketService {
       this.socket.on('gameState', (state: any) => {
         console.log('Nuevo estado de juego recibido:', state);
         this.ngZone.run(() => this.gameState$.next(state));
+      });
+
+      // Eventos de desconexión/reconexión del rival
+      this.socket.on('jugador-desconectado', (payload: string) => {
+        const [jugadorId, nombre] = payload.split('|');
+        this.ngZone.run(() => this.jugadorDesconectado$.next({ jugadorId, nombre: nombre || jugadorId }));
+      });
+      this.socket.on('jugador-reconectado', (jugadorId: string) => {
+        this.ngZone.run(() => this.jugadorReconectado$.next(jugadorId));
       });
 
       this.socket.on('disconnect', () => {

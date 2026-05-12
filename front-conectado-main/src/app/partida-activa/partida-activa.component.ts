@@ -71,6 +71,12 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   /** Milisegundos que el tablero permanece visible tras cambiar el turno. */
   private readonly TRANSITION_DELAY = 1500;
 
+  // --- Modal de desconexión del rival ---
+  mostrarModalDesconexion = false;
+  nombreJugadorDesconectado = '';
+  cuentaAtrasDesconexion = 30;
+  private desconexionInterval: any;
+
   // --- Modo targeting para habilidades de área ---
   // Habilidades que requieren seleccionar una celda del tablero enemigo antes de ejecutarse
   private readonly HABILIDADES_CON_TARGET = new Set([
@@ -126,8 +132,10 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     // Conectar al websocket y entrar a la sala
     this.socketService.connect();
 
-    // Recuperar el personaje elegido en la pantalla de selección
-    const personajeId = localStorage.getItem(`personaje_${this.roomCode}`) || 'WULFRIK';
+    // Recuperar el personaje elegido por este jugador (clave con username para evitar colisiones)
+    const personajeId = localStorage.getItem(`personaje_${this.roomCode}_${this.myUsername}`)
+                     || localStorage.getItem(`personaje_${this.roomCode}`)  // fallback legacy
+                     || 'WULFRIK';
 
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
     const intentarJoinRoom = () => {
@@ -223,11 +231,39 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Escuchar desconexión del rival
+    this.socketService.jugadorDesconectado$.subscribe(({ jugadorId, nombre }) => {
+      if (jugadorId === this.myUsername) return; // yo mismo — ignorar
+      console.log('[PartidaActiva] Rival desconectado:', nombre);
+      this.nombreJugadorDesconectado = nombre;
+      this.cuentaAtrasDesconexion = 30;
+      this.mostrarModalDesconexion = true;
+      if (this.desconexionInterval) clearInterval(this.desconexionInterval);
+      this.desconexionInterval = setInterval(() => {
+        this.cuentaAtrasDesconexion--;
+        if (this.cuentaAtrasDesconexion <= 0) {
+          clearInterval(this.desconexionInterval);
+          // El backend ya processó la derrota; el modal se cerrará cuando llegue el gameState final
+          this.mostrarModalDesconexion = false;
+        }
+      }, 1000);
+    });
+
+    // Escuchar reconexión del rival
+    this.socketService.jugadorReconectado$.subscribe((jugadorId) => {
+      if (this.mostrarModalDesconexion) {
+        console.log('[PartidaActiva] Rival reconectado:', jugadorId);
+        this.mostrarModalDesconexion = false;
+        if (this.desconexionInterval) clearInterval(this.desconexionInterval);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     if (this.transitionTimeout) clearTimeout(this.transitionTimeout);
     if (this.transitionTimeoutAtaque) clearTimeout(this.transitionTimeoutAtaque);
+    if (this.desconexionInterval) clearInterval(this.desconexionInterval);
     this.socketService.disconnect();
   }
 
@@ -627,6 +663,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     });
     localStorage.removeItem(`test_mode_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}`);
+    localStorage.removeItem(`personaje_${this.roomCode}_${this.myUsername}`);
     this.router.navigate(['/lista-salas']);
   }
 

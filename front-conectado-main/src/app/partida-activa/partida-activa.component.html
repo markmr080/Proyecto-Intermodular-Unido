@@ -327,7 +327,31 @@
           </ng-container>
         </div>
       </div>
-    </div>
 
   </div>
+
+  <!-- ===== MODAL: RIVAL DESCONECTADO ===== -->
+  <div class="modal-overlay desconexion-overlay" *ngIf="mostrarModalDesconexion">
+    <div class="modal-desconexion-card">
+      <div class="desconexion-icon-ring">
+        <span class="desconexion-icon">📡</span>
+      </div>
+      <h3 class="desconexion-title">Rival Desconectado</h3>
+      <p class="desconexion-msg">
+        <strong>{{ nombreJugadorDesconectado }}</strong> ha cerrado la partida.<br>
+        Si regresa antes de que expire el tiempo, la partida continuará.
+      </p>
+      <div class="desconexion-timer-ring">
+        <svg class="timer-svg" viewBox="0 0 80 80">
+          <circle class="timer-bg" cx="40" cy="40" r="34"/>
+          <circle class="timer-arc" cx="40" cy="40" r="34"
+            [style.stroke-dashoffset]="213.5 - (213.5 * cuentaAtrasDesconexion / 30)"/>
+        </svg>
+        <span class="timer-number">{{ cuentaAtrasDesconexion }}</span>
+      </div>
+      <p class="desconexion-hint">La partida se cerrará automáticamente en {{ cuentaAtrasDesconexion }}s</p>
+    </div>
+  </div>
+
+</div>
 </div>
