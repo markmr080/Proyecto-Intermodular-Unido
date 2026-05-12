@@ -111,13 +111,19 @@
       ✖ Abandonar
     </button>
 
-    <button class="sp-btn-seleccionar" (click)="seleccionar()">
-      @if ((jugadorActual === 1 && jugador1Listo) || (jugadorActual === 2 && jugador2Listo)) {
-        ✔ Personaje elegido
-      } @else {
-        Seleccionar
-      }
-    </button>
+    @if (esSeleccionadoPorMi()) {
+      <button class="sp-btn-seleccionar selected" (click)="deseleccionar()">
+        ✖ Deseleccionar
+      </button>
+    } @else {
+      <button class="sp-btn-seleccionar" (click)="seleccionar()">
+        @if (algunoSeleccionadoPorMi()) {
+          Cambiar personaje
+        } @else {
+          Seleccionar
+        }
+      </button>
+    }
 
     @if (jugadorActual === 1) {
       @if (isTestMode) {

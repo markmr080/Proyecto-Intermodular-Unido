@@ -476,6 +476,20 @@
   transform: translateY(0);
 }
 
+.sp-btn-seleccionar.selected {
+  background: #d4af37;
+  color: #111;
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.sp-btn-seleccionar.selected:hover {
+  background: #e74c3c;
+  color: #fff;
+  border-color: #ff6b6b;
+  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.45);
+}
+
 /* Botón Empieza la partida */
 .sp-btn-empezar {
   font-family: 'Inter', sans-serif;

@@ -155,10 +155,11 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         console.log('Selección remota recibida:', data);
         if (data.codigoSala === this.roomCode) {
+          const id = (data.personajeId === -1) ? null : data.personajeId;
           if (this.jugadorActual === 1) {
-            this.seleccionJugador2 = data.personajeId;
+            this.seleccionJugador2 = id;
           } else {
-            this.seleccionJugador1 = data.personajeId;
+            this.seleccionJugador1 = id;
           }
         }
       });
@@ -219,6 +220,32 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
 
     // Notificar al otro jugador
     this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual);
+  }
+
+  deseleccionar(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+
+    if (this.jugadorActual === 1) {
+      this.seleccionJugador1 = null;
+    } else {
+      this.seleccionJugador2 = null;
+    }
+
+    // Eliminar del localStorage
+    localStorage.removeItem(`personaje_${this.roomCode}_${user.username}`);
+
+    // Notificar al otro jugador (enviando null como personajeId)
+    this.socketService.seleccionarPersonaje(this.roomCode, user.username, -1);
+  }
+
+  esSeleccionadoPorMi(): boolean {
+    const seleccion = (this.jugadorActual === 1) ? this.seleccionJugador1 : this.seleccionJugador2;
+    return seleccion === this.indiceActual;
+  }
+
+  algunoSeleccionadoPorMi(): boolean {
+    return (this.jugadorActual === 1) ? this.jugador1Listo : this.jugador2Listo;
   }
 
   get jugador1Listo(): boolean {
