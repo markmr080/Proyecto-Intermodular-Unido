@@ -39,6 +39,18 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ---
 
+### ~~Mensajes de acción en partida / Errores Habilidades Wulfrik~~
+**RESUELTO (2026-05-12).**
+- **Mensajes**: Reescritos todos los mensajes en `GameEngine.java` para ser más descriptivos y menos técnicos.
+- **Favor Ruinoso**: Eliminadas coordenadas del mensaje público para evitar fugas de información.
+- **Colmillo de los Mares**: Rango corregido a `-1..1` (centrado).
+- **Desafío del Errante**: Añadida validación de coordenadas para evitar `ArrayIndexOutOfBoundsException`.
+- **aplicarDisparoHabilidad**: Refactorizado para devolver estados legibles.
+
+---
+
+---
+
 ## ⚠️ PENDIENTES
 
 EL boton de jugar desaparece con la resolucion demasiado alta. Deberia desaparecer sobre 768px
@@ -51,15 +63,7 @@ Boton de salir de sala en movil deberia estar debajo, igual que en el perfil.
 
 
 
-### 🟡 Habilidad: `SKL_WUL_1` — Desafío del Errante no responde
-**Síntoma**: La habilidad no produce efecto visible en el frontend.  
-**Causa a investigar**: Posiblemente el frontend no envía las coordenadas `x,y` al usar la habilidad (`usarHabilidad(id, x=-1, y=-1)`), pero `ejecutarDesafioErrante` las necesita para determinar si fue agua o barco. (Error array index out of bounds)
-
 ---
-
-### 🟡 Habilidad: `SKL_WUL_2` — Colmillo de los Mares — rango incorrecto
-**Síntoma**: La línea de 3 casillas empieza en la celda seleccionada y va hacia la derecha (`y`, `y+1`, `y+2`). El comportamiento esperado es que la celda seleccionada sea el centro (`y-1`, `y`, `y+1`).  Tambien si hundes un barco pasa de turno automaticamente. Si hace encima de un barco de 3, se seleccionar la casilla izquierda y derecha. La central queda sin marcar. Se tendrian que marcar todas. Se puede deber a un conflicto con la habilidad pasiva de wulfrik.
-**Archivo**: `GameEngine.java` → `ejecutarColmilloMares()`. Cambiar `dy=0..2` por `dy=-1..1`.
 
 ---
 
@@ -80,16 +84,6 @@ Boton de salir de sala en movil deberia estar debajo, igual que en el perfil.
 **Acción**: Revisar breakpoints CSS en `partida-activa` y componentes de lobby.
 
 ---
-
-### 🟢 Mensajes de acción en partida
-**Síntoma**: Los mensajes de estado (`mensajeEstado`) no siempre se muestran correctamente en el frontend o son poco descriptivos.
-
----
-
----
-
-### 🟢 Mensajes de acción en partida
-**Síntoma**: Cuando un jugador se escuda con la habilidad de wulfrik Favor Ruinoso sale el mensaje de que casilla se ha protegido a ambos jugadores.
 
 ---
 

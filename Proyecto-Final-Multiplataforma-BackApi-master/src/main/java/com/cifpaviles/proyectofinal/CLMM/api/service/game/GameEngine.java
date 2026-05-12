@@ -103,20 +103,20 @@ public class GameEngine {
                 boolean[] visMark = new boolean[100];
                 marcarHundido(enemigo.getTablero(), x, y, visMark);
                 atacante.incrementarBarcosHundidos();
-                state.setMensajeEstado("¡Barco HUNDIDO por " + atacante.getNombre() + "!");
+                state.setMensajeEstado("¡" + atacante.getNombre() + " ha HUNDIDO un barco enemigo!");
                 // Lokhir PAS_LOK: revela celda adyacente al hundido
                 if (tieneHabilidadPasiva(atacante, "PAS_LOK")) {
                     revelarCeldaAdyacente(enemigo, x, y);
                 }
             } else {
-                state.setMensajeEstado("¡Impacto de " + atacante.getNombre() + "!");
+                state.setMensajeEstado("¡Impacto certero de " + atacante.getNombre() + "!");
             }
 
             // Wulfrik PAS_WUL: disparo extra en el mismo turno (solo una vez)
             if (tieneHabilidadPasiva(atacante, "PAS_WUL") && !eraDisparoExtra) {
                 atacante.setTurnoExtraWulfrik(true);
                 atacante.setHaAtacadoEsteTurno(false); // permitir siguiente disparo
-                state.setMensajeEstado(state.getMensajeEstado() + " ¡Wulfrik dispara de nuevo!");
+                state.setMensajeEstado(state.getMensajeEstado() + " ¡Wulfrik se prepara para disparar de nuevo!");
                 verificarVictoria();
                 return; // NO cambia el turno todavía
             }
@@ -124,7 +124,7 @@ public class GameEngine {
         } else if (celda == CellStatus.AGUA) {
             enemigo.getTablero()[x][y] = CellStatus.AGUA_GOLPEADA;
             atacante.incrementarHitsFallados();
-            state.setMensajeEstado(atacante.getNombre() + " ha fallado.");
+            state.setMensajeEstado(atacante.getNombre() + " ha disparado al agua.");
         }
 
         state.cambiarTurno();
@@ -193,6 +193,12 @@ public class GameEngine {
 
     /** SKL_WUL_1: Dispara a (x,y); si falla, revela la posicion de un BARCO enemigo aleatorio. */
     private void ejecutarDesafioErrante(Player owner, Player enemigo, int x, int y) {
+        // Validación de coordenadas para evitar crash si el frontend no las envía
+        if (x < 0 || x >= 10 || y < 0 || y >= 10) {
+            state.setMensajeEstado("¡Desafío del Errante! El disparo se perdió en la niebla.");
+            return;
+        }
+
         String res = aplicarDisparoHabilidad(owner, enemigo, x, y);
         CellStatus postImpacto = enemigo.getTablero()[x][y];
 
@@ -202,21 +208,33 @@ public class GameEngine {
             if (!barcos.isEmpty()) {
                 int[] celda = barcos.get((int) (Math.random() * barcos.size()));
                 enemigo.getTablero()[celda[0]][celda[1]] = CellStatus.REVELADA;
-                state.setMensajeEstado("¡Desafío del Errante! Fallaste el tiro, pero avistaste un barco en (" + celda[0] + "," + celda[1] + ").");
+                state.setMensajeEstado("¡Desafío del Errante! Tras fallar el tiro, " + owner.getNombre() + " ha avistado un barco enemigo.");
             } else {
-                state.setMensajeEstado("¡Desafío del Errante! " + res + " No quedan más barcos por descubrir.");
+                state.setMensajeEstado("¡Desafío del Errante! " + res + " No se han detectado más enemigos.");
             }
         } else {
-            state.setMensajeEstado("¡Desafío del Errante! ¡Impacto directo! (No se activa el revelado).");
+            state.setMensajeEstado("¡Desafío del Errante! ¡Impacto directo!");
         }
     }
 
     /** SKL_WUL_2: Dispara a 3 casillas en línea horizontal desde (x,y). */
     private void ejecutarColmilloMares(Player owner, Player enemigo, int x, int y) {
-        StringBuilder msg = new StringBuilder("¡Colmillo de los Mares! Impactos: ");
-        for (int dy = 0; dy < 3; dy++) {
+        StringBuilder msg = new StringBuilder("¡Colmillo de los Mares! ");
+        List<String> resultados = new ArrayList<>();
+        // Rango corregido de 0..2 a -1..1 para que sea centrado
+        for (int dy = -1; dy <= 1; dy++) {
             int ny = y + dy;
-            if (ny < 10) msg.append(aplicarDisparoHabilidad(owner, enemigo, x, ny));
+            if (ny >= 0 && ny < 10) {
+                resultados.add(aplicarDisparoHabilidad(owner, enemigo, x, ny));
+            }
+        }
+        
+        // Formatear mensaje descriptivo
+        long impactos = resultados.stream().filter(r -> r.contains("Impacto") || r.contains("HUNDIDO")).count();
+        if (impactos > 0) {
+            msg.append("¡Varios impactos detectados en la zona!");
+        } else {
+            msg.append("Los disparos solo han levantado espuma.");
         }
         state.setMensajeEstado(msg.toString());
     }
@@ -225,10 +243,11 @@ public class GameEngine {
     private void ejecutarFavorRuinoso(Player owner) {
         List<int[]> celdas = celdasConEstado(owner.getTablero(), CellStatus.BARCO);
         celdas.removeIf(c -> owner.tieneEscudo(c[0], c[1]));
-        if (celdas.isEmpty()) { state.setMensajeEstado("No hay casillas disponibles para escudar."); return; }
+        if (celdas.isEmpty()) { state.setMensajeEstado("No quedan casillas para proteger."); return; }
         int[] celda = celdas.get((int)(Math.random() * celdas.size()));
         owner.anadirEscudo(celda[0], celda[1]);
-        state.setMensajeEstado("¡Favor Ruinoso! Casilla (" + celda[0] + "," + celda[1] + ") escudada.");
+        // Mensaje sin coordenadas para no revelar la posición al enemigo
+        state.setMensajeEstado("¡Favor Ruinoso! Los Dioses del Caos han protegido una de las casillas de " + owner.getNombre() + ".");
     }
 
     // --- Aislinn ---
@@ -239,22 +258,29 @@ public class GameEngine {
         libres.addAll(celdasConEstado(enemigo.getTablero(), CellStatus.BARCO));
         libres.addAll(celdasConEstado(enemigo.getTablero(), CellStatus.AGUA));
         Collections.shuffle(libres);
-        StringBuilder msg = new StringBuilder("¡Corte de Lothern! Disparos en: ");
+        StringBuilder msg = new StringBuilder("¡Corte de Lothern! Las flechas mágicas de Aislinn ");
+        int impactos = 0;
         for (int k = 0; k < Math.min(2, libres.size()); k++) {
-            msg.append(aplicarDisparoHabilidad(owner, enemigo, libres.get(k)[0], libres.get(k)[1]));
+            String res = aplicarDisparoHabilidad(owner, enemigo, libres.get(k)[0], libres.get(k)[1]);
+            if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
         }
+        msg.append(impactos > 0 ? "han alcanzado objetivos enemigos." : "se han perdido en el mar.");
         state.setMensajeEstado(msg.toString());
     }
 
     /** SKL_AIS_2: Ataque en cruz de 5 casillas centrado en (x,y). */
     private void ejecutarIraMathlann(Player owner, Player enemigo, int x, int y) {
         int[][] offsets = {{0,0},{-1,0},{1,0},{0,-1},{0,1}};
-        StringBuilder msg = new StringBuilder("¡Ira de Mathlann! Cruz en (" + x + "," + y + "): ");
+        StringBuilder msg = new StringBuilder("¡Ira de Mathlann! Una tormenta mágica ");
+        int impactos = 0;
         for (int[] off : offsets) {
             int nx = x + off[0], ny = y + off[1];
-            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
-                msg.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
+            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
+            }
         }
+        msg.append(impactos > 0 ? "ha golpeado con fuerza la flota enemiga." : "ha pasado de largo sin causar daños.");
         state.setMensajeEstado(msg.toString());
     }
 
@@ -265,7 +291,7 @@ public class GameEngine {
         Collections.shuffle(celdas);
         int n = Math.min(4, celdas.size());
         for (int k = 0; k < n; k++) owner.anadirEscudo(celdas.get(k)[0], celdas.get(k)[1]);
-        state.setMensajeEstado("¡Bruma Marina! " + n + " casillas protegidas.");
+        state.setMensajeEstado("¡Bruma Marina! Una densa niebla mágica oculta y protege los barcos de " + owner.getNombre() + ".");
     }
 
     // --- Lokhir ---
@@ -273,18 +299,21 @@ public class GameEngine {
     /** SKL_LOK_1: Dispara a 3 diagonales desde (x,y): NE, SE, SO. */
     private void ejecutarAndanadaDruchii(Player owner, Player enemigo, int x, int y) {
         int[][] diags = {{-1,1},{1,1},{1,-1}};
-        StringBuilder msg = new StringBuilder("¡Andanada Druchii! Disparos en: ");
+        StringBuilder msg = new StringBuilder("¡Andanada Druchii! Una ráfaga de proyectiles oscuros ");
+        int impactos = 0;
         for (int[] d : diags) {
             int nx = x + d[0], ny = y + d[1];
-            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
-                msg.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
+            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
+            }
         }
+        msg.append(impactos > 0 ? "ha destrozado posiciones enemigas." : "ha caído inútilmente al mar.");
         state.setMensajeEstado(msg.toString());
     }
 
     /** SKL_LOK_2: Revela (marca como REVELADA en tablero) las posiciones de BARCO en area 3x3 centrada en (x,y). */
     private void ejecutarFuriaCorsaria(Player enemigo, int x, int y) {
-        StringBuilder reveal = new StringBuilder("Furia Corsaria! Barcos avistados: ");
         boolean encontrado = false;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -293,12 +322,11 @@ public class GameEngine {
                         && enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
                     // Marcar la celda como REVELADA para que el frontend la muestre
                     enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
-                    reveal.append("(").append(nx).append(",").append(ny).append(") ");
                     encontrado = true;
                 }
             }
         }
-        state.setMensajeEstado(encontrado ? reveal.toString() : "Furia Corsaria! Area despejada.");
+        state.setMensajeEstado(encontrado ? "¡Furia Corsaria! Se han avistado barcos enemigos en el área de exploración." : "¡Furia Corsaria! El área parece estar despejada de enemigos.");
     }
 
     /**
@@ -418,18 +446,19 @@ public class GameEngine {
     /** SKL_ARA_1: Dispara a (x,y); si es BARCO, el fuego se propaga a las 4 casillas adyacentes. */
     private void ejecutarPolvoraVampirica(Player owner, Player enemigo, int x, int y) {
         String res = aplicarDisparoHabilidad(owner, enemigo, x, y);
-        if (res.contains("tocado") || res.contains("HUNDIDO")) {
+        if (res.contains("Impacto") || res.contains("HUNDIDO")) {
             int[][] adj = {{-1,0},{1,0},{0,-1},{0,1}};
-            StringBuilder sb = new StringBuilder("¡Pólvora Vampírica! El fuego se propagó: ");
-            sb.append(res);
+            int impactosExtra = 0;
             for (int[] a : adj) {
                 int nx = x + a[0], ny = y + a[1];
-                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
-                    sb.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    String rExtra = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                    if (rExtra.contains("Impacto") || rExtra.contains("HUNDIDO")) impactosExtra++;
+                }
             }
-            state.setMensajeEstado(sb.toString());
+            state.setMensajeEstado("¡Pólvora Vampírica! El impacto inicial ha propagado el fuego a barcos cercanos.");
         } else {
-            state.setMensajeEstado("¡Pólvora Vampírica! " + res);
+            state.setMensajeEstado("¡Pólvora Vampírica! El disparo solo ha salpicado de brea el agua.");
         }
     }
 
@@ -439,22 +468,26 @@ public class GameEngine {
         enemigo.getEscudoCasillas().clear();
         enemigo.setEscudoTotalActivo(false);
 
-        StringBuilder msg = new StringBuilder("¡Reina Bess! Saloma en (" + x + "," + y + "): ");
+        StringBuilder msg = new StringBuilder("¡El rugido de Reina Bess! El disparo de saloma ");
+        int impactos = 0;
         // Ataque en área 2x2 (cuadrante inferior derecho desde x,y)
         for (int dx = 0; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {
                 int nx = x + dx, ny = y + dy;
-                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10)
-                    msg.append(aplicarDisparoHabilidad(owner, enemigo, nx, ny));
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                    if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
+                }
             }
         }
+        msg.append(impactos > 0 ? "ha devastado la zona de impacto." : "ha fallado por poco.");
         state.setMensajeEstado(msg.toString());
     }
 
     /** SKL_ARA_3: Activa escudo total para el siguiente turno del jugador. */
     private void ejecutarHijaStromfels(Player owner) {
         owner.setEscudoTotalActivo(true);
-        state.setMensajeEstado("¡Hija de Stromfels! " + owner.getNombre() + " es invulnerable el próximo turno.");
+        state.setMensajeEstado("¡Hija de Stromfels! La bendición del Dios del Mar hace invulnerable la flota de " + owner.getNombre() + ".");
     }
 
     // ============================================================
@@ -468,7 +501,7 @@ public class GameEngine {
     private String aplicarDisparoHabilidad(Player owner, Player enemigo, int nx, int ny) {
         CellStatus celda = enemigo.getTablero()[nx][ny];
         if (celda == CellStatus.AGUA_GOLPEADA || celda == CellStatus.TOCADO || celda == CellStatus.HUNDIDO)
-            return "(" + nx + "," + ny + ":ya) ";
+            return "Repetido";
 
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
             // Escudo de casilla: la celda permanece BARCO, el escudo se consume, sin daño
@@ -476,7 +509,7 @@ public class GameEngine {
                 enemigo.quitarEscudo(nx, ny);
                 // No cambiar el estado de la celda: el barco sigue intacto
                 owner.incrementarHitsFallados();
-                return "(" + nx + "," + ny + ":escudo) ";
+                return "Escudo";
             }
             enemigo.getTablero()[nx][ny] = CellStatus.TOCADO;
             enemigo.recibirDano();
@@ -486,14 +519,14 @@ public class GameEngine {
                 boolean[] visMark = new boolean[100];
                 marcarHundido(enemigo.getTablero(), nx, ny, visMark);
                 owner.incrementarBarcosHundidos();
-                return "(" + nx + "," + ny + ":HUNDIDO) ";
+                return "¡HUNDIDO!";
             }
-            return "(" + nx + "," + ny + ":tocado) ";
+            return "Impacto";
         }
         // AGUA
         enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
         owner.incrementarHitsFallados();
-        return "(" + nx + "," + ny + ":agua) ";
+        return "Agua";
     }
 
     /** Devuelve lista de coordenadas del tablero con el estado indicado. */
