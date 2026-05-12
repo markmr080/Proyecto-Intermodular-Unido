@@ -5,30 +5,33 @@
 
   <div class="partida-container">
     <div class="panel-left">
-      <!-- Player 1 Slot -->
-      <div class="slot card-primary">
-        <h3>{{ player1.name }}</h3>
-        <p>{{ player1.role }}</p>
-      </div>
-
-      <!-- Player 2 Slot -->
-      @if (player2) {
-      <div class="slot card-secondary">
-        <div class="slot-info">
-          <h3>{{ player2.name }}</h3>
-          <p>{{ player2.role }}</p>
+      <!-- Player 1 and 2 Section -->
+      <div class="players-section">
+        <!-- Player 1 Slot -->
+        <div class="slot card-primary">
+          <h3>{{ player1.name }}</h3>
+          <p>{{ player1.role }}</p>
         </div>
-        @if (isOwner) {
-        <button class="btn-expulsar" (click)="expulsar()" title="Expulsar">
-          &#10006;
-        </button>
+
+        <!-- Player 2 Slot -->
+        @if (player2) {
+        <div class="slot card-secondary">
+          <div class="slot-info">
+            <h3>{{ player2.name }}</h3>
+            <p>{{ player2.role }}</p>
+          </div>
+          @if (isOwner) {
+          <button class="btn-expulsar" (click)="expulsar()" title="Expulsar">
+            &#10006;
+          </button>
+          }
+        </div>
+        } @else {
+        <div class="slot card-empty">
+          <p>Esperando jugador...</p>
+        </div>
         }
       </div>
-      } @else {
-      <div class="slot card-empty">
-        <p>Esperando jugador...</p>
-      </div>
-      }
 
       <!-- Pending Requests -->
       <div class="pending-list">

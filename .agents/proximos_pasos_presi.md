@@ -2,9 +2,6 @@
 
 Lista de tareas pendientes y mejoras para el proyecto Battleship:
 
-- [ ] **Mejoras en seleccion de personaje**:
-    - Poder deselegir personaje,
-    - Asegurarse que recoge bien el personaje y los barcos correspondientes a cada uno.
 - [ ] **Solucionar bugs**:
     - Revisar posibles fugas de memoria o salas zombies restantes.
     - Validar la sincronización de turnos en situaciones de lag.

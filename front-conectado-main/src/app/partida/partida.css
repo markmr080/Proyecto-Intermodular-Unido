@@ -20,6 +20,7 @@
   bottom: 0;
   background: linear-gradient(135deg, rgba(20, 25, 45, 0.7), rgba(8, 11, 22, 0.9));
   z-index: 1;
+  pointer-events: none; /* Evita que el overlay bloquee clicks */
 }
 
 .timer {
@@ -296,3 +297,157 @@
   box-shadow: none;
   cursor: not-allowed;
 }
+
+/* --- RESPONSIVE --- */
+
+.players-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .crear-partida-wrapper {
+    padding: 20px;
+    align-items: flex-start;
+    padding-top: 100px;
+  }
+
+  .timer {
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    justify-content: center;
+  }
+
+  .partida-container {
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .panel-left, .panel-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .btn-empezar, .btn-salir {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* 
+     REORGANIZACIÓN MÓVIL (Grid del Wrapper)
+     Utilizamos un layout de grid en el contenedor principal para reordenar elementos
+     que originalmente están en diferentes niveles de la jerarquía HTML.
+  */
+  .crear-partida-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "timer code"
+      "players players"
+      "requests requests"
+      "settings settings"
+      "start start"
+      "exit exit";
+    gap: 15px;
+    padding: 15px;
+    padding-top: 20px; 
+    align-items: stretch;
+  }
+
+  /* 
+     ESTRATEGIA 'display: contents':
+     Eliminamos visualmente los contenedores intermedios (.partida-container y paneles)
+     para que sus hijos (timer, codigo, botones) actúen como hijos directos del wrapper
+     y puedan posicionarse en el grid usando grid-area.
+  */
+  .partida-container, 
+  .panel-left, 
+  .panel-right {
+    display: contents;
+  }
+
+  /* 
+     GESTIÓN DE INTERACTIVIDAD Y CAPAS:
+     Al usar display: contents, los hijos pierden el stacking context de sus padres.
+     Forzamos position: relative y un z-index alto para asegurar que queden por encima
+     del overlay de fondo y sean clicables.
+  */
+  .timer,
+  .codigo-box,
+  .players-section,
+  .pending-list,
+  .ajustes-box,
+  .btn-empezar,
+  .btn-salir {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* 
+     ALINEACIÓN DE CABECERA:
+     Forzamos altura idéntica para el timer y el código para que se vean perfectamente alineados.
+  */
+  .timer, .codigo-box {
+    height: 50px; 
+    font-size: 16px;
+    padding: 0 10px;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: auto;   /* Reseteamos posicionamiento absolute del desktop */
+    left: auto;
+  }
+
+  .timer {
+    grid-area: timer;
+  }
+
+  .codigo-box {
+    grid-area: code;
+  }
+
+  .players-section {
+    grid-area: players;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pending-list {
+    grid-area: requests;
+    min-height: auto;
+  }
+
+  .ajustes-box {
+    grid-area: settings;
+    padding: 15px;
+  }
+
+  .btn-empezar {
+    grid-area: start;
+    font-size: 16px; 
+    padding: 10px;   
+    margin: 0;
+  }
+
+  .btn-salir {
+    grid-area: exit;
+    font-size: 14px; 
+    padding: 10px;
+    margin: 0;
+  }
+
+  /* Ajustes de tipografía para dispositivos pequeños */
+  .slot h3 {
+    font-size: 18px;
+  }
+}
