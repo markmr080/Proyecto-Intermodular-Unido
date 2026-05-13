@@ -77,6 +77,10 @@ public class GameEngine {
             // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3: escudo de casilla.
             if (enemigo.tieneEscudo(x, y) && !ignoraEscudos) {
                 enemigo.quitarEscudo(x, y);
+                // Lokhir: Si el impacto es en el Arca Negra, el resto de escudos caen
+                if (enemigo.getPersonaje().getNombre().equals("Lokhir")) {
+                    comprobarEscudoArcaNegra(enemigo, x, y);
+                }
                 atacante.incrementarHitsFallados();
                 state.setMensajeEstado("¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido. La celda sigue en pie.");
                 state.cambiarTurno();
@@ -106,7 +110,8 @@ public class GameEngine {
                 state.setMensajeEstado("¡" + atacante.getNombre() + " ha HUNDIDO un barco enemigo!");
                 // Lokhir PAS_LOK: revela celda adyacente al hundido
                 if (tieneHabilidadPasiva(atacante, "PAS_LOK")) {
-                    revelarCeldaAdyacente(enemigo, x, y);
+                    String extra = activarPasivaLokhir(enemigo, x, y);
+                    state.setMensajeEstado(state.getMensajeEstado() + extra);
                 }
             } else {
                 state.setMensajeEstado("¡Impacto certero de " + atacante.getNombre() + "!");
@@ -191,7 +196,7 @@ public class GameEngine {
             // --- Lokhir ---
             case "SKL_LOK_1": ejecutarAndanadaDruchii(owner, enemigo, x, y); break;
             case "SKL_LOK_2": ejecutarFuriaCorsaria(enemigo, x, y); break;
-            case "SKL_LOK_3": ejecutarYelmoKraken(owner); break;
+            case "SKL_LOK_3": ejecutarDefensaArcaNegra(owner); break;
             // --- Aranessa ---
             case "SKL_ARA_1": ejecutarPolvoraVampirica(owner, enemigo, x, y); break;
             case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo, x, y); break;
@@ -358,115 +363,52 @@ public class GameEngine {
     }
 
     /**
-     * SKL_LOK_3: Reubica aleatoriamente uno de los barcos intactos del jugador.
-     * Pasos: (1) localiza todos los grupos de celdas BARCO conectadas (barcos),
-     * (2) elige uno al azar, (3) borra esas celdas del tablero,
-     * (4) intenta colocar el barco en una nueva posicion aleatoria valida.
-     * Si no encuentra hueco libre tras 200 intentos, devuelve el barco a su posicion original.
+     * SKL_LOK_3: Defensa del Arca Negra.
+     * Escuda completamente el barco más grande del jugador (el Arca Negra).
+     * El escudo es frágil: si una casilla recibe un impacto, todos los escudos del Arca desaparecen.
      */
-    private void ejecutarYelmoKraken(Player owner) {
-        List<List<int[]>> barcos = encontrarBarcos(owner.getTablero());
+    private void ejecutarDefensaArcaNegra(Player owner) {
+        List<List<int[]>> barcos = encontrarBarcosCompletos(owner.getTablero());
         if (barcos.isEmpty()) {
-            state.setMensajeEstado("No quedan barcos intactos para reubicar.");
+            state.setMensajeEstado("No se han encontrado barcos para defender.");
             return;
         }
 
-        // Elegir un barco al azar y recordar su posicion original
-        List<int[]> barco = barcos.get((int)(Math.random() * barcos.size()));
-        int size = barco.size();
-
-        // Borrar el barco del tablero (y sus escudos si los tuviera)
-        for (int[] c : barco) {
-            owner.getTablero()[c[0]][c[1]] = CellStatus.AGUA;
-            owner.quitarEscudo(c[0], c[1]);
+        // Identificar el barco más grande (Arca Negra)
+        List<int[]> arcaNegra = barcos.get(0);
+        for (List<int[]> b : barcos) {
+            if (b.size() > arcaNegra.size()) arcaNegra = b;
         }
 
-        // Buscar nueva posicion valida
-        boolean colocado = false;
-        int intentos = 0;
-        while (!colocado && intentos < 200) {
-            intentos++;
-            boolean horizontal = Math.random() > 0.5 || size == 1;
-            int startX, startY;
-            if (horizontal) {
-                startX = (int)(Math.random() * 10);
-                startY = (int)(Math.random() * (10 - size + 1));
-            } else {
-                startX = (int)(Math.random() * (10 - size + 1));
-                startY = (int)(Math.random() * 10);
-            }
-
-            // Calcular las celdas que ocuparia
-            List<int[]> nuevasCeldas = new ArrayList<>();
-            for (int k = 0; k < size; k++) {
-                int nx = horizontal ? startX : startX + k;
-                int ny = horizontal ? startY + k : startY;
-                nuevasCeldas.add(new int[]{nx, ny});
-            }
-
-            // Verificar que no hay barcos adyacentes (incluye diagonales)
-            boolean valido = true;
-            outer:
-            for (int[] c : nuevasCeldas) {
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        int ax = c[0] + dx, ay = c[1] + dy;
-                        if (ax >= 0 && ax < 10 && ay >= 0 && ay < 10) {
-                            CellStatus cs = owner.getTablero()[ax][ay];
-                            if (cs == CellStatus.BARCO) { valido = false; break outer; }
-                        }
-                    }
-                }
-            }
-
-            if (valido) {
-                for (int[] c : nuevasCeldas) owner.getTablero()[c[0]][c[1]] = CellStatus.BARCO;
-                colocado = true;
+        // Aplicar escudos a todas las celdas del Arca que no estén ya hundidas
+        int escudosAplicados = 0;
+        for (int[] c : arcaNegra) {
+            CellStatus s = owner.getTablero()[c[0]][c[1]];
+            if (s == CellStatus.BARCO || s == CellStatus.REVELADA || s == CellStatus.TOCADO) {
+                owner.anadirEscudo(c[0], c[1]);
+                escudosAplicados++;
             }
         }
 
-        if (!colocado) {
-            // Sin hueco libre: restaurar en su posicion original
-            for (int[] c : barco) owner.getTablero()[c[0]][c[1]] = CellStatus.BARCO;
-            state.setMensajeEstado("¡Yelmo del Kraken! No hay espacio libre. El barco permanece en su lugar.");
+        if (escudosAplicados > 0) {
+            state.setMensajeEstado("¡Defensa del Arca Negra! El navío insignia de Lokhir ha desplegado sus barreras místicas.");
         } else {
-            state.setMensajeEstado("¡Yelmo del Kraken! Un barco ha sido reubicado a una nueva posicion.");
+            state.setMensajeEstado("El Arca Negra ya ha sido destruida, no hay nada que proteger.");
         }
     }
 
     /**
-     * Encuentra todos los grupos de celdas BARCO conectadas (barcos intactos) en el tablero.
-     * Usa DFS para agrupar celdas adyacentes (sin diagonales) con estado BARCO.
-     * Referencia: ejecutarYelmoKraken (SKL_LOK_3).
+     * Si la casilla (x,y) pertenece al Arca Negra (barco de tamaño 5), 
+     * elimina todos los escudos de ese barco.
      */
-    private List<List<int[]>> encontrarBarcos(CellStatus[][] tablero) {
-        boolean[] visited = new boolean[100];
-        List<List<int[]>> resultado = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                if (tablero[i][j] == CellStatus.BARCO && !visited[i * 10 + j]) {
-                    List<int[]> grupo = new ArrayList<>();
-                    dfsBarco(tablero, i, j, visited, grupo);
-                    resultado.add(grupo);
-                }
+    private void comprobarEscudoArcaNegra(Player enemigo, int x, int y) {
+        List<int[]> barco = findFullShip(enemigo, x, y);
+        // Si el barco es de tamaño 5 (Arca Negra), limpiamos sus escudos
+        if (barco.size() >= 5) {
+            for (int[] c : barco) {
+                enemigo.quitarEscudo(c[0], c[1]);
             }
         }
-        return resultado;
-    }
-
-    /**
-     * DFS auxiliar de encontrarBarcos: recorre celdas BARCO conectadas (4-direccional).
-     */
-    private void dfsBarco(CellStatus[][] tablero, int x, int y, boolean[] visited, List<int[]> grupo) {
-        if (x < 0 || x >= 10 || y < 0 || y >= 10) return;
-        int idx = x * 10 + y;
-        if (visited[idx] || tablero[x][y] != CellStatus.BARCO) return;
-        visited[idx] = true;
-        grupo.add(new int[]{x, y});
-        dfsBarco(tablero, x - 1, y, visited, grupo);
-        dfsBarco(tablero, x + 1, y, visited, grupo);
-        dfsBarco(tablero, x, y - 1, visited, grupo);
-        dfsBarco(tablero, x, y + 1, visited, grupo);
     }
 
     // --- Aranessa ---
@@ -563,14 +505,19 @@ public class GameEngine {
 
         // Construir mensaje de feedback claro para el usuario
         String baseMsg = "¡Rayo de Piedra Bruja! ";
-        if (res.equals("¡HUNDIDO!")) {
+        if (res.contains("HUNDIDO")) {
             baseMsg += "¡Impacto devastador que ha HUNDIDO un barco enemigo!";
-        } else if (res.equals("Impacto")) {
+        } else if (res.contains("Impacto")) {
             baseMsg += "Impacto certero en la flota enemiga.";
-        } else if (res.equals("Escudo")) {
+        } else if (res.contains("Escudo")) {
             baseMsg += "El rayo fue absorbido por un escudo enemigo.";
         } else {
             baseMsg += "El rayo se ha perdido en las profundidades del mar.";
+        }
+
+        // Si el resultado contenía un mensaje de pasiva (ej: Lokhir), lo añadimos
+        if (res.contains("(Lokhir")) {
+            baseMsg += " " + res.substring(res.indexOf("(Lokhir"));
         }
 
         if (revelado) {
@@ -591,6 +538,7 @@ public class GameEngine {
     private void ejecutarCoheteMuerte(Player owner, Player enemigo, int x, int y) {
         int impactos = 0;
         int hundidos = 0;
+        StringBuilder passiveMsg = new StringBuilder();
         
         // Recorrer el área 3x3 centrada en (x,y)
         for (int dx = -1; dx <= 1; dx++) {
@@ -598,26 +546,34 @@ public class GameEngine {
                 int nx = x + dx, ny = y + dy;
                 if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
                     String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
-                    if (res.equals("Impacto") || res.equals("¡HUNDIDO!")) {
+                    if (res.contains("Impacto") || res.contains("HUNDIDO")) {
                         impactos++;
-                        if (res.equals("¡HUNDIDO!")) hundidos++;
+                        if (res.contains("HUNDIDO")) {
+                            hundidos++;
+                            // Si Lokhir hunde algo con el cohete, añadimos el mensaje
+                            if (res.contains("(Lokhir")) {
+                                passiveMsg.append(" ").append(res.substring(res.indexOf("(Lokhir")));
+                            }
+                        }
                     }
                 }
             }
         }
         
         // Generar mensaje detallado del bombardeo
-        String msg = "¡COHETE DE MUERTE! Una explosión colosal ha sacudido el sector.";
+        StringBuilder msg = new StringBuilder("¡COHETE DE MUERTE! Una explosión colosal ha sacudido el sector.");
         if (impactos > 0) {
-            msg += " Se han registrado " + impactos + " impactos.";
+            msg.append(" Se han registrado ").append(impactos).append(" impactos.");
             if (hundidos > 0) {
-                msg += " ¡Y se han HUNDIDO " + hundidos + " barcos!";
+                msg.append(" ¡Y se han HUNDIDO ").append(hundidos).append(" barcos!");
             }
+            // Añadir los mensajes de pasiva si existen
+            msg.append(passiveMsg);
         } else {
-            msg += " Increíblemente, no se han registrado daños directos.";
+            msg.append(" Increíblemente, no se han registrado daños directos.");
         }
         
-        state.setMensajeEstado(msg);
+        state.setMensajeEstado(msg.toString());
     }
 
     /** 
@@ -678,6 +634,10 @@ public class GameEngine {
             // Escudo de casilla: la celda permanece BARCO, el escudo se consume, sin daño
             if (enemigo.tieneEscudo(nx, ny)) {
                 enemigo.quitarEscudo(nx, ny);
+                // Lokhir: Si el impacto es en el Arca Negra, el resto de escudos caen
+                if (enemigo.getPersonaje().getNombre().equals("Lokhir")) {
+                    comprobarEscudoArcaNegra(enemigo, nx, ny);
+                }
                 // No cambiar el estado de la celda: el barco sigue intacto
                 owner.incrementarHitsFallados();
                 return "Escudo";
@@ -690,7 +650,12 @@ public class GameEngine {
                 boolean[] visMark = new boolean[100];
                 marcarHundido(enemigo.getTablero(), nx, ny, visMark);
                 owner.incrementarBarcosHundidos();
-                return "¡HUNDIDO!";
+                
+                String msgPasiva = "";
+                if (tieneHabilidadPasiva(owner, "PAS_LOK")) {
+                    msgPasiva = activarPasivaLokhir(enemigo, nx, ny);
+                }
+                return "¡HUNDIDO!" + msgPasiva;
             }
             return "Impacto";
         }
@@ -717,26 +682,81 @@ public class GameEngine {
 
     /**
      * Lokhir PAS_LOK: tras hundir un barco en (x,y), revela una celda BARCO adyacente
-     * marcandola como REVELADA en el tablero del enemigo y anadiendo sus coordenadas al mensajeEstado.
+     * o, si no hay ninguna tocando, revela una aleatoria de la flota enemiga.
      */
-    private void revelarCeldaAdyacente(Player enemigo, int x, int y) {
+    private String activarPasivaLokhir(Player enemigo, int x, int y) {
+        // 1. Intentar revelar una adyacente (3x3)
         int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
         for (int[] d : dirs) {
             int nx = x + d[0], ny = y + d[1];
             if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10
                     && enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
-                // Marcar la celda como REVELADA para que el frontend la muestre visualmente
                 enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
-                state.setMensajeEstado(state.getMensajeEstado()
-                        + " (Lokhir revela barco en " + nx + "," + ny + ")");
-                return;
+                return " (Lokhir revela barco en " + nx + "," + ny + ")";
             }
         }
+
+        // 2. Si no hay adyacentes, buscar CUALQUIER barco restante
+        List<int[]> barcosRestantes = new java.util.ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (enemigo.getTablero()[i][j] == CellStatus.BARCO) {
+                    barcosRestantes.add(new int[]{i, j});
+                }
+            }
+        }
+
+        if (!barcosRestantes.isEmpty()) {
+            int[] pos = barcosRestantes.get(new java.util.Random().nextInt(barcosRestantes.size()));
+            enemigo.getTablero()[pos[0]][pos[1]] = CellStatus.REVELADA;
+            return " (Lokhir saquea información: barco revelado en " + pos[0] + "," + pos[1] + ")";
+        }
+
+        return "";
     }
 
     // ============================================================
     //  DFS HUNDIR BARCO
     // ============================================================
+
+    /** Busca el barco completo en la posicion (x,y) sin importar su daño actual. */
+    private List<int[]> findFullShip(Player p, int x, int y) {
+        List<int[]> ship = new java.util.ArrayList<>();
+        boolean[] visited = new boolean[100];
+        dfsAnyShipCell(p.getTablero(), x, y, visited, ship);
+        return ship;
+    }
+
+    private void dfsAnyShipCell(CellStatus[][] tablero, int x, int y, boolean[] visited, List<int[]> grupo) {
+        if (x < 0 || x >= 10 || y < 0 || y >= 10) return;
+        int idx = x * 10 + y;
+        if (visited[idx]) return;
+        CellStatus s = tablero[x][y];
+        if (s == CellStatus.BARCO || s == CellStatus.REVELADA || s == CellStatus.TOCADO || s == CellStatus.HUNDIDO) {
+            visited[idx] = true;
+            grupo.add(new int[]{x, y});
+            dfsAnyShipCell(tablero, x-1, y, visited, grupo);
+            dfsAnyShipCell(tablero, x+1, y, visited, grupo);
+            dfsAnyShipCell(tablero, x, y-1, visited, grupo);
+            dfsAnyShipCell(tablero, x, y+1, visited, grupo);
+        }
+    }
+
+    private List<List<int[]>> encontrarBarcosCompletos(CellStatus[][] tablero) {
+        boolean[] visited = new boolean[100];
+        List<List<int[]>> resultado = new java.util.ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                CellStatus s = tablero[i][j];
+                if ((s == CellStatus.BARCO || s == CellStatus.REVELADA || s == CellStatus.TOCADO) && !visited[i * 10 + j]) {
+                    List<int[]> grupo = new java.util.ArrayList<>();
+                    dfsAnyShipCell(tablero, i, j, visited, grupo);
+                    resultado.add(grupo);
+                }
+            }
+        }
+        return resultado;
+    }
 
     private boolean dfsSunkCheck(CellStatus[][] tablero, int x, int y, boolean[] visited) {
         if (x < 0 || x >= 10 || y < 0 || y >= 10) return true;
