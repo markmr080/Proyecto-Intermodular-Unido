@@ -46,6 +46,9 @@ public class CharacterFactory {
             case "IKIT":
                 baseCharacter = crearIkit();
                 break;
+            case "GELT":
+                baseCharacter = crearGelt();
+                break;
             default:
                 baseCharacter = crearWulfrik(); // Default
         }
@@ -128,6 +131,19 @@ public class CharacterFactory {
                 "Impacta un área masiva de 3x3 casillas.", SkillType.OFENSIVA, 8, "/imagenes/ikitclaw_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_IKT_3", "Escudo de Piedra Bruja",
                 "Protege un área aleatoria de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikitclaw_habilidades/defensiva.png"));
+        return c;
+    }
+
+    private GameCharacter crearGelt() {
+        Skill pasiva = new Skill("PAS_GEL", "Metalurgia Dorada",
+                "Al impactar un barco, reduce el enfriamiento de una habilidad activa aleatoria en 1 turno.", SkillType.PASIVA, 0, "/imagenes/gelt_habilidades/pasiva.png");
+        GameCharacter c = new GameCharacter("Balthasar Gelt", "Patriarca Supremo de los Colegios de Magia.", "/imagenes/gelt.png", pasiva);
+        c.anadirHabilidadActiva(new Skill("SKL_GEL_1", "Transmutación de Plomo",
+                "Convierte una zona 2x2 en oro: revela barcos y causa daño.", SkillType.OFENSIVA, 5, "/imagenes/gelt_habilidades/ofensiva1.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_GEL_2", "Lluvia de Metal",
+                "Invoca una lluvia de proyectiles que impacta en 3 casillas aleatorias del tablero enemigo.", SkillType.OFENSIVA, 4, "/imagenes/gelt_habilidades/ofensiva2.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_GEL_3", "Cuerpo de Hierro",
+                "Protege todas las casillas de tu barco más grande con escudos mágicos.", SkillType.DEFENSIVA, 6, "/imagenes/gelt_habilidades/defensiva.png"));
         return c;
     }
 

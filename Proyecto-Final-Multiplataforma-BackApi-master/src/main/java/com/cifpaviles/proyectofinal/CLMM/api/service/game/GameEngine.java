@@ -15,12 +15,16 @@ import java.util.List;
  *   - PAS_AIS (Aislinn): 20% de ignorar escudos enemigos al disparar
  *   - PAS_LOK (Lokhir): al hundir, revela una celda BARCO adyacente del enemigo
  *   - PAS_ARA (Aranessa): 20% de esquivar un impacto entrante (Tripulación de los Muertos)
+ *   - PAS_IKT (Ikit): 20% de no consumir cooldown al usar habilidad ofensiva
+ *   - PAS_GEL (Gelt): al impactar un barco, reduce cooldown de habilidad activa aleatoria
  *
  * Habilidades activas gestionadas en ejecutarEfectoHabilidad():
  *   SKL_WUL_1, SKL_WUL_2, SKL_WUL_3
  *   SKL_AIS_1, SKL_AIS_2, SKL_AIS_3
- *   SKL_LOK_1, SKL_LOK_2, SKL_LOK_3
+ *   SKL_LOK_1, SKL_LOK_2, SKL_LOK_3, SKL_LOK_4
  *   SKL_ARA_1, SKL_ARA_2, SKL_ARA_3
+ *   SKL_IKT_1, SKL_IKT_2, SKL_IKT_3
+ *   SKL_GEL_1, SKL_GEL_2, SKL_GEL_3
  */
 public class GameEngine {
 
@@ -126,6 +130,12 @@ public class GameEngine {
                 state.setMensajeEstado("¡Impacto certero de " + atacante.getNombre() + "!");
             }
 
+            // Gelt PAS_GEL: reduce cooldown de habilidad aleatoria al impactar
+            if (tieneHabilidadPasiva(atacante, "PAS_GEL")) {
+                String resPasiva = activarPasivaGelt(atacante);
+                state.setMensajeEstado(state.getMensajeEstado() + resPasiva);
+            }
+
             // Wulfrik PAS_WUL: disparo extra en el mismo turno (solo una vez)
             if (tieneHabilidadPasiva(atacante, "PAS_WUL") && !eraDisparoExtra) {
                 atacante.setTurnoExtraWulfrik(true);
@@ -215,6 +225,10 @@ public class GameEngine {
             case "SKL_IKT_1": ejecutarRayoBrujo(owner, enemigo, x, y); break;
             case "SKL_IKT_2": ejecutarCoheteMuerte(owner, enemigo, x, y); break;
             case "SKL_IKT_3": ejecutarEscudoEnergiaBruja(owner, x, y); break;
+            // --- Balthasar Gelt ---
+            case "SKL_GEL_1": ejecutarTransmutacionPlomo(owner, enemigo, x, y); break;
+            case "SKL_GEL_2": ejecutarLluviaMetal(owner, enemigo); break;
+            case "SKL_GEL_3": ejecutarCuerpoHierro(owner); break;
             default: state.setMensajeEstado("Habilidad desconocida: " + skill.getId());
         }
     }
@@ -670,6 +684,68 @@ public class GameEngine {
         }
         
         state.setMensajeEstado("¡Escudo de Piedra Bruja! Un campo de energía verdosa se ha desplegado" + subMsg);
+    }
+
+    // --- Balthasar Gelt ---
+
+    /** SKL_GEL_1: Transmutación de Plomo. Área 2x2, revela y golpea. */
+    private void ejecutarTransmutacionPlomo(Player owner, Player enemigo, int x, int y) {
+        StringBuilder msg = new StringBuilder("¡Transmutación de Plomo! El aire se vuelve pesado y el mar se torna dorado. ");
+        int impactos = 0;
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                int nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    if (enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
+                        enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
+                    }
+                    String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                    if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
+                }
+            }
+        }
+        msg.append(impactos > 0 ? "¡Varios barcos han sido atrapados por la alquimia!" : "La transmutación solo ha afectado al agua.");
+        state.setMensajeEstado(msg.toString());
+    }
+
+    /** SKL_GEL_2: Lluvia de Metal. 3 disparos aleatorios. */
+    private void ejecutarLluviaMetal(Player owner, Player enemigo) {
+        int impactos = 0;
+        for (int i = 0; i < 3; i++) {
+            int rx = (int)(Math.random() * 10);
+            int ry = (int)(Math.random() * 10);
+            String res = aplicarDisparoHabilidad(owner, enemigo, rx, ry);
+            if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
+        }
+        state.setMensajeEstado("¡Lluvia de Metal! Proyectiles dorados caen del cielo. " + (impactos > 0 ? "Se han registrado " + impactos + " impactos." : "Los proyectiles se hundieron en el mar."));
+    }
+
+    /** SKL_GEL_3: Cuerpo de Hierro. Protege el barco más grande. */
+    private void ejecutarCuerpoHierro(Player owner) {
+        List<List<int[]>> barcos = encontrarBarcosCompletos(owner.getTablero());
+        if (barcos.isEmpty()) {
+            state.setMensajeEstado("No hay naves que proteger.");
+            return;
+        }
+        List<int[]> barcoGrande = barcos.get(0);
+        for (List<int[]> b : barcos) if (b.size() > barcoGrande.size()) barcoGrande = b;
+
+        for (int[] c : barcoGrande) {
+            owner.anadirEscudo(c[0], c[1]);
+        }
+        state.setMensajeEstado("¡Cuerpo de Hierro! Una armadura mística de oro protege la nave insignia de Gelt.");
+    }
+
+    /** PAS_GEL: Al impactar, reduce cooldown de habilidad activa aleatoria. */
+    private String activarPasivaGelt(Player owner) {
+        List<Skill> conCooldown = owner.getPersonaje().getHabilidadesActivas().stream()
+                .filter(s -> s.getCooldownActual() > 0)
+                .toList();
+        if (conCooldown.isEmpty()) return "";
+        
+        Skill s = conCooldown.get((int)(Math.random() * conCooldown.size()));
+        s.setCooldownActual(Math.max(0, s.getCooldownActual() - 1));
+        return " ¡La Metalurgia Dorada acelera los hechizos de Gelt!";
     }
 
     // ============================================================

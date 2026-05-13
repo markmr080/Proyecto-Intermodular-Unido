@@ -58,6 +58,12 @@ Ejecuta una habilidad activa:
 | SKL_ARA_1 | Aranessa | Ofensiva | Disparo + propagación a 4 adyacentes si impacta `BARCO` |
 | SKL_ARA_2 | Aranessa | Ofensiva | Dispara a las 4 esquinas del tablero |
 | SKL_ARA_3 | Aranessa | Defensiva | Escudo total para el siguiente turno |
+| SKL_IKT_1 | Ikit Claw | Ofensiva | Rayo que impacta y revela adyacentes en cruz |
+| SKL_IKT_2 | Ikit Claw | Ofensiva | Impacta área masiva 3x3 |
+| SKL_IKT_3 | Ikit Claw | Defensiva | Escuda área aleatoria 2x2 |
+| SKL_GEL_1 | B. Gelt | Ofensiva | Transmutación: área 2x2 (daño + reveal) |
+| SKL_GEL_2 | B. Gelt | Ofensiva | Lluvia de metal: 3 disparos aleatorios |
+| SKL_GEL_3 | B. Gelt | Defensiva | Escuda el barco más grande del jugador |
 
 ---
 

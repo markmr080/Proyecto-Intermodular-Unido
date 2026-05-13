@@ -98,6 +98,21 @@ public class DataInitializer {
                 flotaRepo.save(new PersonajeFlotaEntity(ikit, destru,  2)); // 2× tamaño 2
                 System.out.println("Flota de Ikit Claw inicializada individualmente.");
             }
+
+            // Asegurar que Balthasar Gelt existe
+            if (personajeRepo.findByNombre("Balthasar Gelt").isEmpty()) {
+                BarcosCatalogoEntity porta   = barcosRepo.findByNombre("Portaaviones").orElseThrow();
+                BarcosCatalogoEntity acoraza = barcosRepo.findByNombre("Acorazado").orElseThrow();
+                BarcosCatalogoEntity crucero = barcosRepo.findByNombre("Crucero").orElseThrow();
+                BarcosCatalogoEntity destru  = barcosRepo.findByNombre("Destructor").orElseThrow();
+
+                PersonajeEntity gelt = personajeRepo.save(new PersonajeEntity("Balthasar Gelt"));
+                flotaRepo.save(new PersonajeFlotaEntity(gelt, porta,   1)); // 1× tamaño 5
+                flotaRepo.save(new PersonajeFlotaEntity(gelt, acoraza, 1)); // 1× tamaño 4
+                flotaRepo.save(new PersonajeFlotaEntity(gelt, crucero, 2)); // 2× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(gelt, destru,  1)); // 1× tamaño 2
+                System.out.println("Flota de Balthasar Gelt inicializada individualmente.");
+            }
         };
     }
 }

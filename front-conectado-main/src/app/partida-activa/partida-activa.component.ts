@@ -103,6 +103,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     'SKL_ARA_2', // Disparo de Saloma — area 2x2
     'SKL_IKT_1', // Rayo de Piedra Bruja — impacto + reveal
     'SKL_IKT_2', // Cohete de Muerte — area 3x3
+    'SKL_GEL_1', // Transmutación de Plomo — area 2x2
   ]);
   /** ID de la habilidad que espera que el jugador clique una celda; null si no hay targeting activo. */
   habilidadPendiente: string | null = null;

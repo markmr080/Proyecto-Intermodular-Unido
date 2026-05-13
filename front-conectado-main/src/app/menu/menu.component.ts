@@ -99,6 +99,15 @@ export class MenuComponent implements OnInit {
         { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva2.png' },
         { name: 'Escudo de Piedra Bruja', desc: 'Protege un área aleatoria de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikitclaw_habilidades/defensiva.png' }
       ]
+    },
+    {
+      name: 'Balthasar Gelt', fleet: [5, 4, 3, 3, 2], img: '/imagenes/gelt.png',
+      abilities: [
+        { name: 'Metalurgia Dorada', desc: 'Al impactar un barco, reduce el enfriamiento de una habilidad activa aleatoria en 1 turno.', type: 'passive', icon: '/imagenes/gelt_habilidades/pasiva.png' },
+        { name: 'Transmutación de Plomo', desc: 'Convierte una zona 2x2 en oro: revela barcos y causa daño.', type: 'offensive', icon: '/imagenes/gelt_habilidades/ofensiva1.png' },
+        { name: 'Lluvia de Metal', desc: 'Invoca una lluvia de proyectiles que impacta en 3 casillas aleatorias del tablero enemigo.', type: 'offensive', icon: '/imagenes/gelt_habilidades/ofensiva2.png' },
+        { name: 'Cuerpo de Hierro', desc: 'Protege todas las casillas de tu barco más grande con escudos mágicos.', type: 'defensive', icon: '/imagenes/gelt_habilidades/defensiva.png' }
+      ]
     }
   ];
 

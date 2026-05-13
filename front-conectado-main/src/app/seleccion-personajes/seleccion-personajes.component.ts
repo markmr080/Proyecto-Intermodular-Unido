@@ -25,6 +25,7 @@ const FLOTA_AISLINN: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { t
 const FLOTA_LOKHIR: Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }]; // El de 5 será una cruz
 const FLOTA_ARANESSA: Barco[] = [{ tamano: 4 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
 const FLOTA_IKIT: Barco[] = [{ tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_GELT: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
 
 @Component({
   selector: 'app-seleccion-personajes',
@@ -87,6 +88,15 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Rayo de Piedra Bruja', desc: 'Lanza un rayo potente que impacta una casilla y revela las adyacentes en cruz.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva1.png' },
         { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva2.png' },
         { name: 'Escudo de Piedra Bruja', desc: 'Protege un área aleatoria de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikitclaw_habilidades/defensiva.png' }
+      ]
+    },
+    {
+      id: 6, nombre: 'Balthasar Gelt', tipo: 'GELT', imagen: '/imagenes/gelt.png', barcos: FLOTA_GELT,
+      abilities: [
+        { name: 'Metalurgia Dorada', desc: 'Al impactar un barco, reduce el enfriamiento de una habilidad activa aleatoria en 1 turno.', type: 'passive', icon: '/imagenes/gelt_habilidades/pasiva.png' },
+        { name: 'Transmutación de Plomo', desc: 'Convierte una zona 2x2 en oro: revela barcos y causa daño.', type: 'offensive', icon: '/imagenes/gelt_habilidades/ofensiva1.png' },
+        { name: 'Lluvia de Metal', desc: 'Invoca una lluvia de proyectiles que impacta en 3 casillas aleatorias del tablero enemigo.', type: 'offensive', icon: '/imagenes/gelt_habilidades/ofensiva2.png' },
+        { name: 'Cuerpo de Hierro', desc: 'Protege todas las casillas de tu barco más grande con escudos mágicos.', type: 'defensive', icon: '/imagenes/gelt_habilidades/defensiva.png' }
       ]
     }
   ];
