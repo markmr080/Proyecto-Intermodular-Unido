@@ -14,3 +14,5 @@ Lista de tareas pendientes y mejoras para el proyecto Battleship:
     - Revisar y completar lógica de juego pendiente.
     - Asegurar que todas las APIs necesarias estén funcionales.
 
+- [ ] **Acabar imagenes de Ikit**:
+
