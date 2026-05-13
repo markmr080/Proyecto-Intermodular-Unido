@@ -39,7 +39,6 @@
   height: 90px;
   width: auto;
   filter: drop-shadow(0 0 10px rgba(184, 145, 88, 0.6));
-  cursor: pointer;
 }
 
 .nav-center {
@@ -147,7 +146,7 @@
 }
 
 .mobile-logo {
-  max-width: 280px;
+  max-width: 220px; /* Reducido un poco */
   height: auto;
   filter: drop-shadow(0 0 15px rgba(184, 145, 88, 0.5));
 }
@@ -689,16 +688,21 @@
     .top-navbar {
       display: none !important;
     }
+    .mobile-logo-container {
+      display: flex;
+      margin-top: 5vh; /* Bajar un poco más el logo */
+      margin-bottom: 2vh;
+    }
+  }
+
+  .character-gallery {
+    margin-top: 5vh; /* Bajar los personajes de sitio */
   }
 
   .nav-left {
     flex: 1;
     display: flex;
     align-items: center;
-  }
-
-  .nav-left .logo-text {
-    font-size: 22px;
   }
 
   .nav-right {
@@ -718,7 +722,7 @@
 
   .btn-play-massive {
     width: auto;
-    font-size: 20px; /* Sightly smaller for tablet */
+    font-size: 20px;
     padding: 8px 40px;
     top: 0;
     height: auto;
@@ -727,11 +731,6 @@
 
   .username {
     display: none;
-    /* Hide username on small screens for better fit */
-  }
-
-  .mobile-logo-container {
-    display: flex;
   }
 
   .menu-container {

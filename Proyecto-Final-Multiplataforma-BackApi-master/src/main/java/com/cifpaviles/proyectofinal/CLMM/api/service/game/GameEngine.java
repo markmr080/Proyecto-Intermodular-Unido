@@ -187,7 +187,7 @@ public class GameEngine {
             // --- Aislinn ---
             case "SKL_AIS_1": ejecutarCorteLothern(owner, enemigo); break;
             case "SKL_AIS_2": ejecutarIraMathlann(owner, enemigo, x, y); break;
-            case "SKL_AIS_3": ejecutarBrumaMarina(owner); break;
+            case "SKL_AIS_3": ejecutarBrumaMarina(owner, x, y); break;
             // --- Lokhir ---
             case "SKL_LOK_1": ejecutarAndanadaDruchii(owner, enemigo, x, y); break;
             case "SKL_LOK_2": ejecutarFuriaCorsaria(enemigo, x, y); break;
@@ -299,14 +299,23 @@ public class GameEngine {
         state.setMensajeEstado(msg.toString());
     }
 
-    /** SKL_AIS_3: Escuda 4 casillas BARCO propias aleatorias. */
-    private void ejecutarBrumaMarina(Player owner) {
-        List<int[]> celdas = celdasConEstado(owner.getTablero(), CellStatus.BARCO);
-        celdas.removeIf(c -> owner.tieneEscudo(c[0], c[1]));
-        Collections.shuffle(celdas);
-        int n = Math.min(4, celdas.size());
-        for (int k = 0; k < n; k++) owner.anadirEscudo(celdas.get(k)[0], celdas.get(k)[1]);
-        state.setMensajeEstado("¡Bruma Marina! Una densa niebla mágica oculta y protege los barcos de " + owner.getNombre() + ".");
+    /** SKL_AIS_3: Escuda un área 2x2 propia. */
+    private void ejecutarBrumaMarina(Player owner, int x, int y) {
+        if (x < 0 || x > 9 || y < 0 || y > 9) {
+            state.setMensajeEstado("Bruma Marina: Las coordenadas de defensa no son válidas.");
+            return;
+        }
+        
+        // Aplicar escudos en área 2x2 (o lo que quepa en el tablero)
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                int nx = x + dx, ny = y + dy;
+                if (nx < 10 && ny < 10) {
+                    owner.anadirEscudo(nx, ny);
+                }
+            }
+        }
+        state.setMensajeEstado("¡Bruma Marina! Una densa niebla mágica oculta y protege un sector de la flota de " + owner.getNombre() + ".");
     }
 
     // --- Lokhir ---
@@ -481,25 +490,38 @@ public class GameEngine {
         }
     }
 
-    /** SKL_ARA_2: Destruye escudos enemigos y dispara en área 2x2 centrada en (x,y). */
+    /** SKL_ARA_2: Destruye todos los escudos enemigos y dispara en área 2x2. */
     private void ejecutarDisparoSaloma(Player owner, Player enemigo, int x, int y) {
-        // "Destruye forzosamente nieblas o escudos": limpiar todos los escudos del enemigo
+        boolean teniaEscudos = !enemigo.getEscudoCasillas().isEmpty() || enemigo.isEscudoTotalActivo();
+        
+        // Limpiar todos los escudos y protecciones del rival
         enemigo.getEscudoCasillas().clear();
         enemigo.setEscudoTotalActivo(false);
 
-        StringBuilder msg = new StringBuilder("¡El rugido de Reina Bess! El disparo de saloma ");
+        StringBuilder msg = new StringBuilder("¡El rugido de Reina Bess! El Disparo de Saloma ");
+        if (teniaEscudos) {
+            msg.append("ha DESTROZADO todas las defensas y nieblas enemigas. ");
+        }
+        
         int impactos = 0;
-        // Ataque en área 2x2 (cuadrante inferior derecho desde x,y)
+        // Ataque en área 2x2 y REVELADO de la zona (destruir niebla)
         for (int dx = 0; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {
                 int nx = x + dx, ny = y + dy;
                 if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    // Revelar primero (destruir niebla)
+                    if (enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
+                        enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
+                    } else if (enemigo.getTablero()[nx][ny] == CellStatus.AGUA) {
+                        enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
+                    }
+                    
                     String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
                     if (res.contains("Impacto") || res.contains("HUNDIDO")) impactos++;
                 }
             }
         }
-        msg.append(impactos > 0 ? "ha devastado la zona de impacto." : "ha fallado por poco.");
+        msg.append(impactos > 0 ? "¡Y ha causado estragos en la flota!" : "El impacto ha levantado una columna de agua gigante.");
         state.setMensajeEstado(msg.toString());
     }
 

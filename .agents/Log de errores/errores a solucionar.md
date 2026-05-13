@@ -1,6 +1,6 @@
 # 🐛 Log de Errores — Warhammer Battleship
 
-> **Actualizado:** 2026-05-12
+> **Actualizado:** 2026-05-13
 
 ---
 
@@ -64,9 +64,22 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ---
 
+### ~~Habilidad Disparo de Saloma (Aranessa) y Bruma Marina (Aislinn)~~
+**RESUELTO (2026-05-13).**
+- **Disparo de Saloma**: Corregida para que realmente "destruya nieblas" revelando el área 2x2 de impacto, además de eliminar TODOS los escudos del rival (individuales y totales) antes del disparo. Añadido mensaje de feedback explícito: *"ha DESTROZADO todas las defensas y nieblas enemigas"*.
+- **Bruma Marina**: Refactorizada para usar un área 2x2 (con targeting) en lugar de 4 celdas aleatorias, cumpliendo con su descripción.
+- **Sincronización**: Actualizadas las descripciones en `CharacterFactory.java` y `seleccion-personajes.component.ts` para que sean precisas y consistentes.
+
+---
+
 ### ~~Ocultar Navbar en pantallas críticas de juego / Textos desbordados~~
 **RESUELTO (2026-05-13).**
 - **Navbar**: Desactivada en `/partida`, `/seleccion-personajes` y `/partida-activa` para mejorar la inmersión.
+- **Scroll y Desbordamientos**: 
+  - Se ha bloqueado el scroll de la página en `Menu`, `Lista de Salas`, `Selección de Personaje` y `Partida Activa` usando `position: fixed` y `overflow: hidden`.
+  - En móviles, se ha reducido el tamaño del logo y ajustado márgenes (`vh`) para que los personajes bajen de posición y no se solapen.
+  - En tablets (768px-1024px), se ha ocultado el logo duplicado (mobile-logo) para que solo se vea el de la Navbar.
+- **Logo**: Se ha eliminado el cursor de mano (`pointer`) del logo para dejar claro que no es un botón.
 - **Overflow**: Aumentado el ancho de tooltips en CSS (240px) y añadida regla `word-wrap` para evitar que las descripciones largas se corten.
 
 ---
@@ -125,17 +138,7 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 Hay que verificar que el token se borre en el momento que el jugador abandona el juego de cualquier forma. Tanto como si se va cerrando la pestaña, como si le da a salir desde el menu. O si pone la url directamente. Tambien habria que comprobar que si se mete a un enlace directamente sin ese token le redirija al login. 
 
 
-
-Habilidad aranesa disparo de saloma no funciona como se describe. La pasiva de aranesa se activa demasiado seguido. 
-
--RF1 - El logo aparece en el menu encima de los personajes cuando la resolucion es pequeña pero que no llegua a movil. 
-
-Quitar que el logo sea un boton.
-
-En resolución de movil desborda la imagen del menu principal, hay que bloquear que no haga scroll y bajar un poco mas los personajes de sitio. Esto relacionado con -RF1- Puede que el logo que aparezca sea el que aparece en el movil. Ajustar las resoluciones responsive. Tambien se puede hacer scroll de la pantalla en lista de salas. Que no haya la opcion de hacer scroll fuera del cuadro para buscar las salas. Lo mismo para la pantalla de seleccion de personaje. que no haya tanto padding entre los botones y la imagen. 
-
 Comprobar funcionalidad del boton de abandonar y como interactua con los sockets en los otros jugadores.
-
 
 
 ERROR CRITICO:

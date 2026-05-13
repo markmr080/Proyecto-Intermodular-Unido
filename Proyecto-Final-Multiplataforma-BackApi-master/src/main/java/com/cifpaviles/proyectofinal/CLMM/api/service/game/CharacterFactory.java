@@ -89,7 +89,7 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_AIS_2", "Ira de Mathlann", "Golpea en forma de cruz (5 casillas).",
                 SkillType.OFENSIVA, 6, "/imagenes/aislinn_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_AIS_3", "Bruma Marina",
-                "Oculta área 2x2. Si acierta, el golpe se anula.", SkillType.DEFENSIVA, 5, "/imagenes/aislinn_habilidades/defensiva.png"));
+                "Despliega una niebla en un área 2x2 que protege tus barcos.", SkillType.DEFENSIVA, 5, "/imagenes/aislinn_habilidades/defensiva.png"));
         return c;
     }
 
@@ -113,9 +113,9 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica",
                 "El fuego se propaga en cruz (4 casillas adyacentes) si impacta un barco.", SkillType.OFENSIVA, 5, "/imagenes/aranessa_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_2", "Disparo de Saloma",
-                "Destruye forzosamente nieblas o escudos del tablero rival.", SkillType.OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
+                "Elimina TODOS los escudos del rival y dispara en área 2x2.", SkillType.OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels",
-                "Anula por un turno completo cualquier disparo.", SkillType.DEFENSIVA, 6, "/imagenes/aranessa_habilidades/defensiva.png"));
+                "Escudo total: el próximo disparo enemigo sobre cualquier casilla fallará.", SkillType.DEFENSIVA, 6, "/imagenes/aranessa_habilidades/defensiva.png"));
         return c;
     }
     private GameCharacter crearIkit() {

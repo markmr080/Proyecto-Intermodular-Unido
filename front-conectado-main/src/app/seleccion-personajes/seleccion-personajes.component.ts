@@ -58,7 +58,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: '/imagenes/aislinn_habilidades/pasiva.png' },
         { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva1.png' },
         { name: 'Ira de Mathlann', desc: 'Golpea en forma de cruz (5 casillas).', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva2.png' },
-        { name: 'Bruma Marina', desc: 'Oculta 4 casillas propias aleatorias.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
+        { name: 'Bruma Marina', desc: 'Despliega una niebla en un área 2x2 que protege tus barcos.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
       ]
     },
     {
@@ -75,8 +75,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       abilities: [
         { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
         { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },
-        { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
-        { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
+        { name: 'Disparo de Saloma', desc: 'Elimina TODOS los escudos del rival y dispara en área 2x2.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
+        { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo sobre cualquier casilla fallará.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
       ]
     },
     {
