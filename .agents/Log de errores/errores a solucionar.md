@@ -175,9 +175,16 @@ Las partidas ahora se registran en MySQL desde el momento en que se crean en el 
 | HTTP `/api/**` | ✅ Pasa por `JwtFilter` + Fingerprint en todas las peticiones |
 | `/api/auth` y `/api/lobby` | ✅ Controladores en paquete `middleware` |
 | `/api/personajes` y `/api/estadisticas` | ⚠️ Controladores en paquete `api` (fuera del middleware) |
-| WebSockets (puerto 8081) | ❌ Sin filtro de seguridad — acceso directo a `GameSocketController` |
+| WebSockets (puerto 8081) | ✅ Protegido por `AuthorizationListener` (JWT en handshake) |
 
-### ?? Bot�n de uni�n no se bloquea en partidas activas
-**S�ntoma**: En la lista de salas, el bot�n 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de uni�n inv�lidas.
-**Soluci�n propuesta**: Deshabilitar o cambiar el texto del bot�n cuando el estado de la sala no sea ESPERANDO.
+---
 
+### ~~Pasiva de Lokhir (Saqueador Especialista) no funciona~~
+**RESUELTO (2026-05-13).**
+- **Trigger**: Se ha corregido el `GameEngine` para que la pasiva se active tanto con disparos normales como con habilidades activas (antes solo funcionaba con disparos normales).
+- **Lógica**: La habilidad ahora busca una celda de barco adyacente al hundido y, si no encuentra ninguna (debido a la regla de separación de barcos), selecciona una celda aleatoria de cualquier barco restante en la flota enemiga.
+- **Feedback**: Se han actualizado los métodos de habilidades (`Rayo de Piedra Bruja`, `Cohete de Muerte`, etc.) para propagar correctamente el mensaje de "barco revelado" al usuario.
+
+### ?? Botn de unin no se bloquea en partidas activas
+**Sntoma**: En la lista de salas, el botn 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de unin invlidas.
+**Solucin propuesta**: Deshabilitar o cambiar el texto del botn cuando el estado de la sala no sea ESPERANDO.
