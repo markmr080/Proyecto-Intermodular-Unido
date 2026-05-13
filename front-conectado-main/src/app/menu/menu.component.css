@@ -228,9 +228,12 @@
 
 .characters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  grid-template-columns: repeat(3, minmax(270px, 1fr));
   gap: 35px;
   padding: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 .character-card {
