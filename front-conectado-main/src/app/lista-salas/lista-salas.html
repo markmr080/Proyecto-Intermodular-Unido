@@ -25,7 +25,9 @@
             <span class="foto-label">foto<br>perfil</span>
           </div>
 
-          @if (!room.jugador2) { 
+          @if (room.estado === 'JUGANDO') {
+            <button class="btn-jugando" disabled>En partida</button>
+          } @else if (!room.jugador2) { 
             <button class="btn-unirse" (click)="unirse(room)" [disabled]="solicitandoUnirse">Unirse</button>
           } @else {
             <button class="btn-llena" disabled>Sala llena</button>

@@ -228,6 +228,19 @@
   opacity: 0.8;
 }
 
+.btn-jugando {
+  background: transparent;
+  color: #ff5722;
+  border: 1px solid #ff5722;
+  padding: 6px 15px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: not-allowed;
+  border-radius: 4px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
 .sala-card-right {
   display: flex;
   flex-direction: column;

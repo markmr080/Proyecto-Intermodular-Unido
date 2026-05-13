@@ -68,7 +68,7 @@ export class ListaSalas implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (rooms) => {
-          this.allRooms = rooms.filter(r => r.estado === 'ESPERANDO');
+          this.allRooms = rooms;
         },
         error: (err) => {
           console.error('Error cargando salas:', err);
