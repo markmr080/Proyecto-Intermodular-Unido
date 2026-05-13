@@ -546,6 +546,11 @@
   border-color: #1e90ff;
 }
 
+.ability-circle.venganza {
+  border-color: #a333c8 !important;
+  box-shadow: 0 0 15px rgba(163, 51, 200, 0.6);
+}
+
 /* Hover de fondo eliminado a petición del usuario */
 
 .ability-img-icon {

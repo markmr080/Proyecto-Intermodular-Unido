@@ -53,7 +53,7 @@
           <div class="sp-abilities-container">
             @for (ability of personajeActual.abilities; track ability.name) {
               <div class="sp-ability-group">
-                <div class="sp-ability-circle" [class]="ability.type">
+                <div class="sp-ability-circle" [class]="ability.type" [class.venganza]="ability.name === 'Venganza de Karond Kar'">
                   <img [src]="ability.icon" [alt]="ability.name" class="sp-ability-icon" />
                 </div>
                 <div class="sp-ability-tooltip">

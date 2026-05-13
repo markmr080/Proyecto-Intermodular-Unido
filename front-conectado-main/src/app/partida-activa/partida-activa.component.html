@@ -219,6 +219,7 @@
           <div class="abilities-container">
             <div *ngFor="let hab of habilidadesOfensivas; trackBy: trackByHabilidad" class="ability-group">
               <button class="ability-circle offensive"
+                [class.venganza]="hab.nombre === 'Venganza de Karond Kar'"
                 [disabled]="gameState.fase !== 'COMBATE' || hab.cooldownActual > 0 || !esMiTurno || miJugador?.habilidadUsadaEsteTurno"
                 (click)="usarHabilidad(hab.id)">
                 <img [src]="hab.icono || 'https://api.dicebear.com/7.x/icons/svg?seed=' + hab.nombre" [alt]="hab.nombre"

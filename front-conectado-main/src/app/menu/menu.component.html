@@ -71,7 +71,8 @@
                   @for (ability of char.abilities; track ability.name) {
                   <div class="ability-group">
                     <div class="ability-circle" [class.offensive]="ability.type === 'offensive'"
-                      [class.defensive]="ability.type === 'defensive'" [class.passive]="ability.type === 'passive'">
+                      [class.defensive]="ability.type === 'defensive'" [class.passive]="ability.type === 'passive'"
+                      [class.venganza]="ability.name === 'Venganza de Karond Kar'">
                       <img [src]="ability.icon" [alt]="ability.name" class="ability-img-icon" />
                     </div>
                     <div class="ability-tooltip">

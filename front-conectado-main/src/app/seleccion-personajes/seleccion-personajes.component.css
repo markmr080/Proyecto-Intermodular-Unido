@@ -273,6 +273,11 @@
   border-color: #95a5a6;
 }
 
+.sp-ability-circle.venganza {
+  border-color: #a333c8 !important;
+  box-shadow: 0 0 10px rgba(163, 51, 200, 0.6);
+}
+
 .sp-ability-group {
   display: flex;
   justify-content: center;
