@@ -54,26 +54,77 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 
 ---
 
+### ~~Habilidades de Ikit Claw y Sincronización de Feedback~~
+**RESUELTO (2026-05-13).**
+- **Lógica de Habilidades**: Implementado el Rayo de Piedra Bruja (impacto + revelado en cruz) y el Cohete de Muerte (área 3x3 con contador de barcos hundidos).
+- **Pasiva**: Probabilidad de bypass de cooldown aumentada al **20%**.
+- **Feedback**: Las habilidades ahora informan correctamente de los barcos **HUNDIDOS**, corrigiendo la sobrescritura de mensajes en `GameEngine.java`.
+- **Revelado de Agua**: Las habilidades de visión ahora marcan el agua como `AGUA_GOLPEADA`.
+- **Nombres**: Sincronizados todos los nombres de habilidades (ej: "Piedra Bruja") entre Backend y Frontend.
+
+---
+
+### ~~Ocultar Navbar en pantallas críticas de juego / Textos desbordados~~
+**RESUELTO (2026-05-13).**
+- **Navbar**: Desactivada en `/partida`, `/seleccion-personajes` y `/partida-activa` para mejorar la inmersión.
+- **Overflow**: Aumentado el ancho de tooltips en CSS (240px) y añadida regla `word-wrap` para evitar que las descripciones largas se corten.
+
+---
+
+### ~~Visualización de Habilidades Defensivas en el Tablero~~
+**RESUELTO (2026-05-13).**
+- Implementado sistema de iconos dinámicos para casillas protegidas.
+- **Escudos individuales**: Se muestra un icono de escudo (🛡️) flotante sobre las casillas protegidas por habilidades de Wulfrik, Aislinn o Lokhir.
+- **Escudo total**: Cuando Aranessa activa su protección global, todo el tablero del jugador muestra un aura azulada y bordes resaltados para indicar la invulnerabilidad.
+- Actualizada la función `getClaseCasilla` para procesar coordenadas y estados de protección en tiempo real desde el `gameState`.
+
+---
+
 ## ⚠️ PENDIENTES
 
-EL boton de jugar desaparece con la resolucion demasiado alta. Deberia desaparecer sobre 768px
+---
 
-Opciones para la navbar:
-- A partir de la pantalla creacion de sala deberia desaparecer la nav bar. Quitarla.
-- O dejarla y ajustar que pasa en la sala y sockets en base a si un jugador le da a algun boton del menu y se sale. 
+### ~~Botón de Jugar desaparecía en resoluciones intermedias~~
+**RESUELTO (2026-05-13).**
+- Corregida media query en `menu.component.css`. El botón ahora es visible hasta los 768px (antes desaparecía a los 1024px).
+- En tablets (768px-1024px), el botón se reposiciona debajo del logo y el perfil para evitar solapamientos, manteniendo su funcionalidad.
 
-Boton de salir de sala en movil deberia estar debajo, igual que en el perfil. 
+---
 
-Las salas no se ordenan por fecha de creacion. 
 
-Si multiples jugadores meten solicitud a la misma sala y el admin acepta a uno, los otros dos siguen viendo la solicitud como pendiente con el mensaje de esperando. Hice una prueba con 4 solicitudes, se acepto a jugador 1.  Jugador 2 recibio el mensaje de el admin rechazo la solicitud, el resto quedan con el mensaje de esperando a que el admin acepte.
+---
+
+### ~~Posición del botón Salir en móvil (Lobby)~~
+**RESUELTO (2026-05-13).**
+- Reorganizado el grid de `partida.css` para resoluciones móviles (< 600px).
+- El botón "Salir" ahora ocupa todo el ancho en la parte inferior de la pantalla, manteniendo la consistencia con el diseño del componente Perfil.
+- Se han reubicado los ajustes y los botones de inicio para una mejor jerarquía visual en dispositivos táctiles.
+
+---
+
+---
+
+### ~~Las salas no se ordenan por fecha de creacion~~
+**RESUELTO (2026-05-13).**
+- Añadido campo `fechaCreacion` a `LobbyRoom` en el Backend.
+- Modificado `LobbyManager.java` para inicializar la fecha al crear la sala y devolver la lista de salas ordenada por este campo (descendente: más recientes primero).
+
+---
+
+---
+
+### ~~Sincronización de solicitudes de unión al lobby~~
+**RESUELTO (2026-05-13).**
+- Implementado sistema de rastreo de solicitudes pendientes en `SocketService.java`.
+- Cuando el administrador acepta a un jugador, todos los demás aspirantes a esa misma sala reciben automáticamente un mensaje de "Solicitud rechazada" (sala llena), evitando que se queden en espera indefinida.
+- También se limpian las solicitudes si la sala se cierra o el administrador se desconecta.
+
+---
 
 
 Hay que verificar que el token se borre en el momento que el jugador abandona el juego de cualquier forma. Tanto como si se va cerrando la pestaña, como si le da a salir desde el menu. O si pone la url directamente. Tambien habria que comprobar que si se mete a un enlace directamente sin ese token le redirija al login. 
 
-Terminar de hacer a ikit.
 
-Textos de habilidades desbordan. Sobretodo el de habilidad pasiva.
 
 Habilidad aranesa disparo de saloma no funciona como se describe. La pasiva de aranesa se activa demasiado seguido. 
 
@@ -85,7 +136,6 @@ En resolución de movil desborda la imagen del menu principal, hay que bloquear 
 
 Comprobar funcionalidad del boton de abandonar y como interactua con los sockets en los otros jugadores.
 
-Quitar la navbar en la pantalla de juego y en la seleccion de personaje. 
 
 
 ERROR CRITICO:

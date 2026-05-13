@@ -363,9 +363,10 @@
       "timer code"
       "players players"
       "requests requests"
+      "settings settings"
       "start start"
-      "test exit"
-      "settings settings";
+      "test test"
+      "exit exit";
     gap: 4px;
     padding: 8px 12px;
     align-items: stretch;

@@ -153,7 +153,18 @@ public class GameEngine {
 
         if (habilidad != null && habilidad.estaLista()) {
             ejecutarEfectoHabilidad(habilidad, p, x, y);
-            habilidad.activarCooldown();
+            
+            // Ikit Claw PAS_IKT: 20% de probabilidad de no consumir enfriamiento en habilidades OFENSIVAS
+            boolean bypassCooldown = habilidad.getTipo() == SkillType.OFENSIVA 
+                                     && tieneHabilidadPasiva(p, "PAS_IKT") 
+                                     && Math.random() < 0.20;
+            
+            if (!bypassCooldown) {
+                habilidad.activarCooldown();
+            } else {
+                state.setMensajeEstado(state.getMensajeEstado() + " ¡Ingenio Skaven! La habilidad no ha consumido enfriamiento.");
+            }
+
             p.setHabilidadUsadaEsteTurno(true);
 
             // Las habilidades OFENSIVAS sustituyen al disparo normal: cambian el turno.
@@ -185,6 +196,10 @@ public class GameEngine {
             case "SKL_ARA_1": ejecutarPolvoraVampirica(owner, enemigo, x, y); break;
             case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo, x, y); break;
             case "SKL_ARA_3": ejecutarHijaStromfels(owner); break;
+            // --- Ikit Claw ---
+            case "SKL_IKT_1": ejecutarRayoBrujo(owner, enemigo, x, y); break;
+            case "SKL_IKT_2": ejecutarCoheteMuerte(owner, enemigo, x, y); break;
+            case "SKL_IKT_3": ejecutarEscudoEnergiaBruja(owner, x, y); break;
             default: state.setMensajeEstado("Habilidad desconocida: " + skill.getId());
         }
     }
@@ -318,11 +333,15 @@ public class GameEngine {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 int nx = x + dx, ny = y + dy;
-                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10
-                        && enemigo.getTablero()[nx][ny] == CellStatus.BARCO) {
-                    // Marcar la celda como REVELADA para que el frontend la muestre
-                    enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
-                    encontrado = true;
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    CellStatus status = enemigo.getTablero()[nx][ny];
+                    if (status == CellStatus.BARCO) {
+                        enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
+                        encontrado = true;
+                    } else if (status == CellStatus.AGUA) {
+                        // Revelar también el agua para que el usuario sepa que no hay nada
+                        enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
+                    }
                 }
             }
         }
@@ -488,6 +507,136 @@ public class GameEngine {
     private void ejecutarHijaStromfels(Player owner) {
         owner.setEscudoTotalActivo(true);
         state.setMensajeEstado("¡Hija de Stromfels! La bendición del Dios del Mar hace invulnerable la flota de " + owner.getNombre() + ".");
+    }
+
+    // --- Ikit Claw ---
+
+    /** 
+     * SKL_IKT_1: Rayo de Piedra Bruja.
+     * Impacta en una casilla y revela barcos en las 8 casillas adyacentes.
+     * @param owner El jugador que lanza la habilidad.
+     * @param enemigo El jugador que recibe el impacto.
+     * @param x Coordenada X del impacto.
+     * @param y Coordenada Y del impacto.
+     */
+    private void ejecutarRayoBrujo(Player owner, Player enemigo, int x, int y) {
+        String res = aplicarDisparoHabilidad(owner, enemigo, x, y);
+        int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        boolean revelado = false;
+        
+        // Revelar barcos y agua en forma de cruz (adyacentes directos)
+        for (int[] d : dirs) {
+            int nx = x + d[0], ny = y + d[1];
+            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                CellStatus status = enemigo.getTablero()[nx][ny];
+                if (status == CellStatus.BARCO) {
+                    enemigo.getTablero()[nx][ny] = CellStatus.REVELADA;
+                    revelado = true;
+                } else if (status == CellStatus.AGUA) {
+                    // El rayo también revela el agua circundante en cruz
+                    enemigo.getTablero()[nx][ny] = CellStatus.AGUA_GOLPEADA;
+                }
+            }
+        }
+
+        // Construir mensaje de feedback claro para el usuario
+        String baseMsg = "¡Rayo de Piedra Bruja! ";
+        if (res.equals("¡HUNDIDO!")) {
+            baseMsg += "¡Impacto devastador que ha HUNDIDO un barco enemigo!";
+        } else if (res.equals("Impacto")) {
+            baseMsg += "Impacto certero en la flota enemiga.";
+        } else if (res.equals("Escudo")) {
+            baseMsg += "El rayo fue absorbido por un escudo enemigo.";
+        } else {
+            baseMsg += "El rayo se ha perdido en las profundidades del mar.";
+        }
+
+        if (revelado) {
+            baseMsg += " El destello ha revelado posiciones enemigas cercanas.";
+        }
+        
+        state.setMensajeEstado(baseMsg);
+    }
+
+    /** 
+     * SKL_IKT_2: Cohete de Muerte.
+     * Impacto masivo en un área de 3x3 casillas.
+     * @param owner El jugador que lanza la habilidad.
+     * @param enemigo El jugador que recibe el impacto.
+     * @param x Centro del área de impacto X.
+     * @param y Centro del área de impacto Y.
+     */
+    private void ejecutarCoheteMuerte(Player owner, Player enemigo, int x, int y) {
+        int impactos = 0;
+        int hundidos = 0;
+        
+        // Recorrer el área 3x3 centrada en (x,y)
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                int nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
+                    if (res.equals("Impacto") || res.equals("¡HUNDIDO!")) {
+                        impactos++;
+                        if (res.equals("¡HUNDIDO!")) hundidos++;
+                    }
+                }
+            }
+        }
+        
+        // Generar mensaje detallado del bombardeo
+        String msg = "¡COHETE DE MUERTE! Una explosión colosal ha sacudido el sector.";
+        if (impactos > 0) {
+            msg += " Se han registrado " + impactos + " impactos.";
+            if (hundidos > 0) {
+                msg += " ¡Y se han HUNDIDO " + hundidos + " barcos!";
+            }
+        } else {
+            msg += " Increíblemente, no se han registrado daños directos.";
+        }
+        
+        state.setMensajeEstado(msg);
+    }
+
+    /** 
+     * SKL_IKT_3: Escudo de Piedra Bruja.
+     * Protege un área propia de 2x2 casillas. Si no se especifican coordenadas, 
+     * busca automáticamente una zona con barcos.
+     * @param owner El jugador que se protege.
+     * @param x Esquina superior izquierda del área (o -1 para aleatorio).
+     * @param y Esquina superior izquierda del área (o -1 para aleatorio).
+     */
+    private void ejecutarEscudoEnergiaBruja(Player owner, int x, int y) {
+        String subMsg = "";
+        // Lógica de selección aleatoria si no hay coordenadas de targeting
+        if (x < 0 || x > 8 || y < 0 || y > 8) {
+            List<int[]> barcos = celdasConEstado(owner.getTablero(), CellStatus.BARCO);
+            if (barcos.isEmpty()) {
+                // Si no hay barcos intactos, intentar con los ya dañados
+                barcos = celdasConEstado(owner.getTablero(), CellStatus.TOCADO);
+            }
+            
+            if (barcos.isEmpty()) {
+                state.setMensajeEstado("Ikit Claw se ríe de la situación: ¡No quedan barcos que proteger!");
+                return;
+            }
+            
+            int[] ref = barcos.get((int)(Math.random() * barcos.size()));
+            x = Math.max(0, Math.min(8, ref[0]));
+            y = Math.max(0, Math.min(8, ref[1]));
+            subMsg = " en un sector crítico de la flota.";
+        } else {
+            subMsg = " en las coordenadas seleccionadas.";
+        }
+
+        // Aplicar escudos en el cuadrado 2x2
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                owner.anadirEscudo(x + dx, y + dy);
+            }
+        }
+        
+        state.setMensajeEstado("¡Escudo de Piedra Bruja! Un campo de energía verdosa se ha desplegado" + subMsg);
     }
 
     // ============================================================

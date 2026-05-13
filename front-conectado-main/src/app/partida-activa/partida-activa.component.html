@@ -77,8 +77,8 @@
 
           <div class="board mi-tablero">
             <ng-container *ngFor="let fila of myBoard; let x = index; trackBy: trackByFila">
-              <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
-                [ngClass]="getClaseCasilla(celda, true)" [class.drag-highlight]="isCellHighlighted(x, y)"
+                <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
+                [ngClass]="getClaseCasilla(celda, true, x, y)" [class.drag-highlight]="isCellHighlighted(x, y)"
                 [class.drag-invalid]="isCellHighlighted(x, y) && !isPreviewValid()" (click)="colocarBarcoEnCelda(x, y)"
                 (mouseenter)="onMouseEnter(x, y)" (mouseleave)="onMouseLeave()" (dragover)="onDragOver($event, x, y)"
                 (dragleave)="onDragLeave()" (drop)="onDrop($event, x, y)">
@@ -104,7 +104,7 @@
             <div class="board enemigo-tablero" [class.targeting-active]="!!habilidadPendiente">
               <ng-container *ngFor="let fila of enemyBoard; let x = index; trackBy: trackByFila">
                 <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
-                  [ngClass]="getClaseCasilla(celda, false)" (click)="atacarCasilla(x, y)">
+                  [ngClass]="getClaseCasilla(celda, false, x, y)" (click)="atacarCasilla(x, y)">
                   <span *ngIf="celda === 'AGUA_GOLPEADA'">&#x1F4A6;</span>
                   <span *ngIf="celda === 'TOCADO' || celda === 'HUNDIDO'">🔥</span>
                   <span *ngIf="celda === 'REVELADA'">👁️</span>
@@ -121,7 +121,7 @@
             <div class="board mi-tablero-defensa">
               <ng-container *ngFor="let fila of myBoard; let x = index; trackBy: trackByFila">
                 <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
-                  [ngClass]="getClaseCasilla(celda, true)">
+                  [ngClass]="getClaseCasilla(celda, true, x, y)">
                   <span *ngIf="celda === 'AGUA_GOLPEADA'">💧</span>
                   <span *ngIf="celda === 'TOCADO'">🔥</span>
                   <span *ngIf="celda === 'HUNDIDO'">💀</span>
@@ -321,7 +321,7 @@
         <!-- Tablero 10×10 con el estado propio -->
         <div class="board mi-tablero-modal">
           <ng-container *ngFor="let fila of myBoard; let x = index">
-            <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, true)">
+            <div *ngFor="let celda of fila; let y = index" class="cell" [ngClass]="getClaseCasilla(celda, true, x, y)">
               <span *ngIf="celda === 'AGUA_GOLPEADA'">💧</span>
               <span *ngIf="celda === 'TOCADO'">🔥</span>
               <span *ngIf="celda === 'HUNDIDO'">💀</span>

@@ -404,8 +404,10 @@
   border: 1px solid #b89158;
   padding: 12px;
   border-radius: 8px;
-  width: 180px;
+  width: 220px;
   color: #e5d3b3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
@@ -705,15 +707,22 @@
   }
 
   .nav-center {
-    display: none;
+    display: flex;
+    position: relative;
+    transform: none;
+    left: auto;
+    order: 2;
+    justify-content: center;
+    width: 100%;
   }
 
   .btn-play-massive {
     width: auto;
-    font-size: 24px;
-    padding: 12px 60px;
+    font-size: 20px; /* Sightly smaller for tablet */
+    padding: 8px 40px;
     top: 0;
     height: auto;
+    margin-top: 10px;
   }
 
   .username {

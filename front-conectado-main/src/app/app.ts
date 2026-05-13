@@ -34,7 +34,7 @@ export class App {
   }
 
   get showMobileNav(): boolean {
-    const hideOnRoutes = ['/login', '/registro', '/reset-password'];
+    const hideOnRoutes = ['/login', '/registro', '/reset-password', '/partida', '/partida-activa', '/seleccion-personajes'];
     const isAuthRoute = hideOnRoutes.some(route => this.currentRoute().startsWith(route));
     return this.isLoggedIn() && !isAuthRoute;
   }

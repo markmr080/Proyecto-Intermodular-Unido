@@ -22,6 +22,9 @@ public class SocketService {
     private final Map<String, UUID> userSockets = new ConcurrentHashMap<>();
     private final Map<UUID, String> socketUsers = new ConcurrentHashMap<>();
 
+    // Mapa para rastrear quién ha solicitado unirse a qué sala (RoomCode -> Set of UserIds)
+    private final Map<String, java.util.Set<String>> roomPendingRequests = new ConcurrentHashMap<>();
+
     @Autowired
     public SocketService(SocketIOServer server, LobbyManager lobbyManager) {
         this.server = server;
@@ -55,6 +58,7 @@ public class SocketService {
                                             "El administrador se ha desconectado.");
                                 }
                             }
+                            roomPendingRequests.remove(p.getCodigoSala());
                             lobbyManager.removeRoom(p.getCodigoSala());
                         });
             }
@@ -70,8 +74,13 @@ public class SocketService {
         // Jugador solicita unirse a una sala
         server.addEventListener("solicitar-unirse", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
+            String requesterId = (String) data.get("requesterId");
+            
             Optional<LobbyRoom> partidaOpt = lobbyManager.getRoom(codigoSala);
             if (partidaOpt.isPresent()) {
+                // Registrar la solicitud pendiente
+                roomPendingRequests.computeIfAbsent(codigoSala, k -> ConcurrentHashMap.newKeySet()).add(requesterId);
+                
                 String ownerId = partidaOpt.get().getJugador1();
                 UUID ownerSocketId = userSockets.get(ownerId);
                 if (ownerSocketId != null) {
@@ -95,16 +104,34 @@ public class SocketService {
                 partida.setAvatarJugador2(requesterAvatar);
                 partida.setEstado("EN_CURSO");
 
+                // Notificar al aceptado
                 UUID requesterSocketId = userSockets.get(requesterId);
                 if (requesterSocketId != null) {
                     server.getClient(requesterSocketId).sendEvent("solicitud-aceptada", codigoSala);
                 }
+                
+                // Rechazar automáticamente a todos los demás que estaban esperando esta sala
+                java.util.Set<String> others = roomPendingRequests.remove(codigoSala);
+                if (others != null) {
+                    others.remove(requesterId);
+                    for (String otherId : others) {
+                        UUID otherSocketId = userSockets.get(otherId);
+                        if (otherSocketId != null) {
+                            server.getClient(otherSocketId).sendEvent("solicitud-rechazada", 
+                                "La sala ya está llena o el administrador ha aceptado a otro jugador.");
+                        }
+                    }
+                }
+
                 cliente.sendEvent("jugador-unido", data);
             }
         });
 
         // Admin rechaza la solicitud
         server.addEventListener("rechazar-solicitud", String.class, (cliente, requesterId, ackRequest) -> {
+            // El admin podría estar en múltiples salas? No, pero vamos a limpiar de todas formas
+            roomPendingRequests.values().forEach(set -> set.remove(requesterId));
+            
             UUID requesterSocketId = userSockets.get(requesterId);
             if (requesterSocketId != null) {
                 server.getClient(requesterSocketId).sendEvent("solicitud-rechazada",
@@ -124,6 +151,18 @@ public class SocketService {
                         server.getClient(j2Socket).sendEvent("sala-cerrada", "El administrador ha cerrado la sala.");
                     }
                 }
+                
+                // Notificar a los que tenían solicitud pendiente que la sala ya no existe
+                java.util.Set<String> pending = roomPendingRequests.remove(codigoSala);
+                if (pending != null) {
+                    for (String pId : pending) {
+                        UUID pSocket = userSockets.get(pId);
+                        if (pSocket != null) {
+                            server.getClient(pSocket).sendEvent("solicitud-rechazada", "La sala ha sido cerrada por el administrador.");
+                        }
+                    }
+                }
+                
                 lobbyManager.removeRoom(codigoSala);
                 System.out.println("Lobby: Sala cerrada manualmente: " + codigoSala);
             }
@@ -244,6 +283,7 @@ public class SocketService {
                             server.getClient(j2Socket).sendEvent("sala-cerrada", "El administrador ha abandonado la sala.");
                         }
                     }
+                    roomPendingRequests.remove(codigoSala);
                     lobbyManager.removeRoom(codigoSala);
                 } else if (userId.equals(partida.getJugador2())) {
                     // Si el invitado abandona, la sala vuelve a estar disponible

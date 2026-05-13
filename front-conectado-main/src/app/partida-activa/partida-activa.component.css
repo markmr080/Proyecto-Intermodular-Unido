@@ -770,6 +770,37 @@
   }
 }
 
+/* Escudos y Protección */
+.casilla-escudada {
+  position: relative;
+  overflow: visible;
+}
+
+.casilla-escudada::after {
+  content: '🛡️';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  z-index: 5;
+  filter: drop-shadow(0 0 5px rgba(30, 144, 255, 0.8));
+  animation: shield-float 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.casilla-escudo-total {
+  position: relative;
+  background: rgba(30, 144, 255, 0.15) !important;
+  border: 1px solid rgba(30, 144, 255, 0.4) !important;
+  box-shadow: inset 0 0 10px rgba(30, 144, 255, 0.5) !important;
+}
+
+@keyframes shield-float {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -58%) scale(1.15); opacity: 1; }
+}
+
 .placement-controls {
   text-align: center;
   margin-bottom: 15px;

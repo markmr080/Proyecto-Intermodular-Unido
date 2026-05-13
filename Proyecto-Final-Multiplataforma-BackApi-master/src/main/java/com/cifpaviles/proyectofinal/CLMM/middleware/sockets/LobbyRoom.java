@@ -9,6 +9,11 @@ public class LobbyRoom {
     private String nombreJugador2;
     private String avatarJugador2;
     private String estado;
+    private long fechaCreacion;
+
+    public LobbyRoom() {
+        this.fechaCreacion = System.currentTimeMillis();
+    }
 
     public String getCodigoSala() { return codigoSala; }
     public void setCodigoSala(String codigoSala) { this.codigoSala = codigoSala; }
@@ -33,4 +38,7 @@ public class LobbyRoom {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public long getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(long fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

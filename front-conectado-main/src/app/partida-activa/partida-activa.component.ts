@@ -101,6 +101,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     'SKL_LOK_2', // Furia Corsaria — revelar 3x3
     'SKL_ARA_1', // Pólvora Vampírica — propagación
     'SKL_ARA_2', // Disparo de Saloma — area 2x2
+    'SKL_IKT_1', // Rayo de Piedra Bruja — impacto + reveal
+    'SKL_IKT_2', // Cohete de Muerte — area 3x3
   ]);
   /** ID de la habilidad que espera que el jugador clique una celda; null si no hay targeting activo. */
   habilidadPendiente: string | null = null;
@@ -742,20 +744,35 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   // --- Helpers HTML ---
 
-  getClaseCasilla(estado: string, esMiTablero: boolean): string {
+  getClaseCasilla(estado: string, esMiTablero: boolean, x: number = -1, y: number = -1): string {
+    let clases = '';
+    
+    // Si es mi tablero y tengo escudos activos, añadir clase especial
+    if (esMiTablero && x !== -1 && y !== -1) {
+      if (this.miJugador?.escudoTotalActivo) {
+        clases += 'casilla-escudo-total ';
+      }
+      if (this.miJugador?.escudoCasillas && this.miJugador.escudoCasillas.includes(`${x},${y}`)) {
+        clases += 'casilla-escudada ';
+      }
+    }
+
     switch (estado) {
-      case 'AGUA': return 'casilla-agua';
-      case 'AGUA_GOLPEADA': return 'casilla-fallo';
-      case 'TOCADO': return 'casilla-tocado';
-      case 'HUNDIDO': return 'casilla-hundido';
+      case 'AGUA': clases += 'casilla-agua'; break;
+      case 'AGUA_GOLPEADA': clases += 'casilla-fallo'; break;
+      case 'TOCADO': clases += 'casilla-tocado'; break;
+      case 'HUNDIDO': clases += 'casilla-hundido'; break;
       case 'REVELADA':
         // En el tablero ENEMIGO se muestra como celda revelada (sabemos que hay barco).
         // En nuestro tablero propio no aplica este estado, pero por seguridad lo tratamos igual que BARCO.
-        return esMiTablero ? 'casilla-barco' : 'casilla-revelada';
+        clases += esMiTablero ? 'casilla-barco' : 'casilla-revelada';
+        break;
       case 'BARCO':
-        return esMiTablero ? 'casilla-barco' : 'casilla-agua'; // Enemigo no ve barcos intactos
-      default: return 'casilla-agua';
+        clases += esMiTablero ? 'casilla-barco' : 'casilla-agua'; // Enemigo no ve barcos intactos
+        break;
+      default: clases += 'casilla-agua';
     }
+    return clases;
   }
 
   /**

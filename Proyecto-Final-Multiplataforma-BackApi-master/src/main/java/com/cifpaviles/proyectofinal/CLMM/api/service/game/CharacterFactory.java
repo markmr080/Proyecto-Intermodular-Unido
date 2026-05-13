@@ -119,15 +119,15 @@ public class CharacterFactory {
         return c;
     }
     private GameCharacter crearIkit() {
-        Skill pasiva = new Skill("PAS_IKT", "Ingeniero de Piedra Bruja",
-                "15% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.", SkillType.PASIVA, 0, "/imagenes/ikitclaw_habilidades/pasiva.png");
+        Skill pasiva = new Skill("PAS_IKT", "Ingeniero Brujo de Skryre",
+                "20% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.", SkillType.PASIVA, 0, "/imagenes/ikitclaw_habilidades/pasiva.png");
         GameCharacter c = new GameCharacter("Ikit Claw", "El Gran Arquitecto de la Destrucción.", "/imagenes/ikitclaw.jpg", pasiva);
-        c.anadirHabilidadActiva(new Skill("SKL_IKT_1", "Rayo de Rayo Brujo",
-                "Lanza un rayo potente que impacta una casilla y revela las adyacentes.", SkillType.OFENSIVA, 4, "/imagenes/ikitclaw_habilidades/ofensiva1.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_IKT_1", "Rayo de Piedra Bruja",
+                "Lanza un rayo potente que impacta una casilla y revela las adyacentes en cruz.", SkillType.OFENSIVA, 4, "/imagenes/ikitclaw_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_IKT_2", "Cohete de Muerte",
                 "Impacta un área masiva de 3x3 casillas.", SkillType.OFENSIVA, 8, "/imagenes/ikitclaw_habilidades/ofensiva2.png"));
-        c.anadirHabilidadActiva(new Skill("SKL_IKT_3", "Escudo de Energía Bruja",
-                "Protege un área de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikitclaw_habilidades/defensiva.png"));
+        c.anadirHabilidadActiva(new Skill("SKL_IKT_3", "Escudo de Piedra Bruja",
+                "Protege un área aleatoria de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikitclaw_habilidades/defensiva.png"));
         return c;
     }
 }

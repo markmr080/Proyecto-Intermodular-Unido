@@ -13,6 +13,10 @@ public class LobbyManager {
     private final Map<String, LobbyRoom> rooms = new ConcurrentHashMap<>();
 
     public void addRoom(LobbyRoom room) {
+        // Asegurar que tenga fecha si no viene del cliente
+        if (room.getFechaCreacion() == 0) {
+            room.setFechaCreacion(System.currentTimeMillis());
+        }
         rooms.put(room.getCodigoSala(), room);
     }
 
@@ -25,6 +29,9 @@ public class LobbyManager {
     }
 
     public List<LobbyRoom> getAllRooms() {
-        return new ArrayList<>(rooms.values());
+        List<LobbyRoom> list = new ArrayList<>(rooms.values());
+        // Ordenar por fecha de creación (descendente: más recientes primero)
+        list.sort((a, b) -> Long.compare(b.getFechaCreacion(), a.getFechaCreacion()));
+        return list;
     }
 }
