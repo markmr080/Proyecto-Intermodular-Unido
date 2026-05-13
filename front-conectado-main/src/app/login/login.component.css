@@ -1,15 +1,17 @@
 /* --- Wrapper and Background --- */
 .login-wrapper {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh; /* dynamic viewport height for mobile */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Background image with a magical/gaming feel */
   background: url('/imagenes/fondoHundirLaFlota.png') center/cover no-repeat;
   overflow: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .background-overlay {
@@ -24,19 +26,22 @@
 
 /* --- Game Logo --- */
 .login-wrapper .game-logo-container {
-  width: 600px !important;
-  max-width: 95vw !important;
+  width: 100%;
+  max-width: 500px;
   display: flex;
   justify-content: center;
   position: relative;
   z-index: 2;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  flex-shrink: 1;
   animation: slideDownFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .login-wrapper .game-logo {
-  width: 100% !important;
-  height: auto !important;
+  max-width: 100%;
+  height: auto;
+  max-height: 15vh;
+  object-fit: contain;
   display: block;
   filter: drop-shadow(0 0 25px rgba(184, 145, 88, 0.6));
 }
@@ -57,16 +62,23 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   background: rgba(20, 15, 12, 0.85);
-  /* Tone similar to the drawing, but modernized */
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
-  border: 1px solid #d4af37(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.4);
   border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  flex-shrink: 1;
+  max-height: 75vh;
+  overflow-y: auto;
+  scrollbar-width: none; /* Hide scrollbar for the card itself */
+}
+
+.login-card::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes slideUpFade {
@@ -410,11 +422,61 @@
 
 /* Responsive adjustments */
 @media (max-width: 480px) {
+  .login-wrapper {
+    padding: 15px;
+  }
+
+  .login-wrapper .game-logo-container {
+    max-width: 240px;
+    margin-bottom: 10px;
+  }
+
+  .login-wrapper .game-logo {
+    max-height: 12vh;
+  }
+
   .login-card {
-    border-radius: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 24px;
+    border-radius: 20px;
+    max-height: 70vh;
+  }
+
+  .login-header {
+    margin-bottom: 20px;
+  }
+
+  .login-header h2 {
+    font-size: 22px;
+  }
+
+  .login-form {
+    gap: 15px;
+  }
+
+  .input-group input {
+    padding: 12px 14px;
+  }
+
+  .submit-btn {
+    padding: 14px;
+  }
+}
+
+/* Landscape orientation or very short screens */
+@media (max-height: 600px) {
+  .login-wrapper {
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .login-wrapper .game-logo-container {
+    max-width: 200px;
+    margin-bottom: 0;
+  }
+
+  .login-card {
+    max-height: 90vh;
+    padding: 20px;
   }
 }
