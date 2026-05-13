@@ -83,7 +83,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   reconectando = false;
   private reconexionInterval: any;
   private reconexionTimeout: any;
-  private personajeIdGuardado = 'WULFRIK';
+  public personajeIdGuardado = 'WULFRIK';
   private avatarGuardado = '';
   /** Clave de localStorage para sesión activa de partida. */
   private readonly SESSION_KEY = 'game_active_session';
@@ -428,6 +428,29 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Devuelve las coordenadas que ocuparía un barco según su tamaño, posición y personaje */
+  getShipCoordinates(x: number, y: number, size: number): {x: number, y: number}[] {
+    const coords: {x: number, y: number}[] = [];
+    const personaje = this.personajeIdGuardado;
+
+    // CASO ESPECIAL: Barco de 5 de Lokhir es una Cruz
+    if (personaje === 'LOKHIR' && size === 5) {
+      coords.push({x, y}); // Centro
+      coords.push({x: x-1, y});
+      coords.push({x: x+1, y});
+      coords.push({x, y: y-1});
+      coords.push({x, y: y+1});
+    } else {
+      // Barcos lineales estándar
+      for (let i = 0; i < size; i++) {
+        const cx = this.orientation === 'V' ? x + i : x;
+        const cy = this.orientation === 'H' ? y + i : y;
+        coords.push({x: cx, y: cy});
+      }
+    }
+    return coords;
+  }
+
   // --- Acciones de Fase COLOCACION ---
 
   cambiarOrientacion() {
@@ -492,7 +515,6 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   isCellHighlighted(x: number, y: number): boolean {
     if (this.hoverX === null || this.hoverY === null || this.gameState?.fase !== 'COLOCACION') return false;
 
-    // Si estamos arrastrando, usamos ese barco. Si no, el siguiente disponible para clic.
     let size = 0;
     if (this.draggedShipIndex !== null) {
       size = this.shipsAvailable[this.draggedShipIndex].size;
@@ -502,12 +524,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       size = nextShip.size;
     }
 
-    // Calculamos si (x,y) está dentro del rango del barco
-    if (this.orientation === 'H') {
-      return x === this.hoverX && y >= this.hoverY && y < this.hoverY + size;
-    } else {
-      return y === this.hoverY && x >= this.hoverX && x < this.hoverX + size;
-    }
+    const coords = this.getShipCoordinates(this.hoverX, this.hoverY, size);
+    return coords.some(c => c.x === x && c.y === y);
   }
 
   /** Indica si la previsualización actual es válida */
@@ -534,17 +552,17 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   /** Comprueba si un barco de cierto tamaño se puede colocar en (x,y) con la orientación actual. */
   canPlaceShip(x: number, y: number, size: number): boolean {
-    if (this.orientation === 'H' && y + size > 10) return false;
-    if (this.orientation === 'V' && x + size > 10) return false;
+    const coords = this.getShipCoordinates(x, y, size);
+    
+    // Verificar límites y colisiones
+    for (const c of coords) {
+      if (c.x < 0 || c.x >= 10 || c.y < 0 || c.y >= 10) return false;
 
-    for (let i = 0; i < size; i++) {
-      const cx = this.orientation === 'V' ? x + i : x;
-      const cy = this.orientation === 'H' ? y + i : y;
-
+      // Alrededor de cada celda del barco no debe haber otros barcos
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
-          const adjX = cx + dx;
-          const adjY = cy + dy;
+          const adjX = c.x + dx;
+          const adjY = c.y + dy;
           if (adjX >= 0 && adjX < 10 && adjY >= 0 && adjY < 10) {
             if (this.myBoard[adjX][adjY] === 'BARCO') return false;
           }
@@ -555,10 +573,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   }
 
   placeShipInBoard(x: number, y: number, size: number) {
-    for (let i = 0; i < size; i++) {
-      const cx = this.orientation === 'V' ? x + i : x;
-      const cy = this.orientation === 'H' ? y + i : y;
-      this.myBoard[cx][cy] = 'BARCO';
+    const coords = this.getShipCoordinates(x, y, size);
+    for (const c of coords) {
+      this.myBoard[c.x][c.y] = 'BARCO';
     }
   }
 

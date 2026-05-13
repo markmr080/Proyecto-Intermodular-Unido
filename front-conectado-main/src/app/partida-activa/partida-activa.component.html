@@ -188,10 +188,19 @@
           <div class="ships-list-container">
             <div *ngFor="let ship of shipsAvailable; let i = index" class="ship-token-item" [class.placed]="ship.placed"
               [draggable]="!ship.placed" (dragstart)="onDragStart(i)">
-              <div class="ship-visual-token" [attr.data-size]="ship.size">
+              <div class="ship-visual-token" [attr.data-size]="ship.size" [class.lokhir-cross]="personajeIdGuardado === 'LOKHIR' && ship.size === 5">
                 <span class="ship-size-badge">{{ship.size}}</span>
                 <div class="ship-segments">
-                  <div *ngFor="let s of [].constructor(ship.size)" class="segment"></div>
+                  <div *ngIf="personajeIdGuardado === 'LOKHIR' && ship.size === 5; else standardSegments" class="partida-cruz-visual">
+                    <div class="segment center"></div>
+                    <div class="segment top"></div>
+                    <div class="segment bottom"></div>
+                    <div class="segment left"></div>
+                    <div class="segment right"></div>
+                  </div>
+                  <ng-template #standardSegments>
+                    <div *ngFor="let s of [].constructor(ship.size)" class="segment"></div>
+                  </ng-template>
                 </div>
               </div>
               <span class="ship-status-icon">{{ ship.placed ? '✅' : '⚓' }}</span>

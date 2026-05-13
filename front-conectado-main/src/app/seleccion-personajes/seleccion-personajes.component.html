@@ -79,8 +79,18 @@
             <div class="sp-barco-row">
               <span class="sp-barco-label">Barco {{ $index + 1 }}</span>
               <div class="sp-barco-casillas">
-                @for (c of range(barco.tamano); track c) {
-                  <div class="sp-casilla"></div>
+                @if (personajeActual.nombre === 'Lokhir' && barco.tamano === 5) {
+                  <div class="sp-cruz-visual">
+                    <div class="sp-casilla center"></div>
+                    <div class="sp-casilla top"></div>
+                    <div class="sp-casilla bottom"></div>
+                    <div class="sp-casilla left"></div>
+                    <div class="sp-casilla right"></div>
+                  </div>
+                } @else {
+                  @for (c of range(barco.tamano); track c) {
+                    <div class="sp-casilla"></div>
+                  }
                 }
               </div>
               <span class="sp-barco-size">{{ barco.tamano }}</span>

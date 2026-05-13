@@ -419,6 +419,29 @@
   text-align: right;
 }
 
+/* CRUZ VISUAL PARA LOKHIR */
+.sp-cruz-visual {
+  display: grid;
+  grid-template-areas: 
+    ". top ."
+    "left center right"
+    ". bottom .";
+  gap: 2px;
+  width: fit-content;
+  padding: 2px;
+}
+
+.sp-cruz-visual .sp-casilla {
+  width: 14px;
+  height: 14px;
+}
+
+.sp-cruz-visual .center { grid-area: center; }
+.sp-cruz-visual .top { grid-area: top; }
+.sp-cruz-visual .bottom { grid-area: bottom; }
+.sp-cruz-visual .left { grid-area: left; }
+.sp-cruz-visual .right { grid-area: right; }
+
 /* ================================================================
    DOTS DE PAGINACIÓN
    ================================================================ */

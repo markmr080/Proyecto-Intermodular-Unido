@@ -1369,6 +1369,29 @@
   box-shadow: 0 0 5px rgba(184, 145, 88, 0.4);
 }
 
+
+
+.partida-cruz-visual {
+  display: grid;
+  grid-template-areas: 
+    ". top ."
+    "left center right"
+    ". bottom .";
+  gap: 2px;
+  width: fit-content;
+}
+
+.partida-cruz-visual .segment {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.partida-cruz-visual .center { grid-area: center; }
+.partida-cruz-visual .top { grid-area: top; }
+.partida-cruz-visual .bottom { grid-area: bottom; }
+.partida-cruz-visual .left { grid-area: left; }
+.partida-cruz-visual .right { grid-area: right; }
+
 .ship-status-icon {
   font-size: 1.2rem;
   margin-left: 10px;

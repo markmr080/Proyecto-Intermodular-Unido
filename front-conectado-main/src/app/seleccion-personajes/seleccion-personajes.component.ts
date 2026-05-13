@@ -22,7 +22,7 @@ export interface Personaje {
 // Flotas únicas por personaje (coinciden con DataInitializer en el backend)
 const FLOTA_WULFRIK: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
 const FLOTA_AISLINN: Barco[] = [{ tamano: 5 }, { tamano: 4 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
-const FLOTA_LOKHIR: Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
+const FLOTA_LOKHIR: Barco[] = [{ tamano: 5 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }]; // El de 5 será una cruz
 const FLOTA_ARANESSA: Barco[] = [{ tamano: 4 }, { tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }];
 const FLOTA_IKIT: Barco[] = [{ tamano: 4 }, { tamano: 3 }, { tamano: 3 }, { tamano: 2 }, { tamano: 2 }];
 

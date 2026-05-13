@@ -49,9 +49,19 @@
                   <span class="label">FLOTA DE COMBATE</span>
                   <div class="ships-display">
                     @for (size of char.fleet; track $index) {
-                      <div class="ship-indicator" [attr.data-size]="size">
-                        @for (seg of range(size); track $index) {
-                          <div class="segment"></div>
+                      <div class="ship-indicator" [attr.data-size]="size" [class.lokhir-cross]="char.name === 'Lokhir' && size === 5">
+                        @if (char.name === 'Lokhir' && size === 5) {
+                          <div class="menu-cruz-visual">
+                            <div class="segment center"></div>
+                            <div class="segment top"></div>
+                            <div class="segment bottom"></div>
+                            <div class="segment left"></div>
+                            <div class="segment right"></div>
+                          </div>
+                        } @else {
+                          @for (seg of range(size); track $index) {
+                            <div class="segment"></div>
+                          }
                         }
                       </div>
                     }

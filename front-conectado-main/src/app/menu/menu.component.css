@@ -51,33 +51,74 @@
   align-items: center;
 }
 
-/* SMITE Styled HUGE PLAY BUTTON */
+/* SMITE/Warhammer Styled HUGE PLAY BUTTON */
 .btn-play-massive {
-  background: linear-gradient(to bottom, #d4af37, #aa7c11);
-  border: 2px solid #ffd700;
+  background: linear-gradient(135deg, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  border: 3px solid #ffd700;
   color: #1f1209;
-  font-size: 32px;
-  font-weight: 900;
-  padding: 10px 60px;
+  font-size: 34px;
+  font-weight: 950;
+  padding: 12px 70px;
   text-transform: uppercase;
-  letter-spacing: 4px;
+  letter-spacing: 5px;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.5);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
-  height: 120%;
+  box-shadow: 
+    0 0 30px rgba(212, 175, 55, 0.4), 
+    inset 0 0 15px rgba(255, 255, 255, 0.6),
+    0 10px 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
+  height: 130%;
   position: relative;
-  top: 10px;
+  top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3), -1px -1px 2px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+/* Shine sweep animation */
+.btn-play-massive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: none;
+  pointer-events: none;
+}
+
+.btn-play-massive:hover::before {
+  animation: shine-sweep 1.5s infinite;
+}
+
+@keyframes shine-sweep {
+  0% { left: -100%; }
+  100% { left: 150%; }
 }
 
 .btn-play-massive:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.8);
-  filter: brightness(1.2);
+  transform: scale(1.08) translateY(-3px);
+  box-shadow: 
+    0 0 50px rgba(212, 175, 55, 0.9), 
+    inset 0 0 20px rgba(255, 255, 255, 0.8),
+    0 15px 30px rgba(0, 0, 0, 0.6);
+  filter: brightness(1.1);
+  color: #000;
 }
 
 .btn-play-massive:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
+  filter: brightness(0.9);
 }
 
 .nav-right {
@@ -328,6 +369,33 @@
 .ship-indicator[data-size="5"] .segment {
   background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
+
+.ship-indicator.lokhir-cross .segment {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7) !important;
+  box-shadow: 0 0 10px rgba(108, 92, 231, 0.6);
+}
+
+.menu-cruz-visual {
+  display: grid;
+  grid-template-areas: 
+    ". top ."
+    "left center right"
+    ". bottom .";
+  gap: 2px;
+  width: fit-content;
+  padding: 2px;
+}
+
+.menu-cruz-visual .segment {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.menu-cruz-visual .center { grid-area: center; }
+.menu-cruz-visual .top { grid-area: top; }
+.menu-cruz-visual .bottom { grid-area: bottom; }
+.menu-cruz-visual .left { grid-area: left; }
+.menu-cruz-visual .right { grid-area: right; }
 
 .ship-indicator[data-size="4"] .segment {
   background: linear-gradient(135deg, #f39c12, #d35400);
