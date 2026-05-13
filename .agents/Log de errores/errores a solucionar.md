@@ -57,18 +57,39 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 ## ⚠️ PENDIENTES
 
 EL boton de jugar desaparece con la resolucion demasiado alta. Deberia desaparecer sobre 768px
+
 Opciones para la navbar:
 - A partir de la pantalla creacion de sala deberia desaparecer la nav bar. Quitarla.
 - O dejarla y ajustar que pasa en la sala y sockets en base a si un jugador le da a algun boton del menu y se sale. 
 
 Boton de salir de sala en movil deberia estar debajo, igual que en el perfil. 
 
+Las salas no se ordenan por fecha de creacion. 
+
+Si multiples jugadores meten solicitud a la misma sala y el admin acepta a uno, los otros dos siguen viendo la solicitud como pendiente con el mensaje de esperando. Hice una prueba con 4 solicitudes, se acepto a jugador 1.  Jugador 2 recibio el mensaje de el admin rechazo la solicitud, el resto quedan con el mensaje de esperando a que el admin acepte.
+
+
+Hay que verificar que el token se borre en el momento que el jugador abandona el juego de cualquier forma. Tanto como si se va cerrando la pestaña, como si le da a salir desde el menu. O si pone la url directamente. Tambien habria que comprobar que si se mete a un enlace directamente sin ese token le redirija al login. 
+
+Terminar de hacer a ikit.
+
+Textos de habilidades desbordan. Sobretodo el de habilidad pasiva.
+
+Habilidad aranesa disparo de saloma no funciona como se describe. La pasiva de aranesa se activa demasiado seguido. 
+
+-RF1 - El logo aparece en el menu encima de los personajes cuando la resolucion es pequeña pero que no llegua a movil. 
+
+Quitar que el logo sea un boton.
+
+En resolución de movil desborda la imagen del menu principal, hay que bloquear que no haga scroll y bajar un poco mas los personajes de sitio. Esto relacionado con -RF1- Puede que el logo que aparezca sea el que aparece en el movil. Ajustar las resoluciones responsive. Tambien se puede hacer scroll de la pantalla en lista de salas. Que no haya la opcion de hacer scroll fuera del cuadro para buscar las salas. Lo mismo para la pantalla de seleccion de personaje. que no haya tanto padding entre los botones y la imagen. 
+
+Comprobar funcionalidad del boton de abandonar y como interactua con los sockets en los otros jugadores.
+
+Quitar la navbar en la pantalla de juego y en la seleccion de personaje. 
 
 
 
----
 
----
 
 ### 🟡 Token de recuperación de contraseña en la URL
 **Síntoma**: El enlace de reset-password incluye el JWT en la query string (visible en el historial del navegador y logs de servidor).  
