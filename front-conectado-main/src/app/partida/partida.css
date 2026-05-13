@@ -360,14 +360,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "timer code"
+      "timer timer"
+      "code code"
       "players players"
       "requests requests"
       "settings settings"
       "start start"
       "test test"
       "exit exit";
-    gap: 4px;
+    gap: 8px;
     padding: 8px 12px;
     align-items: stretch;
   }
@@ -408,10 +409,10 @@
   */
   .timer,
   .codigo-box {
-    height: 40px;
-    font-size: 14px;
+    height: 50px;
+    font-size: 16px;
     font-weight: bold;
-    padding: 0 12px;
+    padding: 0 15px;
     margin: 0;
     box-sizing: border-box;
     display: flex;
@@ -419,6 +420,8 @@
     justify-content: center;
     top: auto;
     left: auto;
+    right: auto;
+    bottom: auto;
     border-radius: 8px;
     background: rgba(15, 10, 8, 0.9);
     border: 2px solid #b89158;

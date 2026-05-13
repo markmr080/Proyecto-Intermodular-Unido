@@ -325,11 +325,17 @@
 @media (max-width: 600px) {
   .lista-salas-wrapper {
     padding: 15px;
+    padding-top: 40px;
+    padding-bottom: 85px;
   }
 
   .salas-container {
     max-width: 100%;
+    height: 100%;
+    max-height: none;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .salas-header h2 {
@@ -347,6 +353,10 @@
 
   .salas-list {
     padding: 10px 15px;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
   }
 
   .sala-card {
