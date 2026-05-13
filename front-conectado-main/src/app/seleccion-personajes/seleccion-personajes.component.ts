@@ -84,8 +84,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       abilities: [
         { name: 'Ingeniero Brujo de Skryre', desc: '15% de probabilidad de que una habilidad ofensiva no consuma enfriamiento.', type: 'passive', icon: '/imagenes/ikitclaw_habilidades/pasiva.png' },
         { name: 'Rayo de Piedra Bruja', desc: 'Lanza un rayo potente que impacta una casilla y revela las adyacentes.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva1.png' },
-        { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikit_habilidades/ofensiva2.png' },
-        { name: 'Escudo de Piedra Bruja', desc: 'Protege un área de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikit_habilidades/defensiva.png' }
+        { name: 'Cohete de Muerte', desc: 'Impacta un área masiva de 3x3 casillas.', type: 'offensive', icon: '/imagenes/ikitclaw_habilidades/ofensiva2.png' },
+        { name: 'Escudo de Piedra Bruja', desc: 'Protege un área de 2x2 casillas contra el próximo disparo.', type: 'defensive', icon: '/imagenes/ikitclaw_habilidades/defensiva.png' }
       ]
     }
   ];

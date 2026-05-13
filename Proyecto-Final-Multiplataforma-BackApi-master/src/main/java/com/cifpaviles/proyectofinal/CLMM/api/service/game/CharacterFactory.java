@@ -125,9 +125,9 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_IKT_1", "Rayo de Rayo Brujo",
                 "Lanza un rayo potente que impacta una casilla y revela las adyacentes.", SkillType.OFENSIVA, 4, "/imagenes/ikitclaw_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_IKT_2", "Cohete de Muerte",
-                "Impacta un área masiva de 3x3 casillas.", SkillType.OFENSIVA, 8, "/imagenes/ikit_habilidades/ofensiva2.png"));
+                "Impacta un área masiva de 3x3 casillas.", SkillType.OFENSIVA, 8, "/imagenes/ikitclaw_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_IKT_3", "Escudo de Energía Bruja",
-                "Protege un área de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikit_habilidades/defensiva.png"));
+                "Protege un área de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikitclaw_habilidades/defensiva.png"));
         return c;
     }
 }
