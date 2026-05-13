@@ -63,7 +63,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 3, nombre: 'Lokhir', tipo: 'LOKHIR', imagen: '/imagenes/lokhir.webp', barcos: FLOTA_LOKHIR,
+      id: 3, nombre: 'Lokhir', tipo: 'LOKHIR', imagen: '/imagenes/Lokhir.png', barcos: FLOTA_LOKHIR,
       abilities: [
         { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
         { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
@@ -73,7 +73,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: '/imagenes/Aranessa (1).jpg', barcos: FLOTA_ARANESSA,
+      id: 4, nombre: 'Aranessa', tipo: 'ARANESSA', imagen: '/imagenes/Aranessa (2).png', barcos: FLOTA_ARANESSA,
       abilities: [
         { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
         { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },

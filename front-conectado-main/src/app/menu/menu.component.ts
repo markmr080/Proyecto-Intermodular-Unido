@@ -73,7 +73,7 @@ export class MenuComponent implements OnInit {
       ]
     },
     {
-      name: 'Lokhir', fleet: [5, 3, 3, 2, 2], img: 'https://static.wikia.nocookie.net/labibliotecadelviejomundo/images/9/94/Lokhir_Fellheart_Octava.jpg/revision/latest?cb=20171008101822&path-prefix=es',
+      name: 'Lokhir', fleet: [5, 3, 3, 2, 2], img: '/imagenes/Lokhir.png',
       abilities: [
         { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
         { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
@@ -83,7 +83,7 @@ export class MenuComponent implements OnInit {
       ]
     },
     {
-      name: 'Aranessa', fleet: [4, 4, 3, 3, 2], img: 'https://cdnb.artstation.com/p/assets/covers/images/030/971/581/large/mauro-matheus-mauro-matheus-aranessathumb.jpg?1602188142',
+      name: 'Aranessa', fleet: [4, 4, 3, 3, 2], img: '/imagenes/Aranessa (2).png',
       abilities: [
         { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
         { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },
