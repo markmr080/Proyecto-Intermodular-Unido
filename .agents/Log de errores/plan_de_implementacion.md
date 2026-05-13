@@ -14,15 +14,12 @@ Este documento detalla la estrategia y las tareas necesarias para resolver los e
 3.  **Gestión de Ciclo de Vida del Token:** Asegurar el borrado del token en `localStorage`/`sessionStorage` al cerrar pestaña o salir.
 4.  **Guardias de Navegación:** Implementar/Reforzar `AuthGuard` para redirigir al login si no hay token.
 
-### Fase 2: Lógica de Juego y Lobby
-*Objetivo: Corregir bugs de sincronización en salas y terminar mecánicas de personajes.*
+### Fase 2: Lógica de Lobby y Gestión de Salas
+*Objetivo: Corregir bugs de sincronización en salas y flujo de solicitudes.*
 
 1.  **Sincronización de Solicitudes:** Actualizar el estado de "pendiente" a "rechazado/cancelado" para otros jugadores cuando el admin acepta a uno.
 2.  **Orden de Salas:** Modificar el backend para devolver las salas ordenadas por fecha de creación (DESC).
-3.  **Habilidades de Personajes:**
-    *   Terminar implementación de **Ikit Claw**.
-    *   Corregir "Disparo de Saloma" y frecuencia de la pasiva de **Aranessa**.
-4.  **Botón Abandonar:** Validar que el evento de "abandonar" limpie correctamente los estados en todos los clientes conectados.
+3.  **Botón Abandonar:** Validar que el evento de "abandonar" limpie correctamente los estados en todos los clientes conectados.
 
 ### Fase 3: UI/UX y Diseño Responsive
 *Objetivo: Pulir la interfaz para una experiencia premium en todos los dispositivos.*
@@ -42,6 +39,12 @@ Este documento detalla la estrategia y las tareas necesarias para resolver los e
 
 1.  **Migración de Controladores:** Mover `PersonajesController` y `EstadisticasController` al paquete `middleware` para asegurar que pasan por los filtros correctos.
 
+### Fase 5: Actualización de Personajes (Diferido)
+*Tareas mantenidas aparte por el momento.*
+
+1.  **Ikit Claw:** Finalizar implementación técnica.
+2.  **Aranessa:** Corregir "Disparo de Saloma" y frecuencia de la pasiva.
+
 ---
 
 ## 📊 Tabla de Tareas
@@ -52,11 +55,11 @@ Este documento detalla la estrategia y las tareas necesarias para resolver los e
 | SEC-02 | Reset Password vía POST (no URL) | 🔥 Alta | Baja | ⏳ Pendiente |
 | LOB-01 | Sincronización de solicitudes de sala | ⚡ Media | Media | ⏳ Pendiente |
 | LOB-02 | Ordenación de salas por fecha | ⚡ Media | Baja | ⏳ Pendiente |
-| GAME-01 | Finalizar Ikit Claw | ⚡ Media | Media | ⏳ Pendiente |
-| GAME-02 | Fix Habilidades Aranessa | ⚡ Media | Media | ⏳ Pendiente |
 | UI-01 | Ocultar Navbar en Juego/Selección | 🟢 Baja | Baja | ⏳ Pendiente |
 | UI-02 | Fix Responsive (Botones, Overflows) | 🟢 Baja | Media | ⏳ Pendiente |
 | ARCH-01 | Mover controladores al Middleware | 🟢 Baja | Baja | ⏳ Pendiente |
+| CHAR-01 | Finalizar Ikit Claw | ⏸️ Diferido | Media | ⏳ Pendiente |
+| CHAR-02 | Fix Habilidades Aranessa | ⏸️ Diferido | Media | ⏳ Pendiente |
 
 ---
 
