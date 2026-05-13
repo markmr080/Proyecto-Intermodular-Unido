@@ -185,6 +185,15 @@ Las partidas ahora se registran en MySQL desde el momento en que se crean en el 
 - **Lógica**: La habilidad ahora busca una celda de barco adyacente al hundido y, si no encuentra ninguna (debido a la regla de separación de barcos), selecciona una celda aleatoria de cualquier barco restante en la flota enemiga.
 - **Feedback**: Se han actualizado los métodos de habilidades (`Rayo de Piedra Bruja`, `Cohete de Muerte`, etc.) para propagar correctamente el mensaje de "barco revelado" al usuario.
 
+---
+
+### ~~Transformación de Lokhir (Yelmo del Kraken → Venganza de Karond Kar)~~
+**RESUELTO (2026-05-13).**
+- **Yelmo del Kraken**: Ahora escuda completamente el barco más grande (Arca Negra), pero todos los escudos caen al primer impacto recibido en el navío.
+- **Venganza**: Se ha implementado un sistema de transformación dinámico. Si el Arca Negra es hundida, Lokhir pierde su habilidad defensiva y activa **Venganza de Karond Kar** (Ofensiva: 5 disparos aleatorios).
+- **UI**: Descripciones actualizadas en frontend y backend.
+
+
 ### ?? Botn de unin no se bloquea en partidas activas
 **Sntoma**: En la lista de salas, el botn 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de unin invlidas.
 **Solucin propuesta**: Deshabilitar o cambiar el texto del botn cuando el estado de la sala no sea ESPERANDO.

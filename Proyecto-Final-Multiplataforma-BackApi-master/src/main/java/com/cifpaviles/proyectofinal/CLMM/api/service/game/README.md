@@ -54,6 +54,7 @@ Ejecuta una habilidad activa:
 | SKL_LOK_1 | Lokhir | Ofensiva | 3 disparos en diagonal desde (x,y) |
 | SKL_LOK_2 | Lokhir | Ofensiva | Marca como `REVELADA` los `BARCO` en área 3×3 sin dañarlos |
 | SKL_LOK_3 | Lokhir | Defensiva | Escuda el Arca Negra (barco más grande); el escudo cae al primer impacto |
+| SKL_LOK_4 | Lokhir | Ofensiva | **Venganza**: Lanza 5 disparos aleatorios (sustituye a SKL_LOK_3 al caer el Arca) |
 | SKL_ARA_1 | Aranessa | Ofensiva | Disparo + propagación a 4 adyacentes si impacta `BARCO` |
 | SKL_ARA_2 | Aranessa | Ofensiva | Dispara a las 4 esquinas del tablero |
 | SKL_ARA_3 | Aranessa | Defensiva | Escudo total para el siguiente turno |

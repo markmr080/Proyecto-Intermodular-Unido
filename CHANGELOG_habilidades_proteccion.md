@@ -94,3 +94,14 @@ Se ha decidido cambiar la mecánica de relocalización por una de **defensa refo
 |---|---|
 | `GameEngine.java` | Fix Bug 1 en `procesarDisparo()` y `aplicarDisparoHabilidad()` |
 | `GameEngine.java` | Fix Bug 2: reescritura de `ejecutarYelmoKraken()` + métodos `encontrarBarcos()` y `dfsBarco()` |
+| `GameEngine.java` | Implementación de **Venganza de Karond Kar** (Transformación de Lokhir al perder el Arca Negra) |
+
+---
+
+## 💥 Transformación: Venganza de Karond Kar
+
+Se ha añadido una mecánica dinámica para Lokhir:
+- **Evento**: Hundimiento del Arca Negra (tamaño 5).
+- **Consecuencia**: La habilidad `SKL_LOK_3` (Yelmo del Kraken) es reemplazada por `SKL_LOK_4` (Venganza de Karond Kar).
+- **Nuevo Efecto**: 5 disparos aleatorios sobre el tablero enemigo.
+

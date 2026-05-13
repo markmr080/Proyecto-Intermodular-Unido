@@ -104,10 +104,19 @@ public class GameEngine {
 
             boolean[] vis = new boolean[100];
             if (dfsSunkCheck(enemigo.getTablero(), x, y, vis)) {
+                List<int[]> barcoHundido = findFullShip(enemigo, x, y);
+                int tamano = barcoHundido.size();
+
                 boolean[] visMark = new boolean[100];
                 marcarHundido(enemigo.getTablero(), x, y, visMark);
                 atacante.incrementarBarcosHundidos();
                 state.setMensajeEstado("¡" + atacante.getNombre() + " ha HUNDIDO un barco enemigo!");
+
+                // Lokhir: Transformación si pierde el Arca Negra (tamaño 5)
+                if (tamano >= 5 && enemigo.getPersonaje().getNombre().equals("Lokhir")) {
+                    activarVenganzaLokhir(enemigo);
+                }
+
                 // Lokhir PAS_LOK: revela celda adyacente al hundido
                 if (tieneHabilidadPasiva(atacante, "PAS_LOK")) {
                     String extra = activarPasivaLokhir(enemigo, x, y);
@@ -197,6 +206,7 @@ public class GameEngine {
             case "SKL_LOK_1": ejecutarAndanadaDruchii(owner, enemigo, x, y); break;
             case "SKL_LOK_2": ejecutarFuriaCorsaria(enemigo, x, y); break;
             case "SKL_LOK_3": ejecutarYelmoKraken(owner); break;
+            case "SKL_LOK_4": ejecutarVenganzaKarondKar(owner, enemigo); break;
             // --- Aranessa ---
             case "SKL_ARA_1": ejecutarPolvoraVampirica(owner, enemigo, x, y); break;
             case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo, x, y); break;
@@ -395,6 +405,51 @@ public class GameEngine {
         } else {
             state.setMensajeEstado("El Arca Negra ya ha sido destruida, no hay nada que proteger.");
         }
+    }
+
+    /**
+     * Activa el modo venganza de Lokhir reemplazando su defensa por un bombardeo ofensivo.
+     */
+    private void activarVenganzaLokhir(Player owner) {
+        owner.getPersonaje().reemplazarHabilidad("SKL_LOK_3", CharacterFactory.crearVenganzaLokhir());
+        state.setMensajeEstado(state.getMensajeEstado() + " ¡Lokhir entra en frenesí! El Arca Negra ha caído, pero su furia se desata: Yelmo del Kraken ha sido reemplazado por Venganza de Karond Kar.");
+    }
+
+    /**
+     * SKL_LOK_4: Venganza de Karond Kar.
+     * Lanza 5 disparos aleatorios sobre el tablero enemigo.
+     */
+    private void ejecutarVenganzaKarondKar(Player owner, Player enemigo) {
+        int impactos = 0;
+        int hundidos = 0;
+        StringBuilder passiveMsg = new StringBuilder();
+
+        for (int i = 0; i < 5; i++) {
+            int rx = (int)(Math.random() * 10);
+            int ry = (int)(Math.random() * 10);
+            String res = aplicarDisparoHabilidad(owner, enemigo, rx, ry);
+            if (res.contains("Impacto") || res.contains("HUNDIDO")) {
+                impactos++;
+                if (res.contains("HUNDIDO")) {
+                    hundidos++;
+                    if (res.contains("(Lokhir")) {
+                        passiveMsg.append(" ").append(res.substring(res.indexOf("(Lokhir")));
+                    }
+                }
+            }
+        }
+
+        StringBuilder msg = new StringBuilder("¡VENGANZA DE KAROND KAR! Lokhir desata un bombardeo desesperado.");
+        if (impactos > 0) {
+            msg.append(" Se han registrado ").append(impactos).append(" impactos.");
+            if (hundidos > 0) {
+                msg.append(" ¡Y se han HUNDIDO ").append(hundidos).append(" barcos!");
+            }
+            msg.append(passiveMsg);
+        } else {
+            msg.append(" El bombardeo ha fallado por completo en medio del caos.");
+        }
+        state.setMensajeEstado(msg.toString());
     }
 
     /**
@@ -647,9 +702,17 @@ public class GameEngine {
             owner.incrementarHitsAcertados();
             boolean[] vis = new boolean[100];
             if (dfsSunkCheck(enemigo.getTablero(), nx, ny, vis)) {
+                List<int[]> barcoHundido = findFullShip(enemigo, nx, ny);
+                int tamano = barcoHundido.size();
+
                 boolean[] visMark = new boolean[100];
                 marcarHundido(enemigo.getTablero(), nx, ny, visMark);
                 owner.incrementarBarcosHundidos();
+
+                // Lokhir: Transformación si pierde el Arca Negra (tamaño 5)
+                if (tamano >= 5 && enemigo.getPersonaje().getNombre().equals("Lokhir")) {
+                    activarVenganzaLokhir(enemigo);
+                }
                 
                 String msgPasiva = "";
                 if (tieneHabilidadPasiva(owner, "PAS_LOK")) {

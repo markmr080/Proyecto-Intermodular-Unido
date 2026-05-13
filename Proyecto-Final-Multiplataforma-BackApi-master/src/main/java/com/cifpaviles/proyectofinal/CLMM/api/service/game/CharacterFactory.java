@@ -130,4 +130,11 @@ public class CharacterFactory {
                 "Protege un área aleatoria de 2x2 casillas contra el próximo disparo.", SkillType.DEFENSIVA, 6, "/imagenes/ikitclaw_habilidades/defensiva.png"));
         return c;
     }
+
+    /** Habilidad especial de Lokhir cuando pierde el Arca Negra. */
+    public static Skill crearVenganzaLokhir() {
+        return new Skill("SKL_LOK_4", "Venganza de Karond Kar",
+                "Bombardeo masivo: realiza 5 disparos aleatorios sobre el tablero enemigo.",
+                SkillType.OFENSIVA, 3, "/imagenes/lokhir_habilidades/ofensiva3.png");
+    }
 }

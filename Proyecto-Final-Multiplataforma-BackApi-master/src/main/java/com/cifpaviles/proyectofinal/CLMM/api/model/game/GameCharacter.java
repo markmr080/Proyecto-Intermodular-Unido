@@ -45,6 +45,16 @@ public class GameCharacter {
         this.flotaPermitida.put(tipoBarco, cantidad);
     }
 
+    /** Reemplaza una habilidad existente por una nueva (usado para transformaciones). */
+    public void reemplazarHabilidad(String idAntiguo, Skill nuevaSkill) {
+        for (int i = 0; i < habilidadesActivas.size(); i++) {
+            if (habilidadesActivas.get(i).getId().equals(idAntiguo)) {
+                habilidadesActivas.set(i, nuevaSkill);
+                return;
+            }
+        }
+    }
+
     /**
      * Devuelve la flota como lista de tamaños de celda ordenada de mayor a menor.
      * El tamaño se infiere del nombre estándar del barco.
