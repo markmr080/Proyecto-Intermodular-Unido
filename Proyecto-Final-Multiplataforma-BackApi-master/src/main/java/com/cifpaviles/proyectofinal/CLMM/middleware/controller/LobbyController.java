@@ -13,9 +13,15 @@ import java.util.List;
 public class LobbyController {
 
     private final LobbyManager lobbyManager;
+    private final com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository partidaRepository;
+    private final com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository usuarioRepository;
 
-    public LobbyController(LobbyManager lobbyManager) {
+    public LobbyController(LobbyManager lobbyManager, 
+                           com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository partidaRepository,
+                           com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository usuarioRepository) {
         this.lobbyManager = lobbyManager;
+        this.partidaRepository = partidaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping
@@ -25,8 +31,21 @@ public class LobbyController {
 
     @PostMapping
     public ResponseEntity<LobbyRoom> createLobbyRoom(@RequestBody LobbyRoom room) {
-        // Asignar ID simulado si el frontend lo requiere para no romper
         if (room.getCodigoSala() != null) {
+            // Guardar en BD con estado EN_ESPERA
+            if (room.getNombreJugador1() != null) {
+                java.util.Optional<com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity> hostOpt = 
+                    usuarioRepository.findByUsername(room.getNombreJugador1());
+                if (hostOpt.isPresent()) {
+                    com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity partida = 
+                        new com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity(
+                            hostOpt.get(), 
+                            com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida.EN_ESPERA
+                        );
+                    partidaRepository.save(partida);
+                    room.setIdPartidaMysql(partida.getId());
+                }
+            }
             lobbyManager.addRoom(room);
         }
         return ResponseEntity.ok(room);

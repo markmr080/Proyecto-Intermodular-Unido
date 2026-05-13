@@ -57,6 +57,7 @@ public class GameSocketController {
      */
     private final ConcurrentHashMap<String, ScheduledFuture<?>> reconnectTimers = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+    private final com.cifpaviles.proyectofinal.CLMM.middleware.sockets.LobbyManager lobbyManager;
 
     @Autowired
     public GameSocketController(SocketIOServer server, 
@@ -64,13 +65,15 @@ public class GameSocketController {
                                 CharacterFactory characterFactory,
                                 PartidaRepository partidaRepository,
                                 UsuarioRepository usuarioRepository,
-                                IEstadisticasService estadisticasService) {
+                                IEstadisticasService estadisticasService,
+                                com.cifpaviles.proyectofinal.CLMM.middleware.sockets.LobbyManager lobbyManager) {
         this.server = server;
         this.roomManager = roomManager;
         this.characterFactory = characterFactory;
         this.partidaRepository = partidaRepository;
         this.usuarioRepository = usuarioRepository;
         this.estadisticasService = estadisticasService;
+        this.lobbyManager = lobbyManager;
     }
 
     @PostConstruct
@@ -179,6 +182,13 @@ public class GameSocketController {
                 Player p1 = new Player(jugadorId, mensaje.getJugadorNombre(), characterFactory.crearPersonaje(tipoP1));
                 Player p2 = new Player("enemigo-dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"));
                 GameState newState = new GameState(p1, p2);
+                
+                // Obtener el ID de la base de datos de la sala del lobby
+                java.util.Optional<com.cifpaviles.proyectofinal.CLMM.middleware.sockets.LobbyRoom> lobbyRoomOpt = lobbyManager.getRoom(roomCode);
+                if (lobbyRoomOpt.isPresent() && lobbyRoomOpt.get().getIdPartidaMysql() != null) {
+                    newState.setIdPartidaMysql(lobbyRoomOpt.get().getIdPartidaMysql());
+                }
+
                 engine.setState(newState);
                 System.out.println("JOIN-ROOM: Estado creado/reseteado. J1=" + jugadorId + " personaje=" + tipoP1);
             } else {
@@ -272,7 +282,7 @@ public class GameSocketController {
                 state.setFase("COMBATE");
                 state.setMensajeEstado("¡Comienza la batalla! Turno de " + state.getJugadorActivo().getNombre());
                 
-                iniciarPartidaBD(state);
+                // La partida ya fue creada y actualizada en BD durante el Lobby.
                 
                 // Arrancamos el cronómetro compartido para esta sala.
                 // El TurnTimerService difundirá el gameState cada segundo a ambos clientes,
@@ -309,15 +319,6 @@ public class GameSocketController {
 
         difundirEstado(mensaje.getRoomCode(), state);
         limpiarSalaFinalizada(mensaje.getRoomCode(), engine);
-    }
-
-    private void iniciarPartidaBD(GameState state) {
-        Optional<UsuarioEntity> hostOpt = usuarioRepository.findByUsername(state.getJugador1().getNombre());
-        if (hostOpt.isPresent()) {
-            PartidaEntity partida = new PartidaEntity(hostOpt.get(), EstadoPartida.EN_CURSO);
-            partidaRepository.save(partida);
-            state.setIdPartidaMysql(partida.getId());
-        }
     }
 
     private void finalizarPartidaBD(GameState state) {

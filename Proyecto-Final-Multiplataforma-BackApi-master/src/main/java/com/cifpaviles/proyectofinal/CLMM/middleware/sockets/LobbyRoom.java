@@ -10,6 +10,7 @@ public class LobbyRoom {
     private String avatarJugador2;
     private String estado;
     private long fechaCreacion;
+    private Long idPartidaMysql;
 
     public LobbyRoom() {
         this.fechaCreacion = System.currentTimeMillis();
@@ -41,4 +42,7 @@ public class LobbyRoom {
 
     public long getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(long fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public Long getIdPartidaMysql() { return idPartidaMysql; }
+    public void setIdPartidaMysql(Long idPartidaMysql) { this.idPartidaMysql = idPartidaMysql; }
 }

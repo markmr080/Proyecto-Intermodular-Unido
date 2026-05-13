@@ -17,6 +17,7 @@ public class SocketService {
 
     private final SocketIOServer server;
     private final LobbyManager lobbyManager;
+    private final com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository partidaRepository;
 
     // Mapa para asociar userId con socketId (y viceversa para limpieza)
     private final Map<String, UUID> userSockets = new ConcurrentHashMap<>();
@@ -26,9 +27,11 @@ public class SocketService {
     private final Map<String, java.util.Set<String>> roomPendingRequests = new ConcurrentHashMap<>();
 
     @Autowired
-    public SocketService(SocketIOServer server, LobbyManager lobbyManager) {
+    public SocketService(SocketIOServer server, LobbyManager lobbyManager,
+                         com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository partidaRepository) {
         this.server = server;
         this.lobbyManager = lobbyManager;
+        this.partidaRepository = partidaRepository;
     }
 
     @PostConstruct
@@ -103,6 +106,17 @@ public class SocketService {
                 partida.setNombreJugador2(requesterName);
                 partida.setAvatarJugador2(requesterAvatar);
                 partida.setEstado("EN_CURSO");
+
+                // Actualizar en BD a EN_CURSO
+                if (partida.getIdPartidaMysql() != null) {
+                    java.util.Optional<com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity> pOpt = 
+                        partidaRepository.findById(partida.getIdPartidaMysql());
+                    if (pOpt.isPresent()) {
+                        com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity pEnt = pOpt.get();
+                        pEnt.setEstado(com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida.EN_CURSO);
+                        partidaRepository.save(pEnt);
+                    }
+                }
 
                 // Notificar al aceptado
                 UUID requesterSocketId = userSockets.get(requesterId);

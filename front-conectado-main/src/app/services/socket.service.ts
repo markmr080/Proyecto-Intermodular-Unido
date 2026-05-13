@@ -47,9 +47,12 @@ export class SocketService {
       ? 'http://localhost:8081'
       : `https://${window.location.hostname}`;
 
+    const token = sessionStorage.getItem('auth_token') || '';
+
     this.socket = io.connect(socketUrl, {
       transports: ['websocket'],
-      autoConnect: true
+      autoConnect: true,
+      query: { token: token }
     });
 
     // El evento 'connect' se dispara en la conexión inicial Y en cada reconexión automática.

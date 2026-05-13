@@ -183,7 +183,6 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
           this.router.navigate(['/partida-activa', this.roomCode]);
         }
       });
-    // Escuchar cancelación de partida
     this.socketService.partidaCancelada$
       .pipe(takeUntil(this.destroy$))
       .subscribe(userId => {
@@ -192,6 +191,16 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         this.motivoCancelacion = userId === user?.username
           ? 'Has abandonado la sala. La partida ha sido cancelada.'
           : 'El otro jugador ha abandonado la sala. La partida ha sido cancelada.';
+        this.showCancelModal = true;
+        this.limpiarTokensPartida();
+      });
+
+    // Escuchar si el anfitrión cierra la sala
+    this.socketService.salaCerrada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(msg => {
+        console.log('Sala cerrada por el anfitrión:', msg);
+        this.motivoCancelacion = 'El anfitrión ha abandonado la sala. La partida ha sido cancelada.';
         this.showCancelModal = true;
         this.limpiarTokensPartida();
       });

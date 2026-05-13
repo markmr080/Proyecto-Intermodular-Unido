@@ -135,26 +135,34 @@ Archivos modificados: `GameEngine.java`, `partida-activa.component.ts`.
 ---
 
 
-Hay que verificar que el token se borre en el momento que el jugador abandona el juego de cualquier forma. Tanto como si se va cerrando la pestaña, como si le da a salir desde el menu. O si pone la url directamente. Tambien habria que comprobar que si se mete a un enlace directamente sin ese token le redirija al login. 
+### ~~Verificacion del borrado de token al salir y proteccion de rutas directas~~
+**RESUELTO (2026-05-13).**
+- **Cierre de pestaña**: El token y los datos de usuario se almacenan en sessionStorage, por lo que el navegador los borra automaticamente al cerrar la pestaña.
+- **Salida manual**: El boton 'Salir' en el menu llama a authService.logout(), que elimina explicitamente el JWT de la sesion.
+- **Acceso por URL directa**: Se ha implementado un AuthGuard y se ha aplicado en app.routes.ts a todas las rutas protegidas. Si se intenta acceder sin un token valido, el usuario es redirigido automaticamente a la pantalla de /login.
 
 
-Comprobar funcionalidad del boton de abandonar y como interactua con los sockets en los otros jugadores.
+### ~~Funcionalidad del bot�n abandonar y sincronizaci�n de sockets~~
+**RESUELTO (2026-05-13).**
+- **Lobby (partida.ts)**: Verificado que al salir se emite bandonar-sala. J1 recibe partida-cancelada (limpia su J2) y J2 recibe sala-cerrada (lo expulsa).
+- **Selecci�n de Personajes (seleccion-personajes)**: Se ha corregido un bug cr�tico donde J2 no escuchaba el evento sala-cerrada. Ahora, si el anfitri�n abandona durante la selecci�n, J2 recibe la notificaci�n, se limpia su sesi�n y vuelve al men�.
+- **Partida Activa (partida-activa)**: El bot�n Rendirse emite el evento 
+endirse, que finaliza la partida en el servidor, da la victoria al rival y cierra la sala tras 10 segundos de cortes�a.
 
 
-ERROR CRITICO:
-Las partidas solo se crean cuando se termina, no se crean cuando se le da a crear sala en el boton sala. Por tanto no se actualizan los estados de en espera y jugando. Solo se usa finalizada. 
-
---PLANTEAMIENTO-- Que funcion recibe la tabla partida stats. El volcado en mongo funciona, pero los datos de sql no almacenan nada
-
+### ~~Sincronización de PartidaEntity con el Lobby~~
+**RESUELTO (2026-05-13).**
+Las partidas ahora se registran en MySQL desde el momento en que se crean en el lobby (`EN_ESPERA`), pasan a `EN_CURSO` cuando se acepta un rival, y se actualizan a `FINALIZADA` al terminar. El ID de la base de datos se transmite en memoria a través de `LobbyRoom` y `GameState`.
 ### 🟡 Token de recuperación de contraseña en la URL
 **Síntoma**: El enlace de reset-password incluye el JWT en la query string (visible en el historial del navegador y logs de servidor).  
 **Solución propuesta**: Enviar el token en el cuerpo del formulario POST en lugar de como parámetro GET en la URL.
 
 ---
 
-### 🟡 Seguridad WebSockets sin autenticación JWT
-**Estado**: La conexión Socket.IO al puerto 8081 no pasa por ningún filtro de seguridad. Cualquier cliente puede emitir eventos de juego.  
-**Solución propuesta**: Añadir validación del JWT en el `handshake` de Socket.IO (parámetro `auth` del cliente) y verificarlo en el `onConnect` del servidor.
+### ~~Seguridad WebSockets sin autenticación JWT~~
+**RESUELTO (2026-05-13).**
+- **Servidor**: Añadido un `AuthorizationListener` en `SocketIOConfig.java` que extrae el token JWT del parámetro GET (`?token=...`) durante el handshake y lo valida usando `JwtProvider`. Las conexiones sin token o con tokens inválidos son rechazadas.
+- **Cliente**: Actualizado `socket.service.ts` para extraer el `auth_token` del `sessionStorage` e inyectarlo en la URL de conexión (`query: { token: ... }`).
 
 ---
 
@@ -169,7 +177,7 @@ Las partidas solo se crean cuando se termina, no se crean cuando se le da a crea
 | `/api/personajes` y `/api/estadisticas` | ⚠️ Controladores en paquete `api` (fuera del middleware) |
 | WebSockets (puerto 8081) | ❌ Sin filtro de seguridad — acceso directo a `GameSocketController` |
 
-### ?? Bot�n de uni�n no se bloquea en partidas activas
-**S�ntoma**: En la lista de salas, el bot�n 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de uni�n inv�lidas.
-**Soluci�n propuesta**: Deshabilitar o cambiar el texto del bot�n cuando el estado de la sala no sea ESPERANDO.
+### ?? Bot�n de uni�n no se bloquea en partidas activas
+**S�ntoma**: En la lista de salas, el bot�n 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de uni�n inv�lidas.
+**Soluci�n propuesta**: Deshabilitar o cambiar el texto del bot�n cuando el estado de la sala no sea ESPERANDO.
 
