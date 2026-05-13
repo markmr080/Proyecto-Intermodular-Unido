@@ -98,7 +98,7 @@
   gap: 40px;
   padding: 30px 60px;
   flex: 1;
-  align-items: start;
+  align-items: center;
   /* Alineación arriba para control total */
   max-width: 1800px;
   margin: 0 auto;
@@ -663,7 +663,7 @@
   padding: 25px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  align-self: start;
+  align-self: center;
   /* Mantener arriba */
 }
 
@@ -689,7 +689,7 @@
   /* Rejilla dorada sólida como la anterior */
   border: 6px solid #b89158;
   width: 100%;
-  max-width: min(800px, 75vh);
+  max-width: min(100%, 82vh);
   aspect-ratio: 1;
   margin: 0 auto;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);

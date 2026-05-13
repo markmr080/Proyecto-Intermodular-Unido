@@ -194,6 +194,14 @@ Las partidas ahora se registran en MySQL desde el momento en que se crean en el 
 - **UI**: Descripciones actualizadas en frontend y backend.
 
 
+### ~~Ajuste de dimensiones del Tablero (Espacio lateral)~~
+**RESUELTO (2026-05-13).**
+- Se ha eliminado la restricción de ancho fijo de `800px` del tablero.
+- El tablero ahora utiliza `max-width: min(100%, 82vh)`, permitiéndole expandirse fluidamente para completar el espacio disponible en la columna central, manteniendo su proporción cuadrada y adaptándose a la altura de la pantalla.
+- Se ha centrado el tablero tanto horizontal como verticalmente mediante `align-items: center` y `align-self: center` en el grid y su contenedor.
+
+---
+
 ### ?? Botn de unin no se bloquea en partidas activas
 **Sntoma**: En la lista de salas, el botn 'Unirse' permanece activo incluso si la partida ya ha comenzado (estado: JUGANDO), lo que permite enviar solicitudes de unin invlidas.
 **Solucin propuesta**: Deshabilitar o cambiar el texto del botn cuando el estado de la sala no sea ESPERANDO.
