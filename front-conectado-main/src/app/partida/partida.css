@@ -363,11 +363,11 @@
       "timer code"
       "players players"
       "requests requests"
-      "settings settings"
       "start start"
-      "test exit";
-    gap: 10px;
-    padding: 0 15px; /* Sin padding vertical para modo pantalla completa */
+      "test exit"
+      "settings settings";
+    gap: 4px;
+    padding: 8px 12px;
     align-items: stretch;
   }
 
@@ -381,7 +381,6 @@
   .panel-left,
   .panel-right {
     display: contents;
-    height: 95vh;
   }
 
   /* 
@@ -409,17 +408,26 @@
   .timer,
   .codigo-box {
     height: 40px;
-    /* Más estrecho */
     font-size: 14px;
-    padding: 0 10px;
+    font-weight: bold;
+    padding: 0 12px;
     margin: 0;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
     top: auto;
-    /* Reseteamos posicionamiento absolute del desktop */
     left: auto;
+    border-radius: 8px;
+    background: rgba(15, 10, 8, 0.9);
+    border: 2px solid #b89158;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .timer span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .timer {
@@ -440,11 +448,16 @@
   .pending-list {
     grid-area: requests;
     min-height: auto;
+    border-radius: 8px;
   }
 
-  .ajustes-box {
-    grid-area: settings;
-    padding: 15px;
+  .pending-item {
+    padding: 8px 15px;
+    min-height: 40px;
+  }
+
+  .pending-name {
+    font-size: 14px;
   }
 
   .btn-empezar:not(.btn-test) {
@@ -456,15 +469,12 @@
     font-size: 16px;
     padding: 10px;
     margin: 0;
-    /* Mantenemos el color naranja del inline style pero ajustamos layout */
   }
 
   .btn-empezar,
   .btn-test {
     font-size: 14px;
-    /* Un poco más pequeño para que quepa el texto largo */
     height: 50px;
-    /* Más alto como solicitado */
     padding: 0 10px;
     margin: 0;
     display: flex;
@@ -478,7 +488,6 @@
     grid-area: exit;
     font-size: 14px;
     height: 50px;
-    /* Consistencia con los otros botones */
     padding: 0 10px;
     margin: 0;
     display: flex;
@@ -486,30 +495,54 @@
     justify-content: center;
   }
 
-  /* Ajustes de tipografía para dispositivos pequeños */
-  .slot h3 {
-    font-size: 18px;
+  /* Ajustes de tipografía y tamaño controlado para móviles (50px) */
+  .slot,
+  .ajustes-box {
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: 8px;
+    width: 100%;
+    margin: 0;
+    flex: none !important;
+    margin-top: 0 !important;
+  }
+
+  .btn-empezar,
+  .btn-test,
+  .btn-salir {
+    margin-top: 0 !important;
+    position: relative;
+    z-index: 20;
+  }
+
+  .slot {
+    justify-content: space-between;
   }
 
   .ajustes-box {
     grid-area: settings;
-    width: 100%;
-    margin: 0;
-    padding: 15px 20px;
-    min-height: 50px;
-    border-radius: 8px;
-    display: flex;
     justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
     cursor: pointer;
   }
 
+  .slot h3,
   .ajustes-box h3 {
-    font-size: 16px;
-    border: none;
-    padding: 0;
+    font-size: 15px;
     margin: 0;
+    padding: 0;
+    border: none;
+    color: #d4af37;
+    text-transform: uppercase;
+  }
+
+  .slot p {
+    margin: 0;
+    font-size: 13px;
+    color: #c9bca7;
   }
 
   .ajustes-content {
