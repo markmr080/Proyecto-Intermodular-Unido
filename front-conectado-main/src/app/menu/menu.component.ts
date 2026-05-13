@@ -64,7 +64,7 @@ export class MenuComponent implements OnInit {
       ]
     },
     {
-      name: 'Aislinn', fleet: [5, 4, 3, 2, 2], img: 'https://static.wikia.nocookie.net/warhammerfb/images/8/8c/AislinnTWWIII1.jpg/revision/latest/scale-to-width-down/1200?cb=20251107155847',
+      name: 'Aislinn', fleet: [5, 4, 3, 2, 2], img: '/imagenes/aislinn.jpg',
       abilities: [
         { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: '/imagenes/aislinn_habilidades/pasiva.png' },
         { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva1.png' },
