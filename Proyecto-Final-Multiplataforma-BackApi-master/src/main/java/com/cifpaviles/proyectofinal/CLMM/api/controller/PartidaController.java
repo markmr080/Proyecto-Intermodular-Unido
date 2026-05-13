@@ -36,7 +36,9 @@ public class PartidaController {
         return partidaRepository.findAll();
     }
 
-    /** Lista partidas por estado (EN_ESPERA, EN_CURSO, FINALIZADA, CAIDA_SERVIDOR). */
+    /**
+     * Lista partidas por estado (EN_ESPERA, EN_CURSO, FINALIZADA, CAIDA_SERVIDOR).
+     */
     @GetMapping("/estado/{estado}")
     public ResponseEntity<?> listarPorEstado(@PathVariable String estado) {
         try {
@@ -44,8 +46,8 @@ public class PartidaController {
             return ResponseEntity.ok(partidaRepository.findByEstado(estadoEnum));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Estado inválido. Valores posibles: EN_ESPERA, EN_CURSO, FINALIZADA, CAIDA_SERVIDOR")
-            );
+                    Map.of("error",
+                            "Estado inválido. Valores posibles: EN_ESPERA, EN_CURSO, FINALIZADA, CAIDA_SERVIDOR"));
         }
     }
 
@@ -69,7 +71,8 @@ public class PartidaController {
 
     /**
      * Comprueba si la sala de juego indicada tiene una partida activa en memoria.
-     * El frontend lo usa al cargar el menú para decidir si mostrar el popup de reconexión.
+     * El frontend lo usa al cargar el menú para decidir si mostrar el popup de
+     * reconexión.
      * Devuelve {"activa": true/false}.
      */
     @GetMapping("/sala-activa/{roomCode}")

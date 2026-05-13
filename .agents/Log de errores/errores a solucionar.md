@@ -88,8 +88,10 @@ Comprobar funcionalidad del boton de abandonar y como interactua con los sockets
 Quitar la navbar en la pantalla de juego y en la seleccion de personaje. 
 
 
+ERROR CRITICO:
+Las partidas solo se crean cuando se termina, no se crean cuando se le da a crear sala en el boton sala. Por tanto no se actualizan los estados de en espera y jugando. Solo se usa finalizada. 
 
-
+--PLANTEAMIENTO-- Que funcion recibe la tabla partida stats. El volcado en mongo funciona, pero los datos de sql no almacenan nada
 
 ### 🟡 Token de recuperación de contraseña en la URL
 **Síntoma**: El enlace de reset-password incluye el JWT en la query string (visible en el historial del navegador y logs de servidor).  
