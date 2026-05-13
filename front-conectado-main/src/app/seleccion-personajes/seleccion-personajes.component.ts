@@ -67,7 +67,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
         { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
         { name: 'Furia Corsaria', desc: 'Bengalas en área 3x3. Revela barcos sin causar daño.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva2.png' },
-        { name: 'Yelmo del Kraken', desc: 'Reubica uno de tus barcos enteros.', type: 'defensive', icon: '/imagenes/lokhir_habilidades/defensiva.png' }
+        { name: 'Yelmo del Kraken', desc: 'Protege tu barco más grande (Arca Negra). El escudo desaparece por completo al primer impacto.', type: 'defensive', icon: '/imagenes/lokhir_habilidades/defensiva.png' }
       ]
     },
     {

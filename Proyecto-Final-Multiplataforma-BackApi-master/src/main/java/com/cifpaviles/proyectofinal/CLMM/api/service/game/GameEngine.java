@@ -196,7 +196,7 @@ public class GameEngine {
             // --- Lokhir ---
             case "SKL_LOK_1": ejecutarAndanadaDruchii(owner, enemigo, x, y); break;
             case "SKL_LOK_2": ejecutarFuriaCorsaria(enemigo, x, y); break;
-            case "SKL_LOK_3": ejecutarDefensaArcaNegra(owner); break;
+            case "SKL_LOK_3": ejecutarYelmoKraken(owner); break;
             // --- Aranessa ---
             case "SKL_ARA_1": ejecutarPolvoraVampirica(owner, enemigo, x, y); break;
             case "SKL_ARA_2": ejecutarDisparoSaloma(owner, enemigo, x, y); break;
@@ -363,11 +363,11 @@ public class GameEngine {
     }
 
     /**
-     * SKL_LOK_3: Defensa del Arca Negra.
+     * SKL_LOK_3: Yelmo del Kraken.
      * Escuda completamente el barco más grande del jugador (el Arca Negra).
      * El escudo es frágil: si una casilla recibe un impacto, todos los escudos del Arca desaparecen.
      */
-    private void ejecutarDefensaArcaNegra(Player owner) {
+    private void ejecutarYelmoKraken(Player owner) {
         List<List<int[]>> barcos = encontrarBarcosCompletos(owner.getTablero());
         if (barcos.isEmpty()) {
             state.setMensajeEstado("No se han encontrado barcos para defender.");
@@ -391,7 +391,7 @@ public class GameEngine {
         }
 
         if (escudosAplicados > 0) {
-            state.setMensajeEstado("¡Defensa del Arca Negra! El navío insignia de Lokhir ha desplegado sus barreras místicas.");
+            state.setMensajeEstado("¡Yelmo del Kraken! El navío insignia de Lokhir ha desplegado sus barreras místicas.");
         } else {
             state.setMensajeEstado("El Arca Negra ya ha sido destruida, no hay nada que proteger.");
         }

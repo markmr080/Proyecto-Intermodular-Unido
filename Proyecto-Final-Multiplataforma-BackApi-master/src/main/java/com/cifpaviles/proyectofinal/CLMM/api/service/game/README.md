@@ -27,8 +27,8 @@ Aplica toda la lógica de la partida.
 Procesa un disparo normal con integración de **pasivas**:
 - **PAS_WUL (Wulfrik)**: al acertar un BARCO, concede un disparo extra en el mismo turno (`turnoExtraWulfrik = true`).
 - **PAS_AIS (Aislinn)**: 20% de probabilidad de que el impacto entrante falle automáticamente.
-- **PAS_LOK (Lokhir)**: al hundir un barco, marca como `REVELADA` en el tablero una celda `BARCO` adyacente.
-- **Escudos de casilla** (`escudoCasillas`): absorben el primer impacto en esa celda. La celda **permanece como `BARCO`** (el barco queda intacto y puede volver a ser atacado sin escudo).
+- **PAS_LOK (Lokhir)**: al hundir un barco, revela una celda `BARCO` del resto de la flota enemiga (o adyacente si es posible).
+- **Escudos de casilla** (`escudoCasillas`): absorben el primer impacto en esa celda. La celda **permanece como `BARCO`**. En Lokhir, los escudos del Arca Negra son frágiles y caen todos al primer impacto.
 - **Escudo total** (`escudoTotalActivo`, Aranessa SKL_ARA_3): bloquea el turno completo del atacante sin modificar el tablero.
 
 > ⚠️ **Comportamiento correcto del escudo de casilla:** la celda NO se convierte en `AGUA_GOLPEADA`. El barco sigue en pie; solo el escudo desaparece. Esto es crítico para la integridad de `vidas` — si la celda se convirtiera a `AGUA_GOLPEADA`, el barco quedaría partido sin que `vidas` bajara, bloqueando la partida.
@@ -53,7 +53,7 @@ Ejecuta una habilidad activa:
 | SKL_AIS_3 | Aislinn | Defensiva | Escuda 4 celdas propias aleatorias |
 | SKL_LOK_1 | Lokhir | Ofensiva | 3 disparos en diagonal desde (x,y) |
 | SKL_LOK_2 | Lokhir | Ofensiva | Marca como `REVELADA` los `BARCO` en área 3×3 sin dañarlos |
-| SKL_LOK_3 | Lokhir | Defensiva | **Reubica** un barco intacto aleatorio a una nueva posición válida |
+| SKL_LOK_3 | Lokhir | Defensiva | Escuda el Arca Negra (barco más grande); el escudo cae al primer impacto |
 | SKL_ARA_1 | Aranessa | Ofensiva | Disparo + propagación a 4 adyacentes si impacta `BARCO` |
 | SKL_ARA_2 | Aranessa | Ofensiva | Dispara a las 4 esquinas del tablero |
 | SKL_ARA_3 | Aranessa | Defensiva | Escudo total para el siguiente turno |
@@ -70,17 +70,16 @@ Atacar una celda `REVELADA` la trata como `BARCO` (inflige daño normal).
 
 ---
 
-### SKL_LOK_3 — Yelmo del Kraken (Reubicación)
+### SKL_LOK_3 — Yelmo del Kraken (Escudo del Arca Negra)
 
-Algoritmo de relocalización de barco:
+Mecánica de protección del Arca:
 
-1. `encontrarBarcos(tablero)` — DFS 4-direccional sobre celdas `BARCO` para agrupar cada barco intacto.
-2. Elige un barco al azar del resultado.
-3. Borra sus celdas del tablero (y quita escudos si los tuviera).
-4. Hasta 200 intentos aleatorios de colocación (horizontal/vertical), validando que no haya `BARCO` adyacente (incluyendo diagonales).
-5. Si no hay hueco → restaura el barco en posición original.
+1. `encontrarBarcosCompletos(tablero)` — Identifica todos los barcos del jugador.
+2. Identifica el barco más grande (tamaño 5, el Arca Negra).
+3. Aplica un escudo a cada una de sus casillas activas.
+4. Si cualquier casilla del Arca Negra recibe un impacto (normal o habilidad), el sistema detecta la pertenencia al barco insignia y **elimina todos los escudos restantes** de dicho barco.
 
-> Solo los barcos **completamente intactos** (sin celdas `TOCADO`) son elegibles para relocalización.
+> El escudo protege contra el daño del primer impacto, pero deja el resto del barco vulnerable para ataques subsiguientes en el mismo turno o turnos futuros.
 
 ---
 

@@ -48,7 +48,7 @@ Aplicado en **dos sitios** de `GameEngine.java`:
 
 ### Causa raíz
 
-La descripción oficial de la habilidad es **"Reubica uno de tus barcos enteros"**, pero
+La descripción oficial de la habilidad es **"Protege todas las casillas de tu barco más grande (Arca Negra). El escudo desaparece por completo al recibir el primer impacto."**, pero
 la implementación era una copia exacta de `ejecutarBrumaMarina()` (escudar 5 celdas):
 
 ```java
@@ -63,23 +63,17 @@ private void ejecutarYelmoKraken(Player owner) {
 }
 ```
 
-### Fix
+### Fix (Actualización 2026-05-13)
 
-Nueva implementación correcta:
+Se ha decidido cambiar la mecánica de relocalización por una de **defensa reforzada**:
 
-1. **Encontrar todos los barcos intactos** usando DFS 4-direccional sobre celdas `BARCO`.
-2. **Elegir uno al azar** de los grupos encontrados.
-3. **Eliminar las celdas** del tablero (y sus escudos si los tuviera).
-4. **Buscar posición aleatoria válida** (sin adyacentes, dentro del tablero) en hasta 200 intentos.
-5. Si no hay hueco libre → restaurar el barco en su posición original.
+1. **Identificar el Arca Negra**: El sistema localiza el barco más grande del jugador (normalmente el Portaaviones de tamaño 5).
+2. **Escudo Total de Navío**: Se aplican escudos de casilla a todas las secciones del Arca.
+3. **Mecánica de Vulnerabilidad**: Al recibir el primer impacto en cualquier parte del Arca, todos los escudos de ese barco se desactivan simultáneamente.
 
-Se añadieron dos métodos auxiliares privados:
-- `encontrarBarcos(CellStatus[][] tablero)` — devuelve lista de grupos de `int[]` conectados
-- `dfsBarco(...)` — DFS 4-direccional sobre celdas `BARCO`
+> Esta habilidad permite proteger el activo más valioso de la flota de Lokhir, pero con el riesgo de que un solo acierto enemigo elimine toda la protección.
 
-> **Nota:** Solo barcos completamente intactos (`BARCO`) se pueden reubicar. Barcos
-> parcialmente dañados (`TOCADO` en alguna celda) no aparecen como grupo continuo de
-> `BARCO` y no son elegibles.
+---
 
 ---
 
@@ -89,7 +83,7 @@ Se añadieron dos métodos auxiliares privados:
 |---|---|---|---|
 | `SKL_WUL_3` | Favor Ruinoso | Wulfrik | Escuda 1 celda BARCO aleatoria propia. El enemigo puede atacarla de nuevo sin escudo, pero el barco sobrevive el primer impacto. ✅ |
 | `SKL_AIS_3` | Bruma Marina | Aislinn | Escuda 4 celdas BARCO propias aleatorias. Mismo comportamiento correcto. ✅ |
-| `SKL_LOK_3` | Yelmo del Kraken | Lokhir | Reubica un barco intacto al azar a una nueva posición válida del tablero. ✅ |
+| `SKL_LOK_3` | Yelmo del Kraken | Lokhir | Escuda el Arca Negra (barco más grande). El escudo desaparece por completo al primer impacto. ✅ |
 | `SKL_ARA_3` | Hija de Stromfels | Aranessa | Escudo total: el próximo disparo enemigo falla automáticamente (sin afectar tablero). Ya funcionaba correctamente. ✅ |
 
 ---

@@ -101,7 +101,7 @@ public class CharacterFactory {
                 new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara a 3 casillas en diagonal.", SkillType.OFENSIVA, 4, "/imagenes/lokhir_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_LOK_2", "Furia Corsaria",
                 "Bengalas en área 3x3. Revela barcos sin causar daño.", SkillType.OFENSIVA, 5, "/imagenes/lokhir_habilidades/ofensiva2.png"));
-        c.anadirHabilidadActiva(new Skill("SKL_LOK_3", "Defensa del Arca Negra", "Protege todas las casillas de tu barco más grande (Arca Negra). El escudo desaparece por completo al recibir el primer impacto.",
+        c.anadirHabilidadActiva(new Skill("SKL_LOK_3", "Yelmo del Kraken", "Protege todas las casillas de tu barco más grande (Arca Negra). El escudo desaparece por completo al recibir el primer impacto.",
                 SkillType.DEFENSIVA, 6, "/imagenes/lokhir_habilidades/defensiva.png"));
         return c;
     }
