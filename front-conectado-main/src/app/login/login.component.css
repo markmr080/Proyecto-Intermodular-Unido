@@ -159,6 +159,7 @@
   font-size: 18px;
   transition: transform 0.2s;
   outline: none;
+  color: #000000;
 }
 
 .btn-toggle-password:hover {

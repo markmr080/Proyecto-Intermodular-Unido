@@ -38,6 +38,16 @@ export class RegistroComponent {
 
   isSubmitted = false;
   registerError = '';
+  showPassword = false;
+  showConfirmPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   onSubmit() {
     this.isSubmitted = true;

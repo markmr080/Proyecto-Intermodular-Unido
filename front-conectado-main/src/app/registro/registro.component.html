@@ -43,8 +43,28 @@
       <!-- Contraseña -->
       <div class="input-group">
         <label for="password">contraseña</label>
-        <input id="password" type="password" formControlName="password" placeholder="contraseña"
-          [class.is-invalid]="isSubmitted && registerForm.get('password')?.invalid">
+        <div class="password-input-wrapper">
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+            placeholder="contraseña" [class.is-invalid]="isSubmitted && registerForm.get('password')?.invalid">
+          <button type="button" class="btn-toggle-password" (click)="togglePasswordVisibility()" tabindex="-1"
+            title="Mostrar/Ocultar contraseña">
+            @if (showPassword) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            }
+          </button>
+        </div>
         @if (isSubmitted && registerForm.get('password')?.invalid) {
         <span class="error-text">Contraseña no válida</span>
         }
@@ -53,8 +73,29 @@
       <!-- Verificar Contraseña -->
       <div class="input-group">
         <label for="confirmPassword">verificar contraseña</label>
-        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="verificar contraseña"
-          [class.is-invalid]="isSubmitted && registerForm.hasError('passwordsMismatch')">
+        <div class="password-input-wrapper">
+          <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword" placeholder="verificar contraseña"
+            [class.is-invalid]="isSubmitted && registerForm.hasError('passwordsMismatch')">
+          <button type="button" class="btn-toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1"
+            title="Mostrar/Ocultar contraseña">
+            @if (showConfirmPassword) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            }
+          </button>
+        </div>
         @if (isSubmitted && registerForm.hasError('passwordsMismatch')) {
         <span class="error-text">Las contraseñas no coinciden</span>
         }
