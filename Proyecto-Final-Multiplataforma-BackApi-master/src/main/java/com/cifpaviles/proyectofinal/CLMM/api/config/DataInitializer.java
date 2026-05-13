@@ -21,6 +21,7 @@ import java.util.Arrays;
  *   Aislinn  → 5, 4, 3, 2, 2  (flota ágil alta elfa, 16 celdas)
  *   Lokhir   → 5, 3, 3, 2, 2  (flota corsaria rápida, 15 celdas)
  *   Aranessa → 4, 4, 3, 3, 2  (flota pirata pesada, 16 celdas)
+ *   Ikit     → 4, 3, 3, 2, 2  (flota ingeniera skaven, 14 celdas)
  *
  * Catálogo de barcos compartido (nombre + tamaño):
  *   Portaaviones=5, Acorazado=4, Crucero=3, Destructor=2, Lancha=1
@@ -81,7 +82,21 @@ public class DataInitializer {
                 flotaRepo.save(new PersonajeFlotaEntity(aranessa, crucero, 2)); // 2× tamaño 3
                 flotaRepo.save(new PersonajeFlotaEntity(aranessa, destru,  1)); // 1× tamaño 2
 
+
                 System.out.println("Personajes y flotas únicas inicializados.");
+            }
+
+            // Asegurar que Ikit Claw existe (por si se añadió después de los demás)
+            if (personajeRepo.findByNombre("Ikit Claw").isEmpty()) {
+                BarcosCatalogoEntity acoraza = barcosRepo.findByNombre("Acorazado").orElseThrow();
+                BarcosCatalogoEntity crucero = barcosRepo.findByNombre("Crucero").orElseThrow();
+                BarcosCatalogoEntity destru  = barcosRepo.findByNombre("Destructor").orElseThrow();
+
+                PersonajeEntity ikit = personajeRepo.save(new PersonajeEntity("Ikit Claw"));
+                flotaRepo.save(new PersonajeFlotaEntity(ikit, acoraza, 1)); // 1× tamaño 4
+                flotaRepo.save(new PersonajeFlotaEntity(ikit, crucero, 2)); // 2× tamaño 3
+                flotaRepo.save(new PersonajeFlotaEntity(ikit, destru,  2)); // 2× tamaño 2
+                System.out.println("Flota de Ikit Claw inicializada individualmente.");
             }
         };
     }

@@ -57,6 +57,7 @@ public class GameCharacter {
         tamanos.put("Acorazado",    4);
         tamanos.put("Crucero",      3);
         tamanos.put("Destructor",   2);
+        tamanos.put("Submarino",   2);
         tamanos.put("Lancha",       1);
 
         java.util.List<Integer> lista = new java.util.ArrayList<>();

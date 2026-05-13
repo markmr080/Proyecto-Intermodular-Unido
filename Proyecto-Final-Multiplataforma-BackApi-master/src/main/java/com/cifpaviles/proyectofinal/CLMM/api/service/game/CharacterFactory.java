@@ -61,7 +61,7 @@ public class CharacterFactory {
             baseCharacter.anadirBarcoAFlota("Portaaviones", 1);
             baseCharacter.anadirBarcoAFlota("Acorazado", 2);
             baseCharacter.anadirBarcoAFlota("Crucero", 3);
-            baseCharacter.anadirBarcoAFlota("Submarino", 4);
+            baseCharacter.anadirBarcoAFlota("Destructor", 4);
         }
 
         return baseCharacter;
