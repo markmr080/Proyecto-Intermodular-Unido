@@ -116,6 +116,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   placementError: string | null = null;
   private errorTimeout: any;
 
+  isProcessingAction = false;
+
   // Propiedades para la previsualización del drag
   hoverX: number | null = null;
   hoverY: number | null = null;
@@ -190,6 +192,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
     // Escuchar el estado de la partida
     this.socketService.gameState$.subscribe((state) => {
+      this.isProcessingAction = false;
       console.log('[PartidaActiva] gameState recibido:', {
         turnoActualId: state?.turnoActualId,
         miUsername: this.myUsername,
@@ -269,6 +272,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       if (state?.juegoActivo === false && !this.mostrarModal) {
         this.soyGanador = state?.ganadorId === this.myUsername;
         this.mostrarModal = true;
+        this.mostrarMiTablero = false;
+        this.mostrarConfirmacionRendirse = false;
+        this.mostrarModalDesconexion = false;
         // Limpiar sesión activa y flag de modo test al terminar
         localStorage.removeItem(this.SESSION_KEY);
         localStorage.removeItem(`test_mode_${this.roomCode}`);
@@ -298,6 +304,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       this.nombreJugadorDesconectado = nombre;
       this.cuentaAtrasDesconexion = 30;
       this.mostrarModalDesconexion = true;
+      this.mostrarMiTablero = false;
+      this.mostrarConfirmacionRendirse = false;
       if (this.desconexionInterval) clearInterval(this.desconexionInterval);
       this.desconexionInterval = setInterval(() => {
         this.cuentaAtrasDesconexion--;
@@ -323,6 +331,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       if (this.mostrarModal) return; // La partida ya terminó, no mostrar
       console.log('[PartidaActiva] WebSocket propio perdido → mostrando popup de reconexión.');
       this.mostrarModalReconexionPropia = true;
+      this.mostrarMiTablero = false;
+      this.mostrarConfirmacionRendirse = false;
       this.cuentaAtrasPropia = 30;
       this.reconectando = false;
       this.iniciarCuentaAtrasPropia();
@@ -731,7 +741,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   // --- Acciones de Fase COMBATE ---
 
   atacarCasilla(x: number, y: number) {
-    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
+    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno || this.isProcessingAction) return;
+
+    this.isProcessingAction = true;
 
     // Si hay una habilidad de área esperando target, enviamos la habilidad con coordenadas
     if (this.habilidadPendiente) {
@@ -745,7 +757,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   }
 
   usarHabilidad(habilidadId: string) {
-    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno) return;
+    if (this.gameState?.fase !== 'COMBATE' || !this.esMiTurno || this.isProcessingAction) return;
 
     // Habilidades con target: activar modo selección de celda
     if (this.HABILIDADES_CON_TARGET.has(habilidadId)) {
@@ -754,6 +766,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isProcessingAction = true;
     // Habilidades sin target: ejecutar directamente
     this.habilidadPendiente = null;
     this.socketService.usarHabilidad(this.myUsername, this.roomCode, habilidadId);

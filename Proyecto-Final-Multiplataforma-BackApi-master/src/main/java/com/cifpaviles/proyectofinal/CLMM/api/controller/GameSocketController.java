@@ -456,6 +456,7 @@ public class GameSocketController {
             try {
                 Thread.sleep(10_000);
                 roomManager.removeRoom(roomCode);
+                lobbyManager.removeRoom(roomCode);
                 System.out.println("[SALA] Sala " + roomCode + " eliminada de memoria tras fin de partida.");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
