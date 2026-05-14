@@ -4,7 +4,7 @@
 
 
     <!-- ESTADO SUPERIOR O MENSAJES -->
-    <div class="game-header" *ngIf="gameState">
+    <div class="game-header" *ngIf="gameState" [class.game-started]="gameState.fase === 'COMBATE'">
       <h2>Sala: {{roomCode}}</h2>
       <!-- Indicador de Turno o Fase -->
       <div class="turn-indicator" [class.mi-turno]="gameState.fase === 'COMBATE' && esMiTurno"
@@ -14,11 +14,15 @@
         <span *ngIf="gameState.fase === 'COLOCACION'">⚓ FASE DE DESPLIEGUE ⚓</span>
 
         <ng-container *ngIf="gameState.fase === 'COMBATE'">
-          <span *ngIf="esMiTurno">⚔️ ¡ES TU TURNO! ⚔️</span>
-          <span *ngIf="!esMiTurno">🛡️ TURNO ENEMIGO 🛡️</span>
+          <span *ngIf="esMiTurno">⚔️ ATACA ⚔️</span>
+          <span *ngIf="!esMiTurno">🛡️ OBSERVANDO 🛡️</span>
         </ng-container>
       </div>
-      <div class="header-placeholder"></div>
+      <!-- Contador Superior -->
+      <div class="header-timer" *ngIf="gameState.fase === 'COMBATE'">
+        ⏳ {{gameState.tiempoRestante}}
+      </div>
+      <div class="header-placeholder" *ngIf="gameState.fase !== 'COMBATE'"></div>
     </div>
 
     <div class="layout-grid" *ngIf="gameState; else loading">
@@ -140,10 +144,7 @@
         <!-- 1 & 2: TIEMPO / ESTADO DE COLOCACIÓN -->
         <div class="game-info-top">
           <!-- En Combate: Tiempo -->
-          <div class="info-item timer-info" *ngIf="gameState.fase === 'COMBATE'">
-            <span class="label">⏳ TIEMPO RESTANTE</span>
-            <div class="value">{{gameState.tiempoRestante}}s</div>
-          </div>
+
 
           <!-- En Colocación: Instrucciones -->
           <div class="info-item placement-info" *ngIf="gameState.fase === 'COLOCACION'">
