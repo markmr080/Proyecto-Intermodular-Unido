@@ -357,6 +357,7 @@
   padding: 32px;
   width: 90%;
   max-width: 400px;
+  box-sizing: border-box;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -465,6 +466,11 @@
 
   .submit-btn {
     padding: 14px;
+  }
+
+  .modal-content {
+    padding: 24px;
+    width: 88%;
   }
 }
 
