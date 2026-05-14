@@ -82,7 +82,7 @@ Se ha decidido cambiar la mecánica de relocalización por una de **defensa refo
 | ID | Nombre | Personaje | Comportamiento correcto tras el fix |
 |---|---|---|---|
 | `SKL_WUL_3` | Favor Ruinoso | Wulfrik | Escuda 1 celda BARCO aleatoria propia. El enemigo puede atacarla de nuevo sin escudo, pero el barco sobrevive el primer impacto. ✅ |
-| `SKL_AIS_3` | Bruma Marina | Aislinn | Escuda 4 celdas BARCO propias aleatorias. Mismo comportamiento correcto. ✅ |
+| `SKL_AIS_3` | Bruma Marina | Aislinn | Escuda área 2x2 seleccionable en el propio tablero. ✅ |
 | `SKL_LOK_3` | Yelmo del Kraken | Lokhir | Escuda el Arca Negra (barco más grande). El escudo desaparece por completo al primer impacto. ✅ |
 | `SKL_ARA_3` | Hija de Stromfels | Aranessa | Escudo total: el próximo disparo enemigo falla automáticamente (sin afectar tablero). Ya funcionaba correctamente. ✅ |
 

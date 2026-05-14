@@ -92,7 +92,7 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_AIS_2", "Ira de Mathlann", "Golpea en forma de cruz (5 casillas).",
                 SkillType.OFENSIVA, 6, "/imagenes/aislinn_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_AIS_3", "Bruma Marina",
-                "Despliega una niebla en un área 2x2 que protege tus barcos.", SkillType.DEFENSIVA, 5, "/imagenes/aislinn_habilidades/defensiva.png"));
+                "Despliega una niebla en un área 2x2 de tu tablero que protege tus barcos.", SkillType.DEFENSIVA, 5, "/imagenes/aislinn_habilidades/defensiva.png"));
         return c;
     }
 

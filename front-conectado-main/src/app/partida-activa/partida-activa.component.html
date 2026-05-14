@@ -92,12 +92,12 @@
 
           <!-- Banner de targeting activo -->
           <div class="targeting-banner" *ngIf="habilidadPendiente">
-            🎯 Selecciona una casilla del tablero enemigo para lanzar la habilidad
+            🎯 {{ esHabilidadDefensivaPendiente() ? 'Selecciona una zona de TU tablero para protegerla' : 'Selecciona una casilla del tablero enemigo para lanzar la habilidad' }}
             <button class="btn-cancelar-target" (click)="habilidadPendiente = null">✕ Cancelar</button>
           </div>
 
           <!-- TURNO PROPIO o transición tras mi ataque: muestra el tablero enemigo -->
-          <ng-container *ngIf="(esMiTurno && !mostrarTableroTemporal) || mostrarTableroEnemigoTemporal">
+          <ng-container *ngIf="(esMiTurno && !mostrarTableroTemporal && !esHabilidadDefensivaPendiente()) || mostrarTableroEnemigoTemporal">
             <div class="board-label" [ngClass]="mostrarTableroEnemigoTemporal ? 'turno-transicion' : 'turno-ataque'">
               {{ mostrarTableroEnemigoTemporal ? '💥 ¡Resultado del disparo! Observando...' : '⚔️ Tablero Enemigo — ¡Selecciona dónde atacar!' }}
             </div>
@@ -113,15 +113,15 @@
             </div>
           </ng-container>
 
-          <!-- TURNO ENEMIGO o transición tras recibir ataque: muestra tu propio tablero -->
-          <ng-container *ngIf="(!esMiTurno && !mostrarTableroEnemigoTemporal) || mostrarTableroTemporal">
+          <!-- TURNO ENEMIGO o transición tras recibir ataque o HABILIDAD DEFENSIVA PENDIENTE: muestra tu propio tablero -->
+          <ng-container *ngIf="(!esMiTurno && !mostrarTableroEnemigoTemporal) || mostrarTableroTemporal || esHabilidadDefensivaPendiente()">
             <div class="board-label" [ngClass]="mostrarTableroTemporal ? 'turno-transicion' : 'turno-defensa'">
               {{ mostrarTableroTemporal ? '💥 ¡Impacto recibido! Analizando daños...' : '🛡️ Tu Tablero — Observa el ataque enemigo' }}
             </div>
-            <div class="board mi-tablero-defensa">
+            <div class="board mi-tablero-defensa" [class.targeting-active]="esHabilidadDefensivaPendiente()">
               <ng-container *ngFor="let fila of myBoard; let x = index; trackBy: trackByFila">
                 <div *ngFor="let celda of fila; let y = index; trackBy: trackByCelda" class="cell"
-                  [ngClass]="getClaseCasilla(celda, true, x, y)">
+                  [ngClass]="getClaseCasilla(celda, true, x, y)" (click)="usarHabilidadDefensivaConTarget(x, y)">
                   <span *ngIf="celda === 'AGUA_GOLPEADA'">💧</span>
                   <span *ngIf="celda === 'TOCADO'">🔥</span>
                   <span *ngIf="celda === 'HUNDIDO'">💀</span>

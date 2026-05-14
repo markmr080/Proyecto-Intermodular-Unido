@@ -97,6 +97,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     'SKL_WUL_1', // Desafío del Errante — disparo + reveal
     'SKL_WUL_2', // Colmillo de los Mares — horizontal 3
     'SKL_AIS_2', // Ira de Mathlann — cruz
+    'SKL_AIS_3', // Bruma Marina — area 2x2 defensiva manual [NUEVO]
     'SKL_LOK_1', // Andanada Druchii — diagonal
     'SKL_LOK_2', // Furia Corsaria — revelar 3x3
     'SKL_ARA_1', // Pólvora Vampírica — propagación
@@ -771,6 +772,25 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     // Habilidades sin target: ejecutar directamente
     this.habilidadPendiente = null;
     this.socketService.usarHabilidad(this.myUsername, this.roomCode, habilidadId);
+  }
+
+  esHabilidadDefensiva(id: string): boolean {
+    if (!this.miJugador || !this.miJugador.personaje) return false;
+    const hab = this.miJugador.personaje.habilidadesActivas.find((h: any) => h.id === id);
+    return hab?.tipo === 'DEFENSIVA';
+  }
+
+  esHabilidadDefensivaPendiente(): boolean {
+    return !!this.habilidadPendiente && this.esHabilidadDefensiva(this.habilidadPendiente);
+  }
+
+  usarHabilidadDefensivaConTarget(x: number, y: number) {
+    if (this.esHabilidadDefensivaPendiente()) {
+      const hab = this.habilidadPendiente!;
+      this.habilidadPendiente = null;
+      this.isProcessingAction = true;
+      this.socketService.usarHabilidad(this.myUsername, this.roomCode, hab, x, y);
+    }
   }
 
   // --- Helpers HTML ---

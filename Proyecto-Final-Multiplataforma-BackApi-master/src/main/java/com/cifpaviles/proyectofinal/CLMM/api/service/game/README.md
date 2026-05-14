@@ -50,7 +50,7 @@ Ejecuta una habilidad activa:
 | SKL_WUL_3 | Wulfrik | Defensiva | Escuda 1 celda `BARCO` propia aleatoria |
 | SKL_AIS_1 | Aislinn | Ofensiva | 2 disparos aleatorios al enemigo |
 | SKL_AIS_2 | Aislinn | Ofensiva | Cruz de 5 celdas centrada en (x,y) |
-| SKL_AIS_3 | Aislinn | Defensiva | Escuda 4 celdas propias aleatorias |
+| SKL_AIS_3 | Aislinn | Defensiva | Escuda área 2x2 en el tablero propio (manual) |
 | SKL_LOK_1 | Lokhir | Ofensiva | 3 disparos en diagonal desde (x,y) |
 | SKL_LOK_2 | Lokhir | Ofensiva | Marca como `REVELADA` los `BARCO` en área 3×3 sin dañarlos |
 | SKL_LOK_3 | Lokhir | Defensiva | Escuda el Arca Negra (barco más grande); el escudo cae al primer impacto |
