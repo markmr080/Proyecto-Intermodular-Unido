@@ -31,6 +31,7 @@ public class PartidaStatsDocument {
     private int hitsAcertados = 0;
     private int hitsFallados = 0;
     private int barcosHundidos = 0;
+    private boolean ganador = false;
 
     /** Desnormalizado para queries rápidas de ranking sin JOIN a MySQL */
     private String username;
@@ -42,7 +43,7 @@ public class PartidaStatsDocument {
 
     public PartidaStatsDocument(Long idPartida, Long idUsuario, Long idPersonaje,
                                  int hitsAcertados, int hitsFallados, int barcosHundidos,
-                                 String username) {
+                                 String username, boolean ganador) {
         this.idPartida = idPartida;
         this.idUsuario = idUsuario;
         this.idPersonaje = idPersonaje;
@@ -50,6 +51,7 @@ public class PartidaStatsDocument {
         this.hitsFallados = hitsFallados;
         this.barcosHundidos = barcosHundidos;
         this.username = username;
+        this.ganador = ganador;
     }
 
     // -------------------------------------------------------
@@ -58,6 +60,7 @@ public class PartidaStatsDocument {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
 
     public Long getIdPartida() { return idPartida; }
     public void setIdPartida(Long idPartida) { this.idPartida = idPartida; }
@@ -80,7 +83,11 @@ public class PartidaStatsDocument {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
+    public boolean isGanador() { return ganador; }
+    public void setGanador(boolean ganador) { this.ganador = ganador; }
+
     // -------------------------------------------------------
+
     //  Utilidad: porcentaje de puntería calculado al vuelo
     // -------------------------------------------------------
     public String getPunteria() {

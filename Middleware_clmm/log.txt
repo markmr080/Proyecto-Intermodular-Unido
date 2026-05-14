@@ -1,0 +1,120 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------< com.cifpaviles.proyectofinal:Middleware_clmm >------------
+[INFO] Building  0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ Middleware_clmm ---
+[INFO] Deleting C:\Users\thema\Desktop\Proyecto intermodular\Proyecto\Proyecto-Intermodular-Unido\Middleware_clmm\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ Middleware_clmm ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ Middleware_clmm ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 28 source files with javac [debug parameters release 21] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/AuthController.java:[11,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/interfaces/IAuthService.java:[5,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/interfaces/IAuthService.java:[24,5] cannot find symbol
+  symbol:   class UsuarioEntity
+  location: interface com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.interfaces.IAuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[16,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[17,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.repository.mysql does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[20,93] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[21,93] package com.cifpaviles.proyectofinal.Middleware_clmm.api.repository.mysql does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[3,75] package com.cifpaviles.proyectofinal.Middleware_clmm.api.service.interfaces does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[15,19] cannot find symbol
+  symbol:   class IUsuarioService
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.UsuarioController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[18,30] cannot find symbol
+  symbol:   class IUsuarioService
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.UsuarioController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[3,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[4,75] package com.cifpaviles.proyectofinal.Middleware_clmm.api.service.interfaces does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[14,19] cannot find symbol
+  symbol:   class IUsuarioService
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[17,24] cannot find symbol
+  symbol:   class IUsuarioService
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[49,12] cannot find symbol
+  symbol:   class UsuarioEntity
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[20,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[31,91] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/AuthController.java:[56,9] cannot find symbol
+  symbol:   class UsuarioEntity
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.AuthController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[37,97] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[40,82] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[41,90] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[43,90] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[31,9] cannot find symbol
+  symbol:   class UsuarioEntity
+  location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[112,101] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[115,86] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[116,101] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[INFO] 26 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.630 s
+[INFO] Finished at: 2026-05-14T20:42:31+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project Middleware_clmm: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/AuthController.java:[11,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/interfaces/IAuthService.java:[5,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/interfaces/IAuthService.java:[24,5] cannot find symbol
+[ERROR]   symbol:   class UsuarioEntity
+[ERROR]   location: interface com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.interfaces.IAuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[16,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[17,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.repository.mysql does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[20,93] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[21,93] package com.cifpaviles.proyectofinal.Middleware_clmm.api.repository.mysql does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[3,75] package com.cifpaviles.proyectofinal.Middleware_clmm.api.service.interfaces does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[15,19] cannot find symbol
+[ERROR]   symbol:   class IUsuarioService
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.UsuarioController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/UsuarioController.java:[18,30] cannot find symbol
+[ERROR]   symbol:   class IUsuarioService
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.UsuarioController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[3,69] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[4,75] package com.cifpaviles.proyectofinal.Middleware_clmm.api.service.interfaces does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[14,19] cannot find symbol
+[ERROR]   symbol:   class IUsuarioService
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[17,24] cannot find symbol
+[ERROR]   symbol:   class IUsuarioService
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[49,12] cannot find symbol
+[ERROR]   symbol:   class UsuarioEntity
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[20,84] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[31,91] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.repository does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/AuthController.java:[56,9] cannot find symbol
+[ERROR]   symbol:   class UsuarioEntity
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.controller.AuthController
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[37,97] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[40,82] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[41,90] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/controller/LobbyController.java:[43,90] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/service/impl/AuthService.java:[31,9] cannot find symbol
+[ERROR]   symbol:   class UsuarioEntity
+[ERROR]   location: class com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.AuthService
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[112,101] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[115,86] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] /C:/Users/thema/Desktop/Proyecto intermodular/Proyecto/Proyecto-Intermodular-Unido/Middleware_clmm/src/main/java/com/cifpaviles/proyectofinal/Middleware_clmm/middleware/sockets/SocketService.java:[116,101] package com.cifpaviles.proyectofinal.Middleware_clmm.api.model.entity does not exist
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -1,7 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.api.service.impl;
 
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.LoginDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.RegistroDTO;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEmailService;
@@ -123,10 +123,10 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO getProfileByUsername(String username) {
+    public com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO getProfileByUsername(String username) {
         UsuarioEntity user = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
-        return new com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO(
+        return new com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO(
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfilePicture()

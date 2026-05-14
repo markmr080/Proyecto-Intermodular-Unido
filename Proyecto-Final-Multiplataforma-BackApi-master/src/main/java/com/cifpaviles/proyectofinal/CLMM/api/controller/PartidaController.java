@@ -3,7 +3,6 @@ package com.cifpaviles.proyectofinal.CLMM.api.controller;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity;
 import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
-import com.cifpaviles.proyectofinal.CLMM.api.service.game.GameRoomManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,11 +22,9 @@ import java.util.Map;
 public class PartidaController {
 
     private final PartidaRepository partidaRepository;
-    private final GameRoomManager gameRoomManager;
 
-    public PartidaController(PartidaRepository partidaRepository, GameRoomManager gameRoomManager) {
+    public PartidaController(PartidaRepository partidaRepository) {
         this.partidaRepository = partidaRepository;
-        this.gameRoomManager = gameRoomManager;
     }
 
     /** Lista todas las partidas almacenadas. */
@@ -69,15 +66,4 @@ public class PartidaController {
         return ResponseEntity.ok(Map.of("message", "Partida " + id + " eliminada correctamente"));
     }
 
-    /**
-     * Comprueba si la sala de juego indicada tiene una partida activa en memoria.
-     * El frontend lo usa al cargar el menú para decidir si mostrar el popup de
-     * reconexión.
-     * Devuelve {"activa": true/false}.
-     */
-    @GetMapping("/sala-activa/{roomCode}")
-    public ResponseEntity<Map<String, Boolean>> isSalaActiva(@PathVariable String roomCode) {
-        boolean activa = gameRoomManager.isRoomActive(roomCode);
-        return ResponseEntity.ok(Map.of("activa", activa));
-    }
 }

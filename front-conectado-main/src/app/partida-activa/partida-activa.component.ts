@@ -864,12 +864,16 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   get habilidadesOfensivas(): any[] {
     if (!this.miJugador || !this.miJugador.personaje) return [];
-    return this.miJugador.personaje.habilidadesActivas.filter((h: any) => h.tipo === 'OFENSIVA');
+    return (this.miJugador.personaje.habilidadesActivas || []).filter((h: any) =>
+      h.tipo === 'ACTIVA_OFENSIVA' || h.tipo === 'OFENSIVA'
+    );
   }
 
   get habilidadesDefensivas(): any[] {
     if (!this.miJugador || !this.miJugador.personaje) return [];
-    return this.miJugador.personaje.habilidadesActivas.filter((h: any) => h.tipo === 'DEFENSIVA');
+    return (this.miJugador.personaje.habilidadesActivas || []).filter((h: any) =>
+      h.tipo === 'ACTIVA_DEFENSIVA' || h.tipo === 'DEFENSIVA'
+    );
   }
 
   // --- Funciones TrackBy para evitar parpadeos en re-renders ---

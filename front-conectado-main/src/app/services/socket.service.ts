@@ -44,7 +44,7 @@ export class SocketService {
     if (this.socket) return;
 
     const socketUrl = window.location.hostname === 'localhost'
-      ? 'http://localhost:8081'
+      ? 'http://localhost:8082'
       : `https://${window.location.hostname}`;
 
     const token = sessionStorage.getItem('auth_token') || '';
@@ -59,7 +59,7 @@ export class SocketService {
     // Usamos un flag para distinguir el primer connect de los siguientes (reconexiones).
     let primerConexion = true;
     this.socket.on('connect', () => {
-      console.log('[SocketService] Conectado al servidor SocketIO (8081). SessionId:', this.socket?.id);
+      console.log('[SocketService] Conectado al servidor SocketIO (8082). SessionId:', this.socket?.id);
       if (!primerConexion) {
         // Reconexión automática de socket.io: notificar al componente
         this.ngZone.run(() => this.miReconexion$.next());
@@ -114,6 +114,11 @@ export class SocketService {
   public registrarUsuario(userId: string) {
     this.connect();
     this.socket.emit('registrar-usuario', userId);
+  }
+
+  public joinLobby(roomCode: string) {
+    this.connect();
+    this.socket.emit('join-lobby', roomCode);
   }
 
   public solicitarUnirse(codigoSala: string, user: any) {

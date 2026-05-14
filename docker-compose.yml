@@ -22,41 +22,48 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  # 3. Tu Backend (Spring Boot)
-  backend:
+  # 3. Backend API (Motor de datos)
+  backend-api:
     build: ./Proyecto-Final-Multiplataforma-BackApi-master
     restart: always
-
     command: [ "java", "-Dspring.data.mongodb.uri=mongodb://mongo-db:27017/batalla_naval_stats", "-jar", "app.jar" ]
-
     ports:
-      - "8080:8080"
       - "8081:8081"
+      - "8082:8082"
     environment:
+      - SERVER_PORT=8081
       - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
-      - SERVER_FORWARD_HEADERS_STRATEGY=framework # <--- AÑADE ESTA LÍNEA
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/prueba_prfinal?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_DATA_MONGODB_URI=mongodb://mongo-db:27017/batalla_naval_stats
       - SPRING_DATA_MONGODB_DATABASE=batalla_naval_stats
     depends_on:
       - mysql-db
       - mongo-db
 
-    stdin_open: true
-    tty: true
+  # 4. Middleware (Seguridad y Lógica)
+  middleware:
+    build: ./Middleware_clmm
+    restart: always
+    ports:
+      - "8080:8080"
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8080
+      - BACKEND_API_URL=http://backend-api:8081
+      - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
+    depends_on:
+      - backend-api
 
   # 4. Tu Frontend (Angular)
   frontend:
     build: ./front-conectado-main
     restart: always
     ports:
-      - "8082:80"
+      - "4200:80"
     depends_on:
-      - backend
+      - middleware
 
 # Declaramos los volúmenes para no perder datos si apagamos Docker
 volumes:
