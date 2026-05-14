@@ -2,7 +2,6 @@ package com.cifpaviles.proyectofinal.CLMM.api.service.impl;
 
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaStatsDocument;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
-import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.repository.mongo.EstadisticasRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEstadisticasService;
