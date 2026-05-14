@@ -90,6 +90,18 @@
   /* Para mantener simetría con el logo/título de la izquierda */
 }
 
+.header-timer {
+  width: 150px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #f1c40f;
+  text-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+  letter-spacing: 1px;
+}
+
 /* GRID PRINCIPAL 3 COLUMNAS */
 .layout-grid {
   display: grid;
@@ -2016,12 +2028,19 @@
     height: auto;
     min-height: 50px;
     padding: 8px 15px;
-    flex-wrap: wrap;
-    /* Permitir que el texto salte de línea si es largo */
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 8px;
     flex: 0 0 auto;
-    /* No encoger, no crecer */
+    position: relative;
+  }
+
+  /* Espaciador para centrar el indicador de turno cuando el h2 no está */
+  .game-header.game-started::before {
+    content: '';
+    width: 60px;
+    display: block;
   }
 
   .game-header h2 {
@@ -2029,6 +2048,11 @@
     white-space: normal;
     text-align: center;
     word-break: break-word;
+    flex: 0 1 auto;
+  }
+
+  .game-header.game-started h2 {
+    display: none;
   }
 
   .turn-indicator {
@@ -2037,6 +2061,13 @@
     text-align: center;
     order: unset;
     padding-bottom: 0;
+    flex: 1;
+  }
+
+  .header-timer {
+    width: 60px;
+    justify-content: flex-end;
+    font-size: 1.1rem;
   }
 
   .header-placeholder {
@@ -2147,17 +2178,7 @@
 
   .board-title,
   .board-label {
-    font-size: 0.85rem;
-    margin-bottom: 5px;
-    padding: 2px 5px;
-    flex: 0 0 auto;
-    white-space: normal;
-    text-align: center;
-    min-height: 44px;
-    /* Evita que el texto cambie de tamaño y añada scrollbars repentinos */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: none;
   }
 
   .board {
