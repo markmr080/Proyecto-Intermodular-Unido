@@ -1088,7 +1088,9 @@ public class GameEngine {
                     j2.getId().equals(ganadorId));
 
             if (idPartida != null) {
-                backendClient.actualizarEstadoPartida(idPartida, "FINALIZADA");
+                // Resolver el username del ganador (el id en Player ES el username)
+                String ganadorUsername = ganadorId;
+                backendClient.actualizarEstadoPartida(idPartida, "FINALIZADA", ganadorUsername);
             }
         } catch (Exception e) {
             System.err.println("Error guardando estadísticas y estado: " + e.getMessage());

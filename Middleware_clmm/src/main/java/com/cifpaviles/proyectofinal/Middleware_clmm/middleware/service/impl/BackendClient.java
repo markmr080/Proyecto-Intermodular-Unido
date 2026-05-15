@@ -136,6 +136,17 @@ public class BackendClient {
                 .toBodilessEntity();
     }
 
+    public void actualizarEstadoPartida(Long idPartida, String estado, String ganadorUsername) {
+        String uri = "/api/partidas/" + idPartida + "/estado?estado=" + estado;
+        if (ganadorUsername != null && !ganadorUsername.isBlank()) {
+            uri += "&ganador=" + ganadorUsername;
+        }
+        restClient.put()
+                .uri(uri)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
     public com.cifpaviles.proyectofinal.Middleware_clmm.middleware.model.dto.StatsAgregadasDTO getEstadisticasJugador(String username) {
         return restClient.get()
                 .uri("/api/estadisticas/jugador/" + username)

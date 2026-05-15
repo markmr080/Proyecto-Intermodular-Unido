@@ -86,18 +86,30 @@ public class PartidaController {
 
     /**
      * Actualiza el estado de la partida (EN_CURSO, FINALIZADA, etc).
+     * Opcionalmente acepta el username del ganador para persistirlo en SQL.
+     *
+     * @param ganador (opcional) username del jugador ganador
      */
     @PutMapping("/{id}/estado")
-    public ResponseEntity<?> actualizarEstado(@PathVariable Long id, @RequestParam String estado) {
+    public ResponseEntity<?> actualizarEstado(
+            @PathVariable Long id,
+            @RequestParam String estado,
+            @RequestParam(required = false) String ganador) {
+
         PartidaEntity partida = partidaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
-                
+
         partida.setEstado(EstadoPartida.valueOf(estado.toUpperCase()));
-        
+
         if (estado.equalsIgnoreCase("FINALIZADA") || estado.equalsIgnoreCase("CAIDA_SERVIDOR")) {
             partida.setFechaFin(java.time.LocalDateTime.now());
         }
-        
+
+        // Registrar el ganador si se ha proporcionado su username
+        if (ganador != null && !ganador.isBlank()) {
+            usuarioRepository.findByUsername(ganador).ifPresent(partida::setGanador);
+        }
+
         partidaRepository.save(partida);
         return ResponseEntity.ok().build();
     }
