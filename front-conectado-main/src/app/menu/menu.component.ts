@@ -72,7 +72,7 @@ export class MenuComponent implements OnInit {
         { name: 'Señor del Mar Alto Elfo', desc: '20% probabilidad de ignorar escudos y protecciones.', type: 'passive', icon: '/imagenes/aislinn_habilidades/pasiva.png' },
         { name: 'Corte de Lothern', desc: 'Dos disparos independientes en dos casillas separadas.', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva1.png' },
         { name: 'Ira de Mathlann', desc: 'Golpea en forma de cruz (5 casillas).', type: 'offensive', icon: '/imagenes/aislinn_habilidades/ofensiva2.png' },
-        { name: 'Bruma Marina', desc: 'Oculta 4 casillas propias aleatorias.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
+        { name: 'Bruma Marina', desc: 'Despliega una niebla en un área 2x2 de tu tablero que protege tus barcos.', type: 'defensive', icon: '/imagenes/aislinn_habilidades/defensiva.png' }
       ]
     },
     {
