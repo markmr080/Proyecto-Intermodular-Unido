@@ -43,21 +43,41 @@ public class AuthController {
     // porque "Todos los endpoints requieren token (excepto /api/auth/login)"
     @PostMapping("/register")
     public ResponseEntity<?> registrar(@Valid @RequestBody RegistroDTO registroDTO) {
-        authService.registrar(registroDTO);
-        return ResponseEntity.ok(Map.of(
-                "message", "Usuario " + registroDTO.getUsername() + " registrado con éxito por el Middleware"
-        ));
+        try {
+            authService.registrar(registroDTO);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Usuario " + registroDTO.getUsername() + " registrado con éxito por el Middleware"
+            ));
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if (msg.contains("EMAIL_DUPLICADO"))
+                return ResponseEntity.status(409).body(Map.of("error", "EMAIL_DUPLICADO", "message", "El correo ya está en uso"));
+            if (msg.contains("USERNAME_DUPLICADO"))
+                return ResponseEntity.status(409).body(Map.of("error", "USERNAME_DUPLICADO", "message", "El nombre de usuario ya está en uso"));
+            return ResponseEntity.status(500).body(Map.of("error", "ERROR_REGISTRO", "message", "Error al registrar el usuario"));
+        }
     }
 
     // Endpoint para que el middleware valide las credenciales de un usuario final
     @PostMapping("/validate-user")
     public ResponseEntity<?> validateUser(@Valid @RequestBody LoginDTO loginDTO) {
-        UserProfileDTO user = authService.validateUser(loginDTO);
-        return ResponseEntity.ok(Map.of(
-                "message", "User credentials valid",
-                "username", user.getUsername(),
-                "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : ""
-        ));
+        try {
+            UserProfileDTO user = authService.validateUser(loginDTO);
+            return ResponseEntity.ok(Map.of(
+                    "message", "User credentials valid",
+                    "username", user.getUsername(),
+                    "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : ""
+            ));
+        } catch (RuntimeException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if ("USUARIO_NO_ENCONTRADO".equals(msg) || "PASSWORD_INCORRECTO".equals(msg)) {
+                // The frontend checks if (err.error === 'USUARIO_NO_ENCONTRADO') so we return the raw string or format it as the frontend expects it
+                // Wait! In the frontend: "if (err.error === 'USUARIO_NO_ENCONTRADO')"
+                // If we return ResponseEntity.status(401).body(msg), Spring boot converts it to plain text "USUARIO_NO_ENCONTRADO"
+                return ResponseEntity.status(401).body(msg);
+            }
+            return ResponseEntity.status(500).body(Map.of("error", "ERROR_INTERNO"));
+        }
     }
 
     @PostMapping("/forgot-password")

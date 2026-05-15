@@ -32,9 +32,18 @@ public class GameEngine {
 
     private GameState state;
     private com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl.BackendClient backendClient;
+    private Long idPartida;
 
     public GameEngine(GameState state) {
         this.state = state;
+    }
+
+    public void setIdPartida(Long idPartida) {
+        this.idPartida = idPartida;
+    }
+
+    public Long getIdPartida() {
+        return idPartida;
     }
 
     public void setBackendClient(
@@ -1047,16 +1056,16 @@ public class GameEngine {
 
     private void verificarVictoria() {
         if (!state.getJugador1().estaVivo()) {
-            finalizarJuego(state.getJugador2().getId());
+            finalizarJuego(state.getJugador2().getId(), "¡FIN DE LA PARTIDA!");
         } else if (!state.getJugador2().estaVivo()) {
-            finalizarJuego(state.getJugador1().getId());
+            finalizarJuego(state.getJugador1().getId(), "¡FIN DE LA PARTIDA!");
         }
     }
 
-    private void finalizarJuego(String ganadorId) {
+    public void finalizarJuego(String ganadorId, String mensaje) {
         state.setJuegoActivo(false);
         state.setGanadorId(ganadorId);
-        state.setMensajeEstado("¡FIN DE LA PARTIDA!");
+        state.setMensajeEstado(mensaje);
 
         // Guardar estadísticas en el backend de forma asíncrona
         if (backendClient != null && !state.isStatsGuardadas()) {
@@ -1077,8 +1086,12 @@ public class GameEngine {
                     j2.getPersonaje() != null ? j2.getPersonaje().getNombre() : "",
                     j2.getHitsAcertados(), j2.getHitsFallados(), j2.getBarcosHundidos(),
                     j2.getId().equals(ganadorId));
+
+            if (idPartida != null) {
+                backendClient.actualizarEstadoPartida(idPartida, "FINALIZADA");
+            }
         } catch (Exception e) {
-            System.err.println("Error guardando estadísticas: " + e.getMessage());
+            System.err.println("Error guardando estadísticas y estado: " + e.getMessage());
         }
     }
 

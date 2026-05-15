@@ -42,4 +42,10 @@ public interface IEstadisticasService {
      * @return Lista de documentos de stats.
      */
     List<PartidaStatsDocument> getHistorial(Long idUsuario);
+
+    /**
+     * Actualiza el username desnormalizado en todos los documentos de un jugador
+     * cuando este se cambia de nombre.
+     */
+    void actualizarUsernameStats(Long idUsuario, String newUsername);
 }

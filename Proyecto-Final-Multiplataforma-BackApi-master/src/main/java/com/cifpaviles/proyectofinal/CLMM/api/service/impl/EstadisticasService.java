@@ -62,4 +62,13 @@ public class EstadisticasService implements IEstadisticasService {
     public List<PartidaStatsDocument> getHistorial(Long idUsuario) {
         return mongoStatsRepository.findByIdUsuario(idUsuario);
     }
+
+    @Override
+    public void actualizarUsernameStats(Long idUsuario, String newUsername) {
+        List<PartidaStatsDocument> historial = mongoStatsRepository.findByIdUsuario(idUsuario);
+        for (PartidaStatsDocument doc : historial) {
+            doc.setUsername(newUsername);
+        }
+        mongoStatsRepository.saveAll(historial);
+    }
 }

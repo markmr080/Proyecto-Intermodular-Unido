@@ -22,13 +22,28 @@ public class UsuarioController {
 
     @PostMapping("/validar")
     public ResponseEntity<?> validarCredenciales(@Valid @RequestBody com.cifpaviles.proyectofinal.CLMM.api.model.dto.LoginDTO loginDTO) {
-        return ResponseEntity.ok(usuarioService.validarCredenciales(loginDTO));
+        try {
+            return ResponseEntity.ok(usuarioService.validarCredenciales(loginDTO));
+        } catch (RuntimeException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if ("USUARIO_NO_ENCONTRADO".equals(msg) || "PASSWORD_INCORRECTO".equals(msg)) {
+                return ResponseEntity.status(401).body(Map.of("error", msg));
+            }
+            return ResponseEntity.status(500).body(Map.of("error", "ERROR_INTERNO"));
+        }
     }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> crearJugador(@Valid @RequestBody RegistroDTO registroDTO) {
-        usuarioService.registrarUsuario(registroDTO);
-        return ResponseEntity.ok(Map.of("message", "Jugador registrado con éxito"));
+        try {
+            usuarioService.registrarUsuario(registroDTO);
+            return ResponseEntity.ok(Map.of("message", "Jugador registrado con éxito"));
+        } catch (RuntimeException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if ("EMAIL_DUPLICADO".equals(msg) || "USERNAME_DUPLICADO".equals(msg))
+                return ResponseEntity.status(409).body(Map.of("error", msg));
+            return ResponseEntity.status(500).body(Map.of("error", "ERROR_INTERNO"));
+        }
     }
 
     @GetMapping("/verificar-email")

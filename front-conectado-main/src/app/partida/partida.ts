@@ -181,11 +181,18 @@ export class Partida implements OnInit, OnDestroy {
   aceptarJugador(player: any) {
     if (this.player2) return;
     this.socketService.aceptarSolicitud(this.roomCode, player);
+
+    // Rechazar automáticamente a los demás solicitantes
+    const otrosSolicitantes = this.pendingPlayers.filter(p => p.requesterId !== player.requesterId);
+    for (const otro of otrosSolicitantes) {
+      this.socketService.rechazarSolicitud(otro.requesterId, 'La sala ya está llena.');
+    }
+    this.pendingPlayers = [];
   }
 
   rechazarJugador(player: any) {
     this.pendingPlayers = this.pendingPlayers.filter(p => p.requesterId !== player.requesterId);
-    this.socketService.rechazarSolicitud(player.requesterId);
+    this.socketService.rechazarSolicitud(player.requesterId, 'El anfitrión ha rechazado tu solicitud.');
   }
 
   abandonarSalaNotificar() {

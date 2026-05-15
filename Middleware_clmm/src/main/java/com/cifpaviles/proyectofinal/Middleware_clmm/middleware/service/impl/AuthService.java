@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService implements IAuthService {
 
-    private final BackendClient backendClient; // El cliente HTTP hacia la API
+    private final BackendClient backendClient;
     private final JwtProvider jwtProvider;
+    private final EmailService emailService;
 
-    public AuthService(BackendClient backendClient, JwtProvider jwtProvider) {
+    public AuthService(BackendClient backendClient, JwtProvider jwtProvider, EmailService emailService) {
         this.backendClient = backendClient;
         this.jwtProvider = jwtProvider;
+        this.emailService = emailService;
     }
 
     @Override
@@ -39,9 +41,9 @@ public class AuthService implements IAuthService {
 
     @Override
     public void registrar(RegistroDTO registroDTO) {
-        // El registro de usuarios (jugadores) ahora pasa por aquí.
-        // Como el Middleware es el que manda, él usa el cliente HTTP de la API para guardar.
         backendClient.registrarUsuario(registroDTO);
+        // El Middleware envía directamente el correo de bienvenida
+        emailService.enviarCorreoBienvenida(registroDTO.getEmail(), registroDTO.getUsername());
     }
 
     @Override
@@ -52,11 +54,11 @@ public class AuthService implements IAuthService {
 
     @Override
     public void forgotPassword(String email) {
-        // Verifica si el email existe
+        // Verifica si el email existe en la API
         backendClient.verificarEmail(email);
-        // Genera token usando el email como payload
-        String token = jwtProvider.generarToken(email);
-        backendClient.enviarCorreoRecuperacion(email, token);
+        // Token de recuperación: expira en 20 min, subject = email
+        String token = jwtProvider.generarTokenRecuperacion(email);
+        emailService.enviarCorreoRecuperacion(email, token);
     }
 
     @Override

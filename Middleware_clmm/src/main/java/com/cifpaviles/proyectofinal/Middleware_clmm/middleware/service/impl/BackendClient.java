@@ -23,21 +23,42 @@ public class BackendClient {
     }
 
     public UserProfileDTO validarCredenciales(LoginDTO loginDTO) {
-        return restClient.post()
-                .uri("/api/user/validar")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(loginDTO)
-                .retrieve()
-                .body(UserProfileDTO.class);
+        try {
+            return restClient.post()
+                    .uri("/api/user/validar")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(loginDTO)
+                    .retrieve()
+                    .body(UserProfileDTO.class);
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            String body = e.getResponseBodyAsString();
+            if (body.contains("USUARIO_NO_ENCONTRADO")) {
+                throw new RuntimeException("USUARIO_NO_ENCONTRADO");
+            } else if (body.contains("PASSWORD_INCORRECTO")) {
+                throw new RuntimeException("PASSWORD_INCORRECTO");
+            }
+            throw new RuntimeException("ERROR_API: " + e.getStatusCode());
+        }
     }
 
     public void registrarUsuario(RegistroDTO registroDTO) {
-        restClient.post()
-                .uri("/api/user/registrar")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(registroDTO)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            restClient.post()
+                    .uri("/api/user/registrar")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(registroDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            // El body vendrá como JSON: {"error": "EMAIL_DUPLICADO"}
+            String body = e.getResponseBodyAsString();
+            if (body.contains("EMAIL_DUPLICADO")) {
+                throw new RuntimeException("EMAIL_DUPLICADO");
+            } else if (body.contains("USERNAME_DUPLICADO")) {
+                throw new RuntimeException("USERNAME_DUPLICADO");
+            }
+            throw new RuntimeException("ERROR_API: " + e.getStatusCode());
+        }
     }
 
     public void verificarEmail(String email) {
@@ -142,6 +163,13 @@ public class BackendClient {
                 .uri("/api/estadisticas/guardar")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(body)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void eliminarPartida(Long idPartida) {
+        restClient.delete()
+                .uri("/api/partidas/" + idPartida)
                 .retrieve()
                 .toBodilessEntity();
     }

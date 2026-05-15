@@ -38,21 +38,30 @@ export class SocketService {
 
   constructor(private ngZone: NgZone) { }
 
-  public connect() {
-    // Solo creamos el socket si aún no existe.
-    // NO recreamos si ya existe (aunque esté reconectando) para no perder los listeners.
-    if (this.socket) return;
-
+  public connect(token?: string) {
     const socketUrl = window.location.hostname === 'localhost'
       ? 'http://localhost:8082'
       : `https://${window.location.hostname}`;
 
-    const token = sessionStorage.getItem('auth_token') || '';
+    // Si ya existe el socket, comprobamos si el token ha cambiado
+    if (this.socket) {
+      if (token && this.socket.io.opts.query.token !== token) {
+        console.log('[SocketService] Actualizando token del socket...');
+        this.socket.io.opts.query.token = token;
+        this.socket.disconnect().connect();
+      }
+      return;
+    }
+
+    const finalToken = token || sessionStorage.getItem('auth_token') || '';
+    console.log('[SocketService] Conectando con token:', finalToken ? '***' : 'VACÍO');
 
     this.socket = io.connect(socketUrl, {
       transports: ['websocket'],
       autoConnect: true,
-      query: { token: token }
+      query: { token: finalToken },
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000
     });
 
     // El evento 'connect' se dispara en la conexión inicial Y en cada reconexión automática.
@@ -140,8 +149,8 @@ export class SocketService {
     });
   }
 
-  public rechazarSolicitud(requesterId: string) {
-    this.socket.emit('rechazar-solicitud', requesterId);
+  public rechazarSolicitud(requesterId: string, mensaje: string = 'Tu solicitud ha sido rechazada.') {
+    this.socket.emit('rechazar-solicitud', { requesterId, mensaje });
   }
 
   public cerrarSala(codigoSala: string) {

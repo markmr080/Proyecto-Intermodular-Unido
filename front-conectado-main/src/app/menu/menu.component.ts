@@ -31,7 +31,10 @@ export class MenuComponent implements OnInit {
   // --- Popup de reconexión ---
   mostrarPopupReconexion = false;
   roomCodeReconexion = '';
-  private readonly SESSION_KEY = 'game_active_session';
+  /** Clave de sesión por usuario para evitar conflictos en el mismo navegador. */
+  private get SESSION_KEY(): string {
+    return `game_active_session_${this.authService.getCurrentUsername()}`;
+  }
 
   nextChar() {
     this.currentMobileIndex = (this.currentMobileIndex + 1) % this.characters.length;
@@ -118,35 +121,50 @@ export class MenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Conectar al socket pasando el token para evitar rechazos
+    const token = this.authService.getToken();
+    console.log('[Menu] Iniciando conexión socket...');
+    this.socketService.connect(token || undefined);
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      console.log('[Menu] Registrando usuario en socket:', user.username);
+      this.socketService.registrarUsuario(user.username);
+    }
+
     // Comprobar si hay una sesión de partida activa pendiente de reconexion
+    // La clave es específica por usuario, así no hay conflictos entre jugadores en el mismo navegador
     try {
       const raw = localStorage.getItem(this.SESSION_KEY);
+      console.log('[Menu] Comprobando localStorage:', this.SESSION_KEY, '=>', raw);
       if (raw) {
         const session = JSON.parse(raw);
-        const username = this.authService.getCurrentUsername();
-        if (session.roomCode && session.username === username) {
+        if (session.roomCode) {
+          console.log('[Menu] Sesión encontrada. Verificando sala con servidor:', session.roomCode);
           // VERIFICACIÓN: Comprobar con el servidor si la sala sigue activa
           this.roomService.isSalaActiva(session.roomCode).subscribe({
             next: (resp) => {
+              console.log('[Menu] Respuesta de isSalaActiva:', resp);
               if (resp.activa) {
                 this.roomCodeReconexion = session.roomCode;
-                // Pequeño delay para que el menú se pinte primero
                 setTimeout(() => {
+                  console.log('[Menu] Mostrando popup de reconexión ahora.');
                   this.mostrarPopupReconexion = true;
                 }, 600);
               } else {
-                // La sala ya no existe o no está activa -> limpiar
+                console.log('[Menu] La sala ya no está activa según el servidor.');
                 localStorage.removeItem(this.SESSION_KEY);
               }
             },
-            error: () => {
-              // Si hay error (ej. servidor caído), mejor no mostrar nada
-              localStorage.removeItem(this.SESSION_KEY);
+            error: (err) => {
+              console.error('[Menu] Error al verificar sala activa (se mantiene la sesión):', err);
             }
           });
         }
       }
-    } catch (e) { /* ignorar */ }
+    } catch (e) {
+      console.error('[Menu] Error parseando sesión de localStorage:', e);
+    }
 
     // Escuchar si la reconexión expira mientras estamos en el menú
     this.subscriptions.add(
@@ -159,12 +177,6 @@ export class MenuComponent implements OnInit {
       })
     );
 
-    // Conectar al socket para poder recibir el evento anterior
-    this.socketService.connect();
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.socketService.registrarUsuario(user.username);
-    }
   }
 
   ngOnDestroy(): void {

@@ -21,6 +21,9 @@ public class JwtProvider {
     @Value("${jwt.expiration.ms}")
     private long jwtExpirationMs;
 
+    @Value("${jwt.recovery.expiration.ms:1200000}")
+    private long jwtRecoveryExpirationMs;
+
     public JwtProvider(@Value("${jwt.secret}") String secretSeed) {
         this.key = Keys.hmacShaKeyFor(secretSeed.getBytes(StandardCharsets.UTF_8));
     }
@@ -41,8 +44,20 @@ public class JwtProvider {
     }
 
     /**
-     * Genera un token SIN fingerprint (uso interno: recuperación de contraseña).
-     * Se mantiene para no romper el flujo de forgot-password.
+     * Genera un token de recuperación de contraseña (sin fingerprint, expira en 20 min).
+     * El subject es el EMAIL del usuario, no el username.
+     */
+    public String generarTokenRecuperacion(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtRecoveryExpirationMs))
+                .signWith(key)
+                .compact();
+    }
+
+    /**
+     * Genera un token SIN fingerprint (uso interno).
      */
     public String generarToken(String nombreUsuario) {
         return Jwts.builder()

@@ -1,43 +1,40 @@
-package com.cifpaviles.proyectofinal.CLMM.api.service.impl;
+package com.cifpaviles.proyectofinal.Middleware_clmm.middleware.service.impl;
 
-import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEmailService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 
 @Service
-public class EmailService implements IEmailService {
+public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    // Inyectamos la URL desde el archivo de propiedades
-    @org.springframework.beans.factory.annotation.Value("${app.frontend.url}")
+    @Value("${app.frontend.url:http://localhost:4200}")
     private String frontendUrl;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    @Override
     @Async
     public void enviarCorreoBienvenida(String destinatario, String nombreUsuario) {
         SimpleMailMessage mensaje = new SimpleMailMessage();
-
         mensaje.setTo(destinatario);
-        mensaje.setSubject(
-                "Bienvenido a Hundir la flota de warhammer, no sabemos por que las ratas estan aqui, pero lo estan.");
-        mensaje.setText("Hola " + nombreUsuario + ", ¡tu registro ha sido un éxito!");
-
+        mensaje.setSubject("Bienvenido a Hundir la flota de Warhammer");
+        mensaje.setText("Hola " + nombreUsuario + ", ¡tu registro ha sido un éxito!\n\n"
+                + "Ya puedes acceder a tu cuenta en: " + frontendUrl);
         mailSender.send(mensaje);
     }
 
-    @Override
     @Async
     public void enviarCorreoRecuperacion(String destinatario, String token) {
+        String urlRecuperacion = frontendUrl + "/reset-password?token=" + token;
+
         try {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
@@ -45,26 +42,22 @@ public class EmailService implements IEmailService {
             helper.setTo(destinatario);
             helper.setSubject("Recuperación de contraseña - Warhammer Battleship");
 
-            // USAMOS LA VARIABLE EN LUGAR DE LOCALHOST
-            String urlRecuperacion = frontendUrl + "/reset-password?token=" + token;
-
             String htmlBody = "<p>Has solicitado restablecer tu contraseña.</p>"
-                    + "<p><a href=\"" + urlRecuperacion
-                    + "\" style=\"display: inline-block; padding: 10px 20px; color: white; background-color: #a67b4b; text-decoration: none; border-radius: 5px;\">"
-                    + "Haz click aquí para restablecerla"
-                    + "</a></p>"
+                    + "<p><a href=\"" + urlRecuperacion + "\""
+                    + " style=\"display:inline-block;padding:10px 20px;color:white;"
+                    + "background-color:#a67b4b;text-decoration:none;border-radius:5px;\">"
+                    + "Haz click aquí para restablecerla</a></p>"
                     + "<p>Si no has sido tú, ignora este mensaje.</p>";
 
             helper.setText(htmlBody, true);
             mailSender.send(mensaje);
 
         } catch (MessagingException e) {
-            // ... (el fallback también debería usar frontendUrl)
+            // Fallback a texto plano
             SimpleMailMessage fallback = new SimpleMailMessage();
             fallback.setTo(destinatario);
             fallback.setSubject("Recuperación de contraseña - Warhammer Battleship");
-            fallback.setText("Has solicitado restablecer tu contraseña.\n\n" +
-                    "Enlace: " + frontendUrl + "/reset-password?token=" + token);
+            fallback.setText("Has solicitado restablecer tu contraseña.\n\nEnlace: " + urlRecuperacion);
             mailSender.send(fallback);
         }
     }
