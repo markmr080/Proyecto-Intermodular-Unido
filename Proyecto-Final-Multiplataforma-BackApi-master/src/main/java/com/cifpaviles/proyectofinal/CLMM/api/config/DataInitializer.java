@@ -34,7 +34,9 @@ public class DataInitializer {
     CommandLineRunner initDatabase(
             BarcosCatalogoRepository barcosRepo,
             PersonajeRepository personajeRepo,
-            PersonajeFlotaRepository flotaRepo) {
+            PersonajeFlotaRepository flotaRepo,
+            com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository usuarioRepo,
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
 
         return args -> {
             // Siempre recrear el catálogo si está vacío
@@ -112,6 +114,19 @@ public class DataInitializer {
                 flotaRepo.save(new PersonajeFlotaEntity(gelt, crucero, 2)); // 2× tamaño 3
                 flotaRepo.save(new PersonajeFlotaEntity(gelt, destru,  1)); // 1× tamaño 2
                 System.out.println("Flota de Balthasar Gelt inicializada individualmente.");
+            }
+
+            // --- INICIALIZACIÓN DEL ADMINISTRADOR DEL MIDDLEWARE ---
+            if (usuarioRepo.findByUsername("middleware_admin").isEmpty()) {
+                com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity admin = 
+                    new com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity(
+                        "middleware_admin", 
+                        "admin@middleware.local", 
+                        passwordEncoder.encode("clave_secreta_del_middleware_2026")
+                    );
+                admin.setRole("ADMIN");
+                usuarioRepo.save(admin);
+                System.out.println("Usuario 'middleware_admin' creado con éxito.");
             }
         };
     }

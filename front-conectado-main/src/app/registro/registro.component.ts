@@ -66,10 +66,14 @@ export class RegistroComponent {
         },
         error: (err) => {
           console.error('Error en el servidor', err);
-          // Si el backend devuelve un error (ej: el usuario ya existe)
-          this.registerError = 'No se pudo completar el registro. Inténtalo de nuevo.';
-          if (err.status === 400) {
+          
+          // Si el backend devuelve un mensaje de error específico (ej. EMAIL_DUPLICADO)
+          if (err.error && err.error.message) {
+            this.registerError = err.error.message;
+          } else if (err.status === 409 || err.status === 400) {
             this.registerError = 'El nombre o el email ya están en uso.';
+          } else {
+            this.registerError = 'No se pudo completar el registro. Inténtalo de nuevo.';
           }
         }
       });

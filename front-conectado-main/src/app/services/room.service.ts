@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Room {
@@ -55,6 +55,8 @@ export class RoomService {
   }
 
   isSalaActiva(code: string): Observable<{ activa: boolean }> {
-    return this.http.get<{ activa: boolean }>(`${this.API_PARTIDAS_URL}/sala-activa/${code}`);
+    const token = sessionStorage.getItem('auth_token') || '';
+    const headers = new HttpHeaders(token ? { 'Authorization': `Bearer ${token}` } : {});
+    return this.http.get<{ activa: boolean }>(`${this.API_PARTIDAS_URL}/sala-activa/${code}`, { headers });
   }
 }

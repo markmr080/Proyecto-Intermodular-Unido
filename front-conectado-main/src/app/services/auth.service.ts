@@ -235,14 +235,14 @@ export class AuthService {
   //  RECUPERACIÓN / RESET DE CONTRASEÑA
   // -------------------------------------------------------
 
+  // forgot-password: público, el usuario NO está logueado, solo mete su email
   forgotPassword(email: string): Observable<any> {
-    return this.withMiddlewareToken((token, fp) =>
-      this.http.post(`${this.API_URL}/forgot-password`, { email }, {
-        headers: { 'Authorization': `Bearer ${token}`, 'X-Fingerprint': fp }
-      })
-    );
+    return this.http.post(`${this.API_URL}/forgot-password`, { email });
   }
 
+  // reset-password: el token de recuperación viaja en el body, pero la llamada
+  // pasa igualmente por el middleware (withMiddlewareToken) por arquitectura.
+  // Desde el perfil logueado se usa updatePassword, no éste.
   resetPasswordWithToken(resetToken: string, newPassword: string): Observable<any> {
     return this.withMiddlewareToken((token, fp) =>
       this.http.post(`${this.API_URL}/reset-password`, { token: resetToken, newPassword }, {

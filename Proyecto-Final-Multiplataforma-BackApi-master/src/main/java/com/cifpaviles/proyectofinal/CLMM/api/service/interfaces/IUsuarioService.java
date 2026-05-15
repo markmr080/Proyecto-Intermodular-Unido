@@ -1,7 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.api.service.interfaces;
 
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.LoginDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.RegistroDTO;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 
 public interface IUsuarioService {
@@ -52,5 +52,5 @@ public interface IUsuarioService {
     /**
      * Obtiene el perfil público de un usuario por su username.
      */
-    com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO getProfileByUsername(String username);
+    com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO getProfileByUsername(String username);
 }

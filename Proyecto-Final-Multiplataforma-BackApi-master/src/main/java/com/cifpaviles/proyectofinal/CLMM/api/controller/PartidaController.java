@@ -2,8 +2,9 @@ package com.cifpaviles.proyectofinal.CLMM.api.controller;
 
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.EstadoPartida;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaEntity;
+import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
+import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.model.repository.PartidaRepository;
-import com.cifpaviles.proyectofinal.CLMM.api.service.game.GameRoomManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,11 +24,11 @@ import java.util.Map;
 public class PartidaController {
 
     private final PartidaRepository partidaRepository;
-    private final GameRoomManager gameRoomManager;
+    private final UsuarioRepository usuarioRepository;
 
-    public PartidaController(PartidaRepository partidaRepository, GameRoomManager gameRoomManager) {
+    public PartidaController(PartidaRepository partidaRepository, UsuarioRepository usuarioRepository) {
         this.partidaRepository = partidaRepository;
-        this.gameRoomManager = gameRoomManager;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /** Lista todas las partidas almacenadas. */
@@ -69,15 +70,49 @@ public class PartidaController {
         return ResponseEntity.ok(Map.of("message", "Partida " + id + " eliminada correctamente"));
     }
 
-    /**
-     * Comprueba si la sala de juego indicada tiene una partida activa en memoria.
-     * El frontend lo usa al cargar el menú para decidir si mostrar el popup de
-     * reconexión.
-     * Devuelve {"activa": true/false}.
+    /** 
+     * Crea una nueva partida en MySQL.
+     * Llamado por el Middleware cuando un host crea una sala.
      */
-    @GetMapping("/sala-activa/{roomCode}")
-    public ResponseEntity<Map<String, Boolean>> isSalaActiva(@PathVariable String roomCode) {
-        boolean activa = gameRoomManager.isRoomActive(roomCode);
-        return ResponseEntity.ok(Map.of("activa", activa));
+    @PostMapping("/crear")
+    public ResponseEntity<Long> crearPartida(@RequestParam String host) {
+        UsuarioEntity hostEntity = usuarioRepository.findByUsername(host)
+                .orElseThrow(() -> new RuntimeException("Host no encontrado"));
+                
+        PartidaEntity partida = new PartidaEntity(hostEntity, EstadoPartida.EN_ESPERA);
+        partida = partidaRepository.save(partida);
+        return ResponseEntity.ok(partida.getId());
     }
+
+    /**
+     * Actualiza el estado de la partida (EN_CURSO, FINALIZADA, etc).
+     * Opcionalmente acepta el username del ganador para persistirlo en SQL.
+     *
+     * @param ganador (opcional) username del jugador ganador
+     */
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> actualizarEstado(
+            @PathVariable Long id,
+            @RequestParam String estado,
+            @RequestParam(required = false) String ganador) {
+
+        PartidaEntity partida = partidaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
+
+        partida.setEstado(EstadoPartida.valueOf(estado.toUpperCase()));
+
+        if (estado.equalsIgnoreCase("FINALIZADA") || estado.equalsIgnoreCase("CAIDA_SERVIDOR")) {
+            partida.setFechaFin(java.time.LocalDateTime.now());
+        }
+
+        // Registrar el ganador si se ha proporcionado su username
+        if (ganador != null && !ganador.isBlank()) {
+            usuarioRepository.findByUsername(ganador).ifPresent(partida::setGanador);
+        }
+
+        partidaRepository.save(partida);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

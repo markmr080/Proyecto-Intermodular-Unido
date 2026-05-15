@@ -45,6 +45,10 @@ export class Partida implements OnInit, OnDestroy {
       this.socketService.registrarUsuario(user.username);
     }
 
+    if (this.roomCode) {
+      this.socketService.joinLobby(this.roomCode);
+    }
+
     this.roomService.getRoomByCode(this.roomCode)
       .pipe(takeUntil(this.destroy$))
       .subscribe(room => {
@@ -137,6 +141,13 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Si salimos de la pantalla sin empezar el juego, avisamos al socket
+    // (A menos que la navegación sea a la selección de personajes)
+    const isNavigatingToGame = this.router.url.includes('seleccion-personajes');
+    if (!isNavigatingToGame) {
+      this.abandonarSalaNotificar();
+    }
+
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
@@ -170,18 +181,29 @@ export class Partida implements OnInit, OnDestroy {
   aceptarJugador(player: any) {
     if (this.player2) return;
     this.socketService.aceptarSolicitud(this.roomCode, player);
+
+    // Rechazar automáticamente a los demás solicitantes
+    const otrosSolicitantes = this.pendingPlayers.filter(p => p.requesterId !== player.requesterId);
+    for (const otro of otrosSolicitantes) {
+      this.socketService.rechazarSolicitud(otro.requesterId, 'La sala ya está llena.');
+    }
+    this.pendingPlayers = [];
   }
 
   rechazarJugador(player: any) {
     this.pendingPlayers = this.pendingPlayers.filter(p => p.requesterId !== player.requesterId);
-    this.socketService.rechazarSolicitud(player.requesterId);
+    this.socketService.rechazarSolicitud(player.requesterId, 'El anfitrión ha rechazado tu solicitud.');
   }
 
-  salir() {
+  abandonarSalaNotificar() {
     const user = this.authService.getCurrentUser();
     if (user && this.roomCode) {
       this.socketService.abandonarSala(user.username, this.roomCode);
     }
+  }
+
+  salir() {
+    this.abandonarSalaNotificar();
     this.router.navigate(['/lista-salas']);
   }
 

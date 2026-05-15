@@ -85,8 +85,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   private reconexionTimeout: any;
   public personajeIdGuardado = 'WULFRIK';
   private avatarGuardado = '';
-  /** Clave de localStorage para sesión activa de partida. */
-  private readonly SESSION_KEY = 'game_active_session';
+  /** Clave de localStorage para sesión activa de partida (por usuario para evitar conflictos). */
+  private get SESSION_KEY(): string { return `game_active_session_${this.myUsername}`; }
   /** Evita guardar la sesión más de una vez. */
   private sessionGuardada = false;
 
@@ -151,8 +151,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
     console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode, '| TestMode:', this.isTestMode);
 
-    // Conectar al websocket y entrar a la sala
-    this.socketService.connect();
+    // Conectar al websocket con el token JWT para evitar rechazos en la autenticación del socket
+    const token = this.authService.getToken();
+    this.socketService.connect(token || undefined);
 
     // Recuperar el personaje y avatar para poder reconectar
     const user = this.authService.getCurrentUser();
@@ -249,14 +250,16 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       }
 
       // ── GUARDAR sesión activa cuando la partida comienza de verdad ─────────
-      if (state?.juegoActivo === true && state?.fase === 'COMBATE' && !this.sessionGuardada) {
+      // Se guarda tanto en COLOCACION como en COMBATE para permitir reconexión temprana
+      if (state?.juegoActivo === true && !this.sessionGuardada) {
         this.sessionGuardada = true;
         try {
-          localStorage.setItem(this.SESSION_KEY, JSON.stringify({
+          const sessionData = {
             roomCode: this.roomCode,
             username: this.myUsername
-          }));
-          console.log('[PartidaActiva] Sesión activa guardada en localStorage.');
+          };
+          localStorage.setItem(this.SESSION_KEY, JSON.stringify(sessionData));
+          console.log('[PartidaActiva] Sesión activa guardada en localStorage:', sessionData);
         } catch (e) { /* ignorar */ }
       }
 
@@ -301,10 +304,10 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
     // Escuchar desconexión del rival
     this.socketService.jugadorDesconectado$.subscribe(({ jugadorId, nombre }) => {
-      if (jugadorId === this.myUsername) return; // yo mismo — ignorar
+      if (jugadorId === this.myUsername) return; // yo mismo — ignorar (por si acaso)
       console.log('[PartidaActiva] Rival desconectado:', nombre);
       this.nombreJugadorDesconectado = nombre;
-      this.cuentaAtrasDesconexion = 30;
+      this.cuentaAtrasDesconexion = 60; // Sincronizado con los 60s del backend
       this.mostrarModalDesconexion = true;
       this.mostrarMiTablero = false;
       this.mostrarConfirmacionRendirse = false;
@@ -313,7 +316,8 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         this.cuentaAtrasDesconexion--;
         if (this.cuentaAtrasDesconexion <= 0) {
           clearInterval(this.desconexionInterval);
-          // El backend ya processó la derrota; el modal se cerrará cuando llegue el gameState final
+          // El backend processará la victoria; el gameState final cerrará este modal
+          // Solo ocultamos el spinner de espera si por alguna razón el gameState no llega
           this.mostrarModalDesconexion = false;
         }
       }, 1000);
@@ -884,12 +888,16 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
 
   get habilidadesOfensivas(): any[] {
     if (!this.miJugador || !this.miJugador.personaje) return [];
-    return this.miJugador.personaje.habilidadesActivas.filter((h: any) => h.tipo === 'OFENSIVA');
+    return (this.miJugador.personaje.habilidadesActivas || []).filter((h: any) =>
+      h.tipo === 'ACTIVA_OFENSIVA' || h.tipo === 'OFENSIVA'
+    );
   }
 
   get habilidadesDefensivas(): any[] {
     if (!this.miJugador || !this.miJugador.personaje) return [];
-    return this.miJugador.personaje.habilidadesActivas.filter((h: any) => h.tipo === 'DEFENSIVA');
+    return (this.miJugador.personaje.habilidadesActivas || []).filter((h: any) =>
+      h.tipo === 'ACTIVA_DEFENSIVA' || h.tipo === 'DEFENSIVA'
+    );
   }
 
   // --- Funciones TrackBy para evitar parpadeos en re-renders ---

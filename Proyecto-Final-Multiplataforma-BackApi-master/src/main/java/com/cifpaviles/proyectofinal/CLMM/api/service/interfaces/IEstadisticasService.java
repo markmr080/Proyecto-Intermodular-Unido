@@ -1,7 +1,7 @@
 package com.cifpaviles.proyectofinal.CLMM.api.service.interfaces;
 
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.PartidaStatsDocument;
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.StatsAgregadasDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.StatsAgregadasDTO;
 
 import java.util.List;
 
@@ -32,7 +32,8 @@ public interface IEstadisticasService {
      */
     PartidaStatsDocument guardarStatsPartida(Long idPartida, Long idUsuario, Long idPersonaje,
                                               int hitsAcertados, int hitsFallados, int barcosHundidos,
-                                              String username);
+                                              String username, boolean ganador);
+
 
     /**
      * Obtiene el historial de partidas (documentos individuales) de un jugador.
@@ -41,4 +42,10 @@ public interface IEstadisticasService {
      * @return Lista de documentos de stats.
      */
     List<PartidaStatsDocument> getHistorial(Long idUsuario);
+
+    /**
+     * Actualiza el username desnormalizado en todos los documentos de un jugador
+     * cuando este se cambia de nombre.
+     */
+    void actualizarUsernameStats(Long idUsuario, String newUsername);
 }

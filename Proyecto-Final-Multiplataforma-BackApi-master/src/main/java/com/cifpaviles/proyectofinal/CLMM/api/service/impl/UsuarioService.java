@@ -1,11 +1,11 @@
 package com.cifpaviles.proyectofinal.CLMM.api.service.impl;
 
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.LoginDTO;
-import com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.RegistroDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.LoginDTO;
+import com.cifpaviles.proyectofinal.CLMM.api.model.dto.RegistroDTO;
 import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
-import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEmailService;
 import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IUsuarioService;
+import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEstadisticasService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,12 @@ public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final IEmailService emailService;
+    private final IEstadisticasService estadisticasService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
-            IEmailService emailService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, IEstadisticasService estadisticasService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
+        this.estadisticasService = estadisticasService;
     }
 
     @PostConstruct
@@ -56,10 +55,6 @@ public class UsuarioService implements IUsuarioService {
         user.setRole("USER");
 
         usuarioRepository.save(user);
-
-        if (user.getEmail() != null) {
-            emailService.enviarCorreoBienvenida(user.getEmail(), user.getUsername());
-        }
     }
 
     @Override
@@ -83,7 +78,8 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public void enviarCorreoRecuperacion(String email, String token) {
-        emailService.enviarCorreoRecuperacion(email, token);
+        // Delegado al Middleware
+        System.out.println("API Backend: Petición de recuperación recibida. El envío de correo es gestionado por el Middleware.");
     }
 
     @Override
@@ -112,6 +108,9 @@ public class UsuarioService implements IUsuarioService {
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
         user.setUsername(newUsername);
         usuarioRepository.save(user);
+
+        // Actualizamos también las estadísticas en MongoDB
+        estadisticasService.actualizarUsernameStats(user.getId(), newUsername);
     }
 
     @Override
@@ -123,10 +122,10 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO getProfileByUsername(String username) {
+    public com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO getProfileByUsername(String username) {
         UsuarioEntity user = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("USUARIO_NO_ENCONTRADO"));
-        return new com.cifpaviles.proyectofinal.CLMM.middleware.model.dto.UserProfileDTO(
+        return new com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO(
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfilePicture()

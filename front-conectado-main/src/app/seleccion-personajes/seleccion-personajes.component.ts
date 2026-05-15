@@ -210,8 +210,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     this.socketService.salaCerrada$
       .pipe(takeUntil(this.destroy$))
       .subscribe(msg => {
-        console.log('Sala cerrada por el anfitrión:', msg);
-        this.motivoCancelacion = 'El anfitrión ha abandonado la sala. La partida ha sido cancelada.';
+        console.log('Sala cerrada:', msg);
+        this.motivoCancelacion = msg || 'La sala ha sido cerrada.';
         this.showCancelModal = true;
         this.limpiarTokensPartida();
       });

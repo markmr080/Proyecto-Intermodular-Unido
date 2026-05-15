@@ -38,28 +38,37 @@ export class SocketService {
 
   constructor(private ngZone: NgZone) { }
 
-  public connect() {
-    // Solo creamos el socket si aún no existe.
-    // NO recreamos si ya existe (aunque esté reconectando) para no perder los listeners.
-    if (this.socket) return;
-
+  public connect(token?: string) {
     const socketUrl = window.location.hostname === 'localhost'
-      ? 'http://localhost:8081'
+      ? 'http://localhost:8082'
       : `https://${window.location.hostname}`;
 
-    const token = sessionStorage.getItem('auth_token') || '';
+    // Si ya existe el socket, comprobamos si el token ha cambiado
+    if (this.socket) {
+      if (token && this.socket.io.opts.query.token !== token) {
+        console.log('[SocketService] Actualizando token del socket...');
+        this.socket.io.opts.query.token = token;
+        this.socket.disconnect().connect();
+      }
+      return;
+    }
+
+    const finalToken = token || sessionStorage.getItem('auth_token') || '';
+    console.log('[SocketService] Conectando con token:', finalToken ? '***' : 'VACÍO');
 
     this.socket = io.connect(socketUrl, {
       transports: ['websocket'],
       autoConnect: true,
-      query: { token: token }
+      query: { token: finalToken },
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000
     });
 
     // El evento 'connect' se dispara en la conexión inicial Y en cada reconexión automática.
     // Usamos un flag para distinguir el primer connect de los siguientes (reconexiones).
     let primerConexion = true;
     this.socket.on('connect', () => {
-      console.log('[SocketService] Conectado al servidor SocketIO (8081). SessionId:', this.socket?.id);
+      console.log('[SocketService] Conectado al servidor SocketIO (8082). SessionId:', this.socket?.id);
       if (!primerConexion) {
         // Reconexión automática de socket.io: notificar al componente
         this.ngZone.run(() => this.miReconexion$.next());
@@ -116,6 +125,11 @@ export class SocketService {
     this.socket.emit('registrar-usuario', userId);
   }
 
+  public joinLobby(roomCode: string) {
+    this.connect();
+    this.socket.emit('join-lobby', roomCode);
+  }
+
   public solicitarUnirse(codigoSala: string, user: any) {
     this.connect();
     this.socket.emit('solicitar-unirse', {
@@ -135,8 +149,8 @@ export class SocketService {
     });
   }
 
-  public rechazarSolicitud(requesterId: string) {
-    this.socket.emit('rechazar-solicitud', requesterId);
+  public rechazarSolicitud(requesterId: string, mensaje: string = 'Tu solicitud ha sido rechazada.') {
+    this.socket.emit('rechazar-solicitud', { requesterId, mensaje });
   }
 
   public cerrarSala(codigoSala: string) {
