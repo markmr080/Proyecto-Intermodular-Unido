@@ -13,9 +13,12 @@ public class BackendClient {
 
     private final RestClient restClient;
 
-    public BackendClient(@Value("${backend.api.url:http://localhost:8080}") String backendUrl) {
+    public BackendClient(
+            @Value("${backend.api.url:http://localhost:8081}") String backendUrl,
+            @Value("${internal.api.key}") String internalApiKey) {
         this.restClient = RestClient.builder()
                 .baseUrl(backendUrl)
+                .defaultHeader("X-Internal-Key", internalApiKey) // ← handshake con la API
                 .build();
     }
 
