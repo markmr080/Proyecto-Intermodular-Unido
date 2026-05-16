@@ -92,40 +92,40 @@ public class GameEngine {
         // Aislinn PAS_AIS: 20% de probabilidad de ignorar escudos
         boolean ignoraEscudos = tieneHabilidadPasiva(atacante, "PAS_AIS") && Math.random() < 0.20;
 
-        // Aranessa SKL_ARA_3: escudo total activo — el disparo falla automáticamente
+        // 1. Escudo Total (Aranessa SKL_ARA_3)
         if (enemigo.isEscudoTotalActivo() && !ignoraEscudos) {
             enemigo.setEscudoTotalActivo(false);
             atacante.incrementarHitsFallados();
-            state.setMensajeEstado(
-                    "¡El Escudo de Stromfels protegió a " + enemigo.getNombre() + "! Disparo bloqueado.");
+            state.setMensajeEstado("¡El Escudo de Stromfels protegió a " + enemigo.getNombre() + "! Disparo bloqueado.");
             state.cambiarTurno();
             return;
         } else if (enemigo.isEscudoTotalActivo() && ignoraEscudos) {
             state.setMensajeEstado("¡Vientos de Magia! El disparo de Aislinn atraviesa el escudo total.");
         }
 
+        // 2. Comprobación de impacto en BARCO o REVELADA
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
-            // Wulfrik SKL_WUL_3 / Aislinn SKL_AIS_3: escudo de casilla.
+            // A. Escudo de casilla (Wulfrik/Aislinn/Ikit)
             if (enemigo.tieneEscudo(x, y) && !ignoraEscudos) {
                 enemigo.quitarEscudo(x, y);
-                // Lokhir: Si el impacto es en el Arca Negra, el resto de escudos caen
                 if (enemigo.getPersonaje().getNombre().equals("Lokhir")) {
                     comprobarEscudoArcaNegra(enemigo, x, y);
                 }
+                if (enemigo.getPersonaje().getNombre().equals("Aislinn")) {
+                    comprobarEscudoBrumaMarina(enemigo, x, y);
+                }
                 atacante.incrementarHitsFallados();
-                state.setMensajeEstado(
-                        "¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido. La celda sigue en pie.");
+                state.setMensajeEstado("¡Escudo! El impacto de " + atacante.getNombre() + " fue absorbido.");
                 state.cambiarTurno();
                 return;
             } else if (enemigo.tieneEscudo(x, y) && ignoraEscudos) {
                 state.setMensajeEstado("¡Vientos de Magia! El disparo de Aislinn ignora el escudo de la casilla.");
             }
 
-            // Aranessa PAS_ARA: 20% de esquivar (Tripulación de los Muertos)
+            // B. Esquiva de Aranessa (PAS_ARA)
             if (tieneHabilidadPasiva(enemigo, "PAS_ARA") && Math.random() < 0.20) {
                 atacante.incrementarHitsFallados();
-                state.setMensajeEstado(
-                        "¡La Tripulación de los Muertos mantiene el barco a flote! Aranessa ignoró el impacto.");
+                state.setMensajeEstado("¡La Tripulación de los Muertos mantiene el barco a flote! Esquiva exitosa.");
                 state.cambiarTurno();
                 return;
             }
@@ -409,19 +409,20 @@ public class GameEngine {
         state.setMensajeEstado(msg.toString());
     }
 
-    /** SKL_AIS_3: Escuda un área 2x2 propia. */
+    /** SKL_AIS_3: Bruma Marina. Escuda un área 2x2. Al impactar una, caen todas. */
     private void ejecutarBrumaMarina(Player owner, int x, int y) {
         if (x < 0 || x > 9 || y < 0 || y > 9) {
             state.setMensajeEstado("Bruma Marina: Las coordenadas de defensa no son válidas.");
             return;
         }
 
+        owner.limpiarBrumaMarina(); // Solo una bruma activa a la vez
         // Aplicar escudos en área 2x2 (o lo que quepa en el tablero)
         for (int dx = 0; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {
                 int nx = x + dx, ny = y + dy;
                 if (nx < 10 && ny < 10) {
-                    owner.anadirEscudo(nx, ny);
+                    owner.anadirBrumaMarina(nx, ny);
                 }
             }
         }
@@ -429,14 +430,20 @@ public class GameEngine {
                 + owner.getNombre() + ".");
     }
 
+    private void comprobarEscudoBrumaMarina(Player p, int x, int y) {
+        if (p.esParteDeBrumaMarina(x, y)) {
+            p.limpiarBrumaMarina();
+        }
+    }
+
     // --- Lokhir ---
 
-    /** SKL_LOK_1: Dispara a 3 diagonales desde (x,y): NE, SE, SO. */
+    /** SKL_LOK_1: Andanada Druchii. Dispara en forma de X (centro + 4 esquinas). */
     private void ejecutarAndanadaDruchii(Player owner, Player enemigo, int x, int y) {
-        int[][] diags = { { -1, 1 }, { 1, 1 }, { 1, -1 } };
+        int[][] offsets = { { 0, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } };
         StringBuilder msg = new StringBuilder("¡Andanada Druchii! Una ráfaga de proyectiles oscuros ");
         int impactos = 0;
-        for (int[] d : diags) {
+        for (int[] d : offsets) {
             int nx = x + d[0], ny = y + d[1];
             if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
                 String res = aplicarDisparoHabilidad(owner, enemigo, nx, ny);
@@ -874,21 +881,35 @@ public class GameEngine {
         if (celda == CellStatus.AGUA_GOLPEADA || celda == CellStatus.TOCADO || celda == CellStatus.HUNDIDO)
             return "Repetido";
 
+        // Pasiva Aislinn: 20% ignorar protecciones en habilidades
+        boolean ignoraEscudos = tieneHabilidadPasiva(owner, "PAS_AIS") && Math.random() < 0.20;
+
+        // 1. Escudo Total (Aranessa) - Se mantiene porque es una habilidad defensiva, no pasiva
+        if (enemigo.isEscudoTotalActivo() && !ignoraEscudos) {
+            enemigo.setEscudoTotalActivo(false);
+            owner.incrementarHitsFallados();
+            return "Escudo Total Bloqueado";
+        }
+
         if (celda == CellStatus.BARCO || celda == CellStatus.REVELADA) {
-            // Escudo de casilla: la celda permanece BARCO, el escudo se consume, sin daño
-            if (enemigo.tieneEscudo(nx, ny)) {
+            // 2. Escudo de casilla
+            if (enemigo.tieneEscudo(nx, ny) && !ignoraEscudos) {
                 enemigo.quitarEscudo(nx, ny);
-                // Lokhir: Si el impacto es en el Arca Negra, el resto de escudos caen
                 if (enemigo.getPersonaje().getNombre().equals("Lokhir")) {
                     comprobarEscudoArcaNegra(enemigo, nx, ny);
                 }
-                // No cambiar el estado de la celda: el barco sigue intacto
+                if (enemigo.getPersonaje().getNombre().equals("Aislinn")) {
+                    comprobarEscudoBrumaMarina(enemigo, nx, ny);
+                }
                 owner.incrementarHitsFallados();
                 return "Escudo";
             }
+
+            // Impacto confirmado
             enemigo.getTablero()[nx][ny] = CellStatus.TOCADO;
             enemigo.recibirDano();
             owner.incrementarHitsAcertados();
+
             boolean[] vis = new boolean[100];
             if (dfsSunkCheck(enemigo.getTablero(), nx, ny, vis)) {
                 List<int[]> barcoHundido = findFullShip(enemigo, nx, ny);
@@ -898,7 +919,6 @@ public class GameEngine {
                 marcarHundido(enemigo.getTablero(), nx, ny, visMark);
                 owner.incrementarBarcosHundidos();
 
-                // Lokhir: Transformación si pierde el Arca Negra (tamaño 5)
                 if (tamano >= 5 && enemigo.getPersonaje().getNombre().equals("Lokhir")) {
                     activarVenganzaLokhir(enemigo);
                 }

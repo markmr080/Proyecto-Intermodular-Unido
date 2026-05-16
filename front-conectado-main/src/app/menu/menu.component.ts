@@ -79,7 +79,7 @@ export class MenuComponent implements OnInit {
       name: 'Lokhir', fleet: [5, 3, 3, 2, 2], img: '/imagenes/Lokhir.png',
       abilities: [
         { name: 'Saqueador Especialista', desc: 'Al hundir un barco, revela una casilla del siguiente.', type: 'passive', icon: '/imagenes/lokhir_habilidades/pasiva.png' },
-        { name: 'Andanada Druchii', desc: 'Dispara a 3 casillas en diagonal.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
+        { name: 'Andanada Druchii', desc: 'Dispara en forma de X: impacta la casilla central y las 4 diagonales.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva1.png' },
         { name: 'Furia Corsaria', desc: 'Bengalas en área 3x3. Revela barcos sin causar daño.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva2.png' },
         { name: 'Yelmo del Kraken', desc: 'Protege tu barco más grande (Arca Negra). El escudo desaparece por completo al primer impacto.', type: 'defensive', icon: '/imagenes/lokhir_habilidades/defensiva.png' },
         { name: 'Venganza de Karond Kar', desc: 'Habilidad oculta: se activa al perder el Arca Negra. Bombardeo de 5 disparos aleatorios.', type: 'offensive', icon: '/imagenes/lokhir_habilidades/ofensiva3.png' }
@@ -90,7 +90,7 @@ export class MenuComponent implements OnInit {
       abilities: [
         { name: 'Tripulación de los Muertos', desc: '20% de probabilidad de ignorar el daño recibido.', type: 'passive', icon: '/imagenes/aranessa_habilidades/pasiva.png' },
         { name: 'Pólvora Vampírica', desc: 'El fuego se propaga en cruz si impacta un barco.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva1.png' },
-        { name: 'Disparo de Saloma', desc: 'Destruye forzosamente nieblas o escudos del tablero rival.', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
+        { name: 'Disparo de Saloma', desc: 'Ignora y destruye todos los escudos del rival (disparo en área 2x2).', type: 'offensive', icon: '/imagenes/aranessa_habilidades/ofensiva2.png' },
         { name: 'Hija de Stromfels', desc: 'Escudo total: el próximo disparo enemigo falla automáticamente.', type: 'defensive', icon: '/imagenes/aranessa_habilidades/defensiva.png' }
       ]
     },

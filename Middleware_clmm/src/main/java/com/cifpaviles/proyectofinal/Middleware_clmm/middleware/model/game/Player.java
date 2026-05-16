@@ -13,6 +13,7 @@ public class Player {
     private boolean haAtacadoEsteTurno;
     private boolean turnoExtraWulfrik = false;
     private Set<String> escudoCasillas = new HashSet<>();
+    private Set<String> celdasBrumaMarina = new HashSet<>();
     private boolean escudoTotalActivo = false;
     private boolean listoParaCombate = false;
     private int hitsAcertados = 0;
@@ -42,7 +43,27 @@ public class Player {
     public void recibirDano() { if (this.vidas > 0) this.vidas--; }
     public void anadirEscudo(int x, int y) { escudoCasillas.add(x + "," + y); }
     public boolean tieneEscudo(int x, int y) { return escudoCasillas.contains(x + "," + y); }
-    public void quitarEscudo(int x, int y) { escudoCasillas.remove(x + "," + y); }
+    public void quitarEscudo(int x, int y) { 
+        escudoCasillas.remove(x + "," + y); 
+        celdasBrumaMarina.remove(x + "," + y);
+    }
+    
+    public void anadirBrumaMarina(int x, int y) {
+        String coord = x + "," + y;
+        escudoCasillas.add(coord);
+        celdasBrumaMarina.add(coord);
+    }
+
+    public void limpiarBrumaMarina() {
+        for (String coord : celdasBrumaMarina) {
+            escudoCasillas.remove(coord);
+        }
+        celdasBrumaMarina.clear();
+    }
+
+    public boolean esParteDeBrumaMarina(int x, int y) {
+        return celdasBrumaMarina.contains(x + "," + y);
+    }
  
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }

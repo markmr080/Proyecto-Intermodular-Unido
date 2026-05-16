@@ -81,11 +81,11 @@ this.socketService.solicitudAceptada$.subscribe(codigo => {
 
 | Acción | Tipo | Origen | Destino |
 | :--- | :--- | :--- | :--- |
-| **Login / Registro** | **HTTP** | Frontend | Middleware (Puerto 8082) |
-| **Crear Sala (DB)** | **HTTP** | Frontend | API (Puerto 8080)* |
+| **Login / Registro** | **HTTP** | Frontend | Middleware (Puerto 8080) |
+| **Crear Sala (DB)** | **HTTP** | Frontend | Middleware (Puerto 8080) |
 | **Aceptar Jugador** | **Socket** | Frontend | Middleware (Puerto 8082) |
 | **Disparar / Habilidad** | **Socket** | Frontend | Middleware (Puerto 8082) |
-| **Finalizar Partida** | **HTTP** | Middleware | API (Puerto 8080) |
+| **Finalizar Partida** | **HTTP** | Middleware | API (Puerto 8081) |
 
 > \* *Nota: En una arquitectura ideal de seguridad, incluso la creación de salas debería pasar por el Middleware primero.*
 
@@ -96,9 +96,9 @@ this.socketService.solicitudAceptada$.subscribe(codigo => {
 Como bien has apuntado, en este proyecto se busca que el Middleware sea el **único punto de entrada** para el Frontend.
 
 ### El Flujo "Zero Trust" (Confianza Cero):
-1. **Frontend -> Middleware (HTTP):** El usuario pide sus estadísticas o se registra llamando al Middleware (Puerto 8082).
+1. **Frontend -> Middleware (HTTP):** El usuario pide sus estadísticas o se registra llamando al Middleware (Puerto 8080).
 2. **Middleware (Validación):** El Middleware comprueba que el usuario es quien dice ser (comprueba tokens y la "huella digital").
-3. **Middleware -> API (HTTP Interno):** Si todo está OK, el Middleware le pide los datos a la API (Puerto 8080) usando su propio canal seguro.
+3. **Middleware -> API (HTTP Interno):** Si todo está OK, el Middleware le pide los datos a la API (Puerto 8081) usando su propio canal seguro.
 4. **Respuesta:** La API le da los datos al Middleware, y el Middleware se los devuelve al Frontend.
 
 ### ¿Por qué hacerlo así?
@@ -106,4 +106,4 @@ Como bien has apuntado, en este proyecto se busca que el Middleware sea el **ún
 - **Abstracción:** Si mañana cambiamos la base de datos o la API, el Frontend no tiene por qué enterarse, porque él solo habla con el Middleware.
 
 ### Estado actual:
-Actualmente, el proyecto está en transición. Archivos como `UsuarioController.java` en el Middleware ya implementan este puente, pero servicios del Frontend como `RoomService` aún conectan directamente al 8080. Lo ideal sería unificar todo hacia el 8082.
+Actualmente, el proyecto ya ha centralizado gran parte de la lógica. El Frontend se comunica con el **Puerto 8080** para todas las peticiones HTTP (REST) y con el **Puerto 8082** para los eventos en tiempo real (Sockets). La API (Puerto 8081) permanece oculta, aceptando solo peticiones del Middleware mediante una clave secreta.

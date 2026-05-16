@@ -119,7 +119,7 @@ public class CharacterFactory {
                 "Al hundir un barco, revela una casilla del siguiente.", SkillType.PASIVA, 0, "/imagenes/lokhir_habilidades/pasiva.png");
         GameCharacter c = new GameCharacter("Lokhir", "Corsario de Karond Kar.", "/imagenes/lokhir.webp", pasiva);
         c.anadirHabilidadActiva(
-                new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara a 3 casillas en diagonal.", SkillType.ACTIVA_OFENSIVA, 4, "/imagenes/lokhir_habilidades/ofensiva1.png"));
+                new Skill("SKL_LOK_1", "Andanada Druchii", "Dispara en forma de X: impacta la casilla central y las 4 diagonales.", SkillType.ACTIVA_OFENSIVA, 4, "/imagenes/lokhir_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_LOK_2", "Furia Corsaria",
                 "Bengalas en área 3x3. Revela barcos sin causar daño.", SkillType.ACTIVA_OFENSIVA, 5, "/imagenes/lokhir_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_LOK_3", "Yelmo del Kraken", "Protege todas las casillas de tu barco más grande (Arca Negra). El escudo desaparece por completo al recibir el primer impacto.",
@@ -134,7 +134,7 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_ARA_1", "Pólvora Vampírica",
                 "El fuego se propaga en cruz (4 casillas adyacentes) si impacta un barco.", SkillType.ACTIVA_OFENSIVA, 5, "/imagenes/aranessa_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_2", "Disparo de Saloma",
-                "Elimina TODOS los escudos del rival y dispara en área 2x2.", SkillType.ACTIVA_OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
+                "Ignora y destruye todos los escudos del rival (disparo en área 2x2).", SkillType.ACTIVA_OFENSIVA, 4, "/imagenes/aranessa_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_ARA_3", "Hija de Stromfels",
                 "Escudo total: el próximo disparo enemigo sobre cualquier casilla fallará.", SkillType.ACTIVA_DEFENSIVA, 6, "/imagenes/aranessa_habilidades/defensiva.png"));
         return c;
