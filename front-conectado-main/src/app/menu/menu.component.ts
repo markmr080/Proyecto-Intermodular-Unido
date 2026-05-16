@@ -62,7 +62,7 @@ export class MenuComponent implements OnInit {
       abilities: [
         { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra.', type: 'passive', icon: '/imagenes/wulfrik_habilidades/pasiva.png' },
         { name: 'Desafío del Errante', desc: 'Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva1.png' },
-        { name: 'Colmillo de los Mares', desc: 'Impacta un área en línea horizontal de 3 casillas.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva2.png' },
+        { name: 'Colmillo de los Mares', desc: 'Impacta en la casilla objetivo y en las de su izquierda y derecha (3 en horizontal).', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva2.png' },
         { name: 'Favor Ruinoso', desc: 'Escuda una casilla propia aleatoria.', type: 'defensive', icon: '/imagenes/wulfrik_habilidades/defensiva.png' }
       ]
     },

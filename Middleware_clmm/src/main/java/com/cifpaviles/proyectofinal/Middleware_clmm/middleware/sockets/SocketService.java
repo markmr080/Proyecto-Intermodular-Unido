@@ -154,6 +154,17 @@ public class SocketService {
 
         server.addEventListener("seleccionar-personaje", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
+            String userId = (String) data.get("userId");
+            String personajeId = (String) data.get("personajeId");
+
+            lobbyManager.getRoom(codigoSala).ifPresent(sala -> {
+                if (userId.equals(sala.getJugador1())) {
+                    sala.setPersonajeId1(personajeId);
+                } else if (userId.equals(sala.getJugador2())) {
+                    sala.setPersonajeId2(personajeId);
+                }
+            });
+
             server.getRoomOperations(codigoSala).sendEvent("personaje-seleccionado", data);
         });
 
@@ -193,12 +204,23 @@ public class SocketService {
             GameEngine engine = roomManager.getOrCreateRoom(roomCode);
             boolean esReconexion = false;
             if (engine.getState() == null) {
-                // Primer jugador: crear estado inicial
-                engine.setState(new GameState(new Player(jugadorId, jugadorNombre, characterFactory.crearPersonaje(personajeId)), 
-                                              new Player("dummy", "Esperando...", characterFactory.crearPersonaje("WULFRIK"))));
-                lobbyManager.getRoom(roomCode).ifPresent(sala -> {
+                // Primer jugador: crear estado inicial buscando si el rival ya eligió en el lobby
+                LobbyRoom sala = lobbyManager.getRoom(roomCode).orElse(null);
+                String p2Id = "WULFRIK";
+                String p2Nombre = "Esperando...";
+                if (sala != null) {
                     engine.setIdPartida(sala.getIdPartidaMysql());
-                });
+                    if (jugadorId.equals(sala.getJugador1())) {
+                        p2Id = (sala.getPersonajeId2() != null) ? sala.getPersonajeId2() : "WULFRIK";
+                        p2Nombre = (sala.getNombreJugador2() != null) ? sala.getNombreJugador2() : "Esperando...";
+                    } else {
+                        // El que entra primero es el jugador 2? Raro pero posible
+                        p2Id = (sala.getPersonajeId1() != null) ? sala.getPersonajeId1() : "WULFRIK";
+                        p2Nombre = (sala.getNombreJugador1() != null) ? sala.getNombreJugador1() : "Esperando...";
+                    }
+                }
+                engine.setState(new GameState(new Player(jugadorId, jugadorNombre, characterFactory.crearPersonaje(personajeId)), 
+                                              new Player("dummy", p2Nombre, characterFactory.crearPersonaje(p2Id))));
             } else {
                 GameState s = engine.getState();
                 if (!s.getJugador1().getId().equals(jugadorId) && s.getJugador2().getId().equals("dummy")) {
@@ -227,8 +249,9 @@ public class SocketService {
                     server.getClient(opponentSocket).sendEvent("jugador-reconectado", jugadorId);
                 }
             } else {
-                // Primera unión: avisar a toda la sala (el rival aún no tiene la sesión activa)
+                // Primera unión: avisar a toda la sala y enviar el estado actualizado
                 server.getRoomOperations(roomCode).sendEvent("jugador-reconectado", jugadorId);
+                server.getRoomOperations(roomCode).sendEvent("gameState", engine.getState());
             }
         });
 

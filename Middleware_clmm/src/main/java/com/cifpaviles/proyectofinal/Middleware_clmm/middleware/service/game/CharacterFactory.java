@@ -95,7 +95,7 @@ public class CharacterFactory {
         c.anadirHabilidadActiva(new Skill("SKL_WUL_1", "Desafío del Errante",
                 "Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.", SkillType.ACTIVA_OFENSIVA, 4, "/imagenes/wulfrik_habilidades/ofensiva1.png"));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_2", "Colmillo de los Mares",
-                "Impacta un área en línea horizontal de 3 casillas.", SkillType.ACTIVA_OFENSIVA, 5, "/imagenes/wulfrik_habilidades/ofensiva2.png"));
+                "Impacta en la casilla objetivo y en las de su izquierda y derecha (3 en horizontal).", SkillType.ACTIVA_OFENSIVA, 5, "/imagenes/wulfrik_habilidades/ofensiva2.png"));
         c.anadirHabilidadActiva(new Skill("SKL_WUL_3", "Favor Ruinoso",
                 "Escuda una casilla. Falla automática para el enemigo.", SkillType.ACTIVA_DEFENSIVA, 4, "/imagenes/wulfrik_habilidades/defensiva.png"));
         return c;

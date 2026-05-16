@@ -49,7 +49,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       abilities: [
         { name: 'Cazador de Naves', desc: 'Si aciertas a un barco enemigo, ganas un disparo extra.', type: 'passive', icon: '/imagenes/wulfrik_habilidades/pasiva.png' },
         { name: 'Desafío del Errante', desc: 'Lanza un disparo; si fallas, se revela la posición aleatoria de un barco enemigo.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva1.png' },
-        { name: 'Colmillo de los Mares', desc: 'Impacta un área en línea horizontal de 3 casillas.', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva2.png' },
+        { name: 'Colmillo de los Mares', desc: 'Impacta en la casilla objetivo y en las de su izquierda y derecha (3 en horizontal).', type: 'offensive', icon: '/imagenes/wulfrik_habilidades/ofensiva2.png' },
         { name: 'Favor Ruinoso', desc: 'Escuda una casilla propia aleatoria.', type: 'defensive', icon: '/imagenes/wulfrik_habilidades/defensiva.png' }
       ]
     },
@@ -119,7 +119,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
   jugadorActual: 1 | 2 = 1;
 
   // Modo test
-  isTestMode = false;
+
   showCancelModal = false;
   motivoCancelacion = '';
 
@@ -168,7 +168,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       });
 
     // Leer modo test de la URL
-    this.isTestMode = this.route.snapshot.queryParamMap.get('testMode') === 'true';
+
 
     // Escuchar selecciones del otro jugador
     // IMPORTANTE: ignorar el eco del propio evento (el servidor hace broadcast a toda la sala,
@@ -298,27 +298,6 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     return this.jugador1Listo && this.jugador2Listo;
   }
 
-  testPartida(): void {
-    const user = this.authService.getCurrentUser();
-    if (!user) return;
-
-    // Seleccionamos personaje aleatorio para J2
-    this.seleccionJugador2 = Math.floor(Math.random() * this.personajes.length);
-
-    // Aseguramos que J1 ha seleccionado (el botón ya lo valida, pero reforzamos la lógica)
-    if (!this.jugador1Listo) return;
-
-    // Guardar el personaje elegido por J1 con su username en la clave
-    const tipoPersonaje = this.personajes[this.seleccionJugador1!].tipo;
-    localStorage.setItem(`personaje_${this.roomCode}_${user.username}`, tipoPersonaje);
-
-    // Activamos el modo test en el storage para que la pantalla de partida lo sepa
-    localStorage.setItem(`test_mode_${this.roomCode}`, 'true');
-
-    // Empezamos la partida
-    this.empezarPartida();
-  }
-
   empezarPartida(): void {
     if (!this.ambosProntos) return;
 
@@ -346,7 +325,7 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       localStorage.removeItem(`personaje_${this.roomCode}_${user.username}`);
     }
     localStorage.removeItem(`personaje_${this.roomCode}`);
-    localStorage.removeItem(`test_mode_${this.roomCode}`);
+
   }
 
   cerrarModalYSalir(): void {

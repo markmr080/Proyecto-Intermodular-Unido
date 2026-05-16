@@ -136,21 +136,9 @@
     }
 
     @if (jugadorActual === 1) {
-      @if (isTestMode) {
-        <!-- Modo Test: Botón principal de Test (se habilita al elegir personaje) -->
-        <button class="sp-btn-empezar" 
-                [class.activo]="jugador1Listo" 
-                [disabled]="!jugador1Listo" 
-                (click)="testPartida()" 
-                style="background: #e67e22;">
-          ⚙ Test Partida
-        </button>
-      } @else {
-        <!-- Modo Normal: Botón estándar de inicio -->
-        <button class="sp-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
-          ⚔ Empieza la partida
-        </button>
-      }
+      <button class="sp-btn-empezar" [class.activo]="ambosProntos" [disabled]="!ambosProntos" (click)="empezarPartida()">
+        ⚓ Comenzar Juego
+      </button>
     }
   </div>
 

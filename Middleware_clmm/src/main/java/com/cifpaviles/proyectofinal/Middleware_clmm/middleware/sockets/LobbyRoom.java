@@ -10,6 +10,8 @@ public class LobbyRoom {
     private String avatarJugador2;
     private String estado;
     private long fechaCreacion;
+    private String personajeId1;
+    private String personajeId2;
     private Long idPartidaMysql;
 
     public LobbyRoom() {
@@ -28,6 +30,9 @@ public class LobbyRoom {
     public String getAvatarJugador1() { return avatarJugador1; }
     public void setAvatarJugador1(String avatarJugador1) { this.avatarJugador1 = avatarJugador1; }
 
+    public String getPersonajeId1() { return personajeId1; }
+    public void setPersonajeId1(String personajeId1) { this.personajeId1 = personajeId1; }
+
     public String getJugador2() { return jugador2; }
     public void setJugador2(String jugador2) { this.jugador2 = jugador2; }
 
@@ -36,6 +41,9 @@ public class LobbyRoom {
 
     public String getAvatarJugador2() { return avatarJugador2; }
     public void setAvatarJugador2(String avatarJugador2) { this.avatarJugador2 = avatarJugador2; }
+
+    public String getPersonajeId2() { return personajeId2; }
+    public void setPersonajeId2(String personajeId2) { this.personajeId2 = personajeId2; }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }

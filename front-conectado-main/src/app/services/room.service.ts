@@ -13,6 +13,9 @@ export interface Room {
   estado: string; // 'ESPERANDO', 'EN_CURSO', 'FINALIZADA'
   codigoSala: string;
   turno?: string;
+  fechaCreacion?: number; // timestamp en ms desde el servidor
+  personajeId1?: string;
+  personajeId2?: string;
 }
 
 @Injectable({

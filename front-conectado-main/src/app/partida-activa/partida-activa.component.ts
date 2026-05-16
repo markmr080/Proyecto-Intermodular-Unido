@@ -37,11 +37,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   flotaInicializada = false; // Evita reinicializar la lista si llega un segundo estado
 
 
-  // --- Lógica del Modo Test (Bot) ---
-  isTestMode = false;
-  j2DummyId = 'enemigo-dummy';
-  dummyBarcosColocados = false;
-  dummyAtacando = false;
+
 
   // --- Fin de Partida / Modal ---
   mostrarModal = false;
@@ -142,14 +138,24 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     }
   }
 
+  localRoomData: any = null;
+
   ngOnInit(): void {
     this.roomCode = this.route.snapshot.paramMap.get('code') || '';
     this.myUsername = this.authService.getCurrentUsername();
     this.myDisplayName = this.myUsername;
 
-    this.isTestMode = localStorage.getItem(`test_mode_${this.roomCode}`) === 'true';
 
-    console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode, '| TestMode:', this.isTestMode);
+
+    // Precargar datos de la sala para vista previa instantánea
+    this.roomService.getRoomByCode(this.roomCode).subscribe(room => {
+      if (room) {
+        this.localRoomData = room;
+        console.log('[PartidaActiva] Datos de sala precargados:', room);
+      }
+    });
+
+    console.log('[PartidaActiva] Iniciando con usuario:', this.myUsername, '| Sala:', this.roomCode);
 
     // Conectar al websocket con el token JWT para evitar rechazos en la autenticación del socket
     const token = this.authService.getToken();
@@ -163,8 +169,6 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     this.avatarGuardado = user?.profilePicture || `https://api.dicebear.com/7.x/adventurer/svg?seed=${this.myUsername}`;
 
     // ── DETECCIÓN DE SESIÓN ACTIVA (pestaña cerrada y reabierta) ──────────────
-    // Si el jugador estaba en COMBATE y cerró la pestaña, mostramos el popup de
-    // reconexión de inmediato para que sepa que se está reincorporando a la sala.
     try {
       const raw = localStorage.getItem(this.SESSION_KEY);
       if (raw) {
@@ -177,7 +181,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
           this.iniciarCuentaAtrasPropia();
         }
       }
-    } catch (e) { /* localStorage no disponible, ignorar */ }
+    } catch (e) { }
     // ─────────────────────────────────────────────────────────────────────────
 
     // Esperamos a que la conexión esté establecida antes de emitir join-room.
@@ -282,23 +286,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
         this.mostrarModalDesconexion = false;
         // Limpiar sesión activa y flag de modo test al terminar
         localStorage.removeItem(this.SESSION_KEY);
-        localStorage.removeItem(`test_mode_${this.roomCode}`);
-      }
-
-      // Lógica automática del bot si estamos en modo test
-      if (this.isTestMode) {
-        if (state?.fase === 'COLOCACION' && !this.dummyBarcosColocados) {
-          this.colocarBarcosAleatoriosDummy();
-        } else if (state?.fase === 'COMBATE' && state?.turnoActualId === this.j2DummyId) {
-          if (!this.dummyAtacando) {
-            this.dummyAtacando = true;
-            setTimeout(() => {
-              this.ataqueAleatorioDummy();
-            }, 1500); // Retraso para simular tiempo de reacción
-          }
-        } else if (state?.turnoActualId !== this.j2DummyId) {
-          this.dummyAtacando = false; // Resetear flag cuando ya no es su turno
-        }
+        localStorage.removeItem(this.SESSION_KEY);
       }
     });
 
@@ -420,13 +408,57 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
   // --- Lógica Visual y Datos Helper ---
 
   get miJugador(): any {
-    if (!this.gameState) return null;
-    return this.gameState.jugador1.id === this.myUsername ? this.gameState.jugador1 : this.gameState.jugador2;
+    if (this.gameState) {
+      return this.gameState.jugador1.id === this.myUsername ? this.gameState.jugador1 : this.gameState.jugador2;
+    }
+    // Fallback a datos locales mientras carga el socket
+    if (this.localRoomData) {
+      const isJ1 = this.localRoomData.jugador1 === this.myUsername;
+      return {
+        id: this.myUsername,
+        nombre: isJ1 ? this.localRoomData.nombreJugador1 : this.localRoomData.nombreJugador2,
+        avatar: isJ1 ? this.localRoomData.avatarJugador1 : this.localRoomData.avatarJugador2,
+        personaje: {
+          nombre: isJ1 ? this.localRoomData.personajeId1 : this.localRoomData.personajeId2,
+          imagen: this.getCharacterImage(isJ1 ? this.localRoomData.personajeId1 : this.localRoomData.personajeId2)
+        }
+      };
+    }
+    return null;
   }
 
   get enemigo(): any {
-    if (!this.gameState) return null;
-    return this.gameState.jugador1.id === this.myUsername ? this.gameState.jugador2 : this.gameState.jugador1;
+    if (this.gameState) {
+      return this.gameState.jugador1.id === this.myUsername ? this.gameState.jugador2 : this.gameState.jugador1;
+    }
+    // Fallback a datos locales
+    if (this.localRoomData) {
+      const isJ1 = this.localRoomData.jugador1 === this.myUsername;
+      const p2Id = isJ1 ? this.localRoomData.personajeId2 : this.localRoomData.personajeId1;
+      return {
+        id: isJ1 ? this.localRoomData.jugador2 : this.localRoomData.jugador1,
+        nombre: isJ1 ? this.localRoomData.nombreJugador2 : this.localRoomData.nombreJugador1,
+        avatar: isJ1 ? this.localRoomData.avatarJugador2 : this.localRoomData.avatarJugador1,
+        personaje: {
+          nombre: p2Id || 'Esperando...',
+          imagen: this.getCharacterImage(p2Id)
+        }
+      };
+    }
+    return null;
+  }
+
+  private getCharacterImage(id: string | undefined): string {
+    if (!id) return '';
+    const mapping: any = {
+      'WULFRIK': '/imagenes/wulfrik.jpg',
+      'AISLINN': '/imagenes/aislinn.jpg',
+      'LOKHIR': '/imagenes/lokhir.webp',
+      'ARANESSA': '/imagenes/Aranessa (1).jpg',
+      'IKIT': '/imagenes/ikitclaw.jpg',
+      'GELT': '/imagenes/gelt.png'
+    };
+    return mapping[id] || '';
   }
 
   get esMiTurno(): boolean {
@@ -661,88 +693,9 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Lógica del Bot Dummy (Modo Test) ---
 
-  colocarBarcosAleatoriosDummy() {
-    this.dummyBarcosColocados = true;
-    const dummyBoard: string[][] = [];
-    for (let i = 0; i < 10; i++) {
-      dummyBoard[i] = [];
-      for (let j = 0; j < 10; j++) {
-        dummyBoard[i][j] = 'AGUA';
-      }
-    }
 
-    // Usar la flota real del personaje del bot si está disponible, si no la estándar
-    const botShipsToPlace: number[] =
-      this.enemigo?.personaje?.flotaComoListaTamanos?.length
-        ? this.enemigo.personaje.flotaComoListaTamanos
-        : [5, 4, 3, 3, 2];
-    
-    for (const size of botShipsToPlace) {
-      let colocado = false;
-      let intentos = 0;
-      while (!colocado && intentos < 100) {
-        intentos++;
-        const orientacionV = Math.random() > 0.5;
-        const x = Math.floor(Math.random() * 10);
-        const y = Math.floor(Math.random() * 10);
 
-        if (!orientacionV && y + size > 10) continue;
-        if (orientacionV && x + size > 10) continue;
-
-        let colision = false;
-        // Verificar colisiones y espacios adyacentes para el dummy
-        for (let i = 0; i < size; i++) {
-          const cx = orientacionV ? x + i : x;
-          const cy = !orientacionV ? y + i : y;
-          
-          for (let dx = -1; dx <= 1; dx++) {
-            for (let dy = -1; dy <= 1; dy++) {
-              const adjX = cx + dx;
-              const adjY = cy + dy;
-              if (adjX >= 0 && adjX < 10 && adjY >= 0 && adjY < 10) {
-                if (dummyBoard[adjX][adjY] === 'BARCO') colision = true;
-              }
-            }
-          }
-        }
-
-        // Si no hay colisión ni barcos pegados, se coloca
-        if (!colision) {
-          for (let i = 0; i < size; i++) {
-            const cx = orientacionV ? x + i : x;
-            const cy = !orientacionV ? y + i : y;
-            dummyBoard[cx][cy] = 'BARCO';
-          }
-          colocado = true;
-        }
-      }
-    }
-
-    this.socketService.colocarBarcos(this.j2DummyId, this.roomCode, dummyBoard);
-  }
-
-  ataqueAleatorioDummy() {
-    // Si la partida ya no está en COMBATE (por ejemplo ha finalizado), no atacamos
-    if (this.gameState?.fase !== 'COMBATE') return;
-
-    let attacked = false;
-    let intentos = 0;
-    while (!attacked && intentos < 100) {
-      intentos++;
-      const x = Math.floor(Math.random() * 10);
-      const y = Math.floor(Math.random() * 10);
-      
-      // Consultamos el tablero local del jugador real
-      const estado = this.myBoard[x][y];
-      // Solo ataca si la casilla no fue atacada antes
-      if (estado !== 'AGUA_GOLPEADA' && estado !== 'TOCADO' && estado !== 'HUNDIDO') {
-        this.socketService.atacar(this.j2DummyId, this.roomCode, x, y);
-        attacked = true;
-      }
-    }
-  }
 
   // --- Acciones de Fase COMBATE ---
 
@@ -866,7 +819,7 @@ export class PartidaActivaComponent implements OnInit, OnDestroy {
       error: () => {} // Ignorar error si la sala ya fue eliminada
     });
     localStorage.removeItem(this.SESSION_KEY);
-    localStorage.removeItem(`test_mode_${this.roomCode}`);
+
     localStorage.removeItem(`personaje_${this.roomCode}`);
     localStorage.removeItem(`personaje_${this.roomCode}_${this.myUsername}`);
     this.router.navigate(['/lista-salas']);

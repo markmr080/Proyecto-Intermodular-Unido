@@ -28,8 +28,9 @@ export class Partida implements OnInit, OnDestroy {
   showSettingsModal = false;
 
   timeRemaining = '15:00';
-  private totalSeconds = 15 * 60;
+  private readonly TIMER_DURATION = 15 * 60; // 15 minutos en segundos
   private timerInterval: any;
+  private roomCreatedAt: number = 0; // timestamp del servidor en ms
 
   player1 = { name: 'Jugador 1', role: 'Owner', avatar: '' };
   player2: { name: string, role: string, avatar: string } | null = null;
@@ -70,6 +71,10 @@ export class Partida implements OnInit, OnDestroy {
             };
           }
 
+          // Usar la fecha de creación del servidor para sincronizar el timer
+          if (this.currentRoom.fechaCreacion) {
+            this.roomCreatedAt = this.currentRoom.fechaCreacion;
+          }
           this.startTimer();
         } else {
           this.router.navigate(['/lista-salas']);
@@ -157,17 +162,22 @@ export class Partida implements OnInit, OnDestroy {
 
   startTimer() {
     if (this.timerInterval) clearInterval(this.timerInterval);
+    // Calcular inmediatamente y luego cada segundo
+    this.updateTimeString();
     this.timerInterval = setInterval(() => {
-      if (this.totalSeconds > 0) {
-        this.totalSeconds--;
-        this.updateTimeString();
-      }
+      this.updateTimeString();
     }, 1000);
   }
 
   updateTimeString() {
-    const minutes = Math.floor(this.totalSeconds / 60);
-    const seconds = this.totalSeconds % 60;
+    if (this.roomCreatedAt === 0) {
+      this.timeRemaining = '15:00';
+      return;
+    }
+    const elapsedSeconds = Math.floor((Date.now() - this.roomCreatedAt) / 1000);
+    const remaining = Math.max(0, this.TIMER_DURATION - elapsedSeconds);
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
     this.timeRemaining = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
@@ -212,9 +222,7 @@ export class Partida implements OnInit, OnDestroy {
     this.socketService.iniciarPartida(this.roomCode);
   }
 
-  testPartida() {
-    this.router.navigate(['/seleccion-personajes'], { queryParams: { code: this.roomCode, testMode: 'true' } });
-  }
+
 
   abrirAjustes() {
     // Solo mostramos el modal en dispositivos móviles (<= 600px)
