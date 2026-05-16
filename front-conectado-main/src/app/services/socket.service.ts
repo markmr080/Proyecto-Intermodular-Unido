@@ -161,8 +161,8 @@ export class SocketService {
     this.socket.emit('iniciar-partida', { codigoSala });
   }
 
-  public seleccionarPersonaje(codigoSala: string, userId: string, personajeId: number) {
-    this.socket.emit('seleccionar-personaje', { codigoSala, userId, personajeId });
+  public seleccionarPersonaje(codigoSala: string, userId: string, personajeId: number, personajeTipo: string) {
+    this.socket.emit('seleccionar-personaje', { codigoSala, userId, personajeId, personajeTipo });
   }
 
   public comenzarJuego(codigoSala: string) {

@@ -155,13 +155,13 @@ public class SocketService {
         server.addEventListener("seleccionar-personaje", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
             String userId = (String) data.get("userId");
-            String personajeId = (String) data.get("personajeId");
+            String personajeTipo = (String) data.get("personajeTipo");
 
             lobbyManager.getRoom(codigoSala).ifPresent(sala -> {
                 if (userId.equals(sala.getJugador1())) {
-                    sala.setPersonajeId1(personajeId);
+                    sala.setPersonajeId1(personajeTipo);
                 } else if (userId.equals(sala.getJugador2())) {
-                    sala.setPersonajeId2(personajeId);
+                    sala.setPersonajeId2(personajeTipo);
                 }
             });
 

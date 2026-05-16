@@ -136,8 +136,9 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Registrar usuario para asegurar socket activo
+    // Registrar usuario para asegurar socket activo y unirse a la sala del lobby
     this.socketService.registrarUsuario(user.username);
+    this.socketService.joinLobby(this.roomCode);
 
     this.roomService.getRoomByCode(this.roomCode)
       .pipe(takeUntil(this.destroy$))
@@ -165,6 +166,16 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
         };
 
         this.jugadorActual = user.username === ownerName ? 1 : 2;
+
+        // Inicializar selecciones si ya existen en la sala (ej: tras un refresh)
+        if (this.currentRoom.personajeId1) {
+          const idx = this.personajes.findIndex(p => p.tipo === this.currentRoom?.personajeId1);
+          if (idx !== -1) this.seleccionJugador1 = idx;
+        }
+        if (this.currentRoom.personajeId2) {
+          const idx = this.personajes.findIndex(p => p.tipo === this.currentRoom?.personajeId2);
+          if (idx !== -1) this.seleccionJugador2 = idx;
+        }
       });
 
     // Leer modo test de la URL
@@ -256,8 +267,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     const tipoPersonaje = this.personajes[this.indiceActual].tipo;
     localStorage.setItem(`personaje_${this.roomCode}_${user.username}`, tipoPersonaje);
 
-    // Notificar al otro jugador
-    this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual);
+    // Notificar al otro jugador (enviamos el índice para el front y el tipo para el back)
+    this.socketService.seleccionarPersonaje(this.roomCode, user.username, this.indiceActual, tipoPersonaje);
   }
 
   deseleccionar(): void {
@@ -273,8 +284,8 @@ export class SeleccionPersonajesComponent implements OnInit, OnDestroy {
     // Eliminar del localStorage
     localStorage.removeItem(`personaje_${this.roomCode}_${user.username}`);
 
-    // Notificar al otro jugador (enviando null como personajeId)
-    this.socketService.seleccionarPersonaje(this.roomCode, user.username, -1);
+    // Notificar al otro jugador (enviando null/-1 como personajeId y vacío como tipo)
+    this.socketService.seleccionarPersonaje(this.roomCode, user.username, -1, '');
   }
 
   esSeleccionadoPorMi(): boolean {

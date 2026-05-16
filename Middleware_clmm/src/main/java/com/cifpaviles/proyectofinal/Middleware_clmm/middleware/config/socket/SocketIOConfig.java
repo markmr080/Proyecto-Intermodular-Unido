@@ -27,17 +27,33 @@ public class SocketIOConfig {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname(host);
         config.setPort(port);
-        // Permitir CORS desde Angular
         config.setOrigin("*");
 
-        // Configurar la validación JWT en el handshake
+        // Optimización de hilos para evitar bloqueos
+        config.setWorkerThreads(100);
+        config.setPingTimeout(60000);
+        config.setPingInterval(25000);
+
+        // Manejador de excepciones compatible con versión 1.7.19
+        config.setExceptionListener(new com.corundumstudio.socketio.listener.DefaultExceptionListener() {
+            @Override
+            public boolean exceptionCaught(io.netty.channel.ChannelHandlerContext ctx, Throwable e) throws Exception {
+                if (e.getMessage() != null && (e.getMessage().contains("Connection reset") || e instanceof java.io.IOException)) {
+                    return true; // Consumir el error
+                }
+                return super.exceptionCaught(ctx, e);
+            }
+
+            @Override
+            public void onConnectException(Exception e, com.corundumstudio.socketio.SocketIOClient client) {
+                if (e.getMessage() != null && e.getMessage().contains("Connection reset")) return;
+                super.onConnectException(e, client);
+            }
+        });
+
         config.setAuthorizationListener(data -> {
             String token = data.getSingleUrlParam("token");
-            if (token != null && jwtProvider.validarToken(token)) {
-                return true;
-            }
-            System.err.println("Conexión Socket.IO rechazada: Token inválido o ausente.");
-            return false;
+            return token != null && jwtProvider.validarToken(token);
         });
 
         return new SocketIOServer(config);
