@@ -129,6 +129,27 @@ public class BackendClient {
                 .body(Long.class);
     }
 
+    public java.util.List<?> listarPartidas() {
+        return restClient.get()
+                .uri("/api/partidas")
+                .retrieve()
+                .body(new org.springframework.core.ParameterizedTypeReference<java.util.List<java.util.Map<String, Object>>>() {});
+    }
+
+    public java.util.List<?> listarPartidasPorEstado(String estado) {
+        return restClient.get()
+                .uri("/api/partidas/estado/" + estado)
+                .retrieve()
+                .body(new org.springframework.core.ParameterizedTypeReference<java.util.List<java.util.Map<String, Object>>>() {});
+    }
+
+    public Object obtenerPartida(Long id) {
+        return restClient.get()
+                .uri("/api/partidas/" + id)
+                .retrieve()
+                .body(java.util.Map.class);
+    }
+
     public void actualizarEstadoPartida(Long idPartida, String estado) {
         restClient.put()
                 .uri("/api/partidas/" + idPartida + "/estado?estado=" + estado)
@@ -161,9 +182,10 @@ public class BackendClient {
                 .body(new org.springframework.core.ParameterizedTypeReference<java.util.List<com.cifpaviles.proyectofinal.Middleware_clmm.middleware.model.dto.PersonajeDTO>>() {});
     }
 
-    public void guardarStats(String username, String personajeNombre,
+    public void guardarStats(Long idPartida, String username, String personajeNombre,
                              int hitsAcertados, int hitsFallados, int barcosHundidos, boolean ganador) {
         java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("idPartida",      idPartida);
         body.put("username",       username);
         body.put("personajeNombre",personajeNombre);
         body.put("hitsAcertados",  hitsAcertados);

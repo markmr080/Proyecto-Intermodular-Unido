@@ -47,12 +47,13 @@ public class EstadisticasController {
             int barcosHundidos  = ((Number) body.getOrDefault("barcosHundidos", 0)).intValue();
             boolean ganador     = Boolean.TRUE.equals(body.get("ganador"));
 
+            Long idPartida = body.get("idPartida") != null ? ((Number) body.get("idPartida")).longValue() : null;
             Long idUsuario = usuarioRepository.findByUsername(username)
                 .map(u -> u.getId()).orElse(null);
             Long idPersonaje = personajeRepository.findByNombre(personajeNombre)
                 .map(p -> p.getId()).orElse(null);
 
-            estadisticasService.guardarStatsPartida(null, idUsuario, idPersonaje,
+            estadisticasService.guardarStatsPartida(idPartida, idUsuario, idPersonaje,
                 hitsAcertados, hitsFallados, barcosHundidos, username, ganador);
 
             return ResponseEntity.ok(Map.of("message", "Stats guardadas para " + username));

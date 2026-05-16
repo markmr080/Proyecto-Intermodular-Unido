@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers("/api/partidas/sala-activa/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/personajes").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/lobby").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

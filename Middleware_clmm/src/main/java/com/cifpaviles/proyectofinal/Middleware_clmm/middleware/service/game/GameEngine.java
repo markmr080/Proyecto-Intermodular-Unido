@@ -1078,11 +1078,11 @@ public class GameEngine {
         try {
             Player j1 = state.getJugador1();
             Player j2 = state.getJugador2();
-            backendClient.guardarStats(j1.getId(),
+            backendClient.guardarStats(idPartida, j1.getId(),
                     j1.getPersonaje() != null ? j1.getPersonaje().getNombre() : "",
                     j1.getHitsAcertados(), j1.getHitsFallados(), j1.getBarcosHundidos(),
                     j1.getId().equals(ganadorId));
-            backendClient.guardarStats(j2.getId(),
+            backendClient.guardarStats(idPartida, j2.getId(),
                     j2.getPersonaje() != null ? j2.getPersonaje().getNombre() : "",
                     j2.getHitsAcertados(), j2.getHitsFallados(), j2.getBarcosHundidos(),
                     j2.getId().equals(ganadorId));
