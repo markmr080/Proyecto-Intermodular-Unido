@@ -89,7 +89,7 @@ services:
     container_name: clmm-frontend
     restart: always
     ports:
-      - "80:80"
+      - "8084:80"   # Puerto interno — Nginx del sistema hace proxy a este puerto vía HTTPS
     depends_on:
       - middleware
 
