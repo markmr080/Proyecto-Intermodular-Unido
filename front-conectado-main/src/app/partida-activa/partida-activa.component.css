@@ -1148,8 +1148,8 @@
   background: linear-gradient(90deg, #7b2d00, #b84d00);
   border: 2px solid #ff6f00;
   border-radius: 8px;
-  padding: 10px 16px;
-  margin-bottom: 12px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
   color: #fff;
   font-weight: bold;
   text-align: center;
@@ -1158,6 +1158,8 @@
   justify-content: space-between;
   gap: 12px;
   animation: pulse-border 1s ease infinite alternate;
+  position: relative;
+  z-index: 60;
 }
 
 @keyframes pulse-border {
@@ -2025,15 +2027,16 @@
 
   /* Header más compacto y flexible */
   .game-header {
-    height: auto;
-    min-height: 50px;
-    padding: 8px 15px;
+    height: 44px;
+    min-height: 44px;
+    padding: 2px 12px;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    flex: 0 0 auto;
+    gap: 5px;
+    flex: 0 0 44px;
     position: relative;
+    z-index: 100;
   }
 
   /* Espaciador para centrar el indicador de turno cuando el h2 no está */
@@ -2076,17 +2079,18 @@
 
   /* Grid principal ocupa el espacio, pero permite scroll interno si el contenido es mayor que la pantalla */
   .layout-grid {
-    padding: 5px 0;
-    gap: 5px;
+    padding: 5px;
+    gap: 8px;
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto;
-    /* Fundamental para que no se corten las habilidades o el tablero si la pantalla es muy pequeña */
-    overflow-x: hidden;
+    overflow: hidden;
+    /* Evitamos el scroll a toda costa */
     display: flex;
     flex-direction: column;
     margin: 0;
     height: auto;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* Modales escalados para que nunca se corten en tablets ni móviles */
@@ -2104,9 +2108,11 @@
     flex-direction: row;
     gap: 5px;
     flex: 0 0 auto;
-    height: auto;
+    height: 50px; /* Reducido de 60px */
     padding: 0 5px;
     /* Devolvemos el padding horizontal interior */
+    position: relative;
+    z-index: 20;
   }
 
   .skills-top-group {
@@ -2160,9 +2166,10 @@
   .column-center {
     flex: 1 1 auto;
     /* Toma el espacio disponible o crece si es necesario */
-    padding: 10px 0;
+    /* Padding integral para que el tablero tenga aire a los lados y no se corte */
+    padding: 10px;
     /* Un poco de margen vertical para respirar */
-    min-height: 250px;
+    min-height: 0; 
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -2184,20 +2191,20 @@
   .board {
     border-width: 2px;
     gap: 1px;
-    /* Al quitar aspect-ratio y poner width 100%, el tablero se estira para ocupar todo el espacio a su derecha e izquierda, llenando el contenedor */
-    height: 100%;
-    width: 100%;
-    max-height: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    /* Forzar centrado horizontal */
+    /* Estándar para no-scroll: el tablero se ajusta a lo que sobra de pantalla */
+    width: 85vw;
+    max-width: min(450px, 90%, 42vh); 
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 5px auto;
+    /* Capa base para el tablero, dejando que todo lo demás esté por encima */
+    position: relative;
+    z-index: 1;
     align-self: center;
-    /* Clavarlo al centro del flex (horizontal) */
-    justify-self: center;
-    /* Clavarlo al centro del flex (vertical) */
-    flex-shrink: 0;
+    flex-shrink: 1; /* Permitimos que encoja si es necesario */
     box-sizing: border-box;
-    /* IMPRESCINDIBLE para que el borde no añada anchura extra y cause scroll horizontal */
+    /* Sombra más sutil para que no ensucie componentes adyacentes */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   }
 
   .cell {
@@ -2215,6 +2222,8 @@
     height: auto;
     padding: 0 5px;
     /* Devolvemos el padding interior */
+    position: relative;
+    z-index: 20;
   }
 
   .game-info-top {
@@ -2250,16 +2259,16 @@
 
   /* Habilidades */
   .skills-box {
-    padding: 5px;
+    padding: 3px;
     flex: 1;
     min-width: 0;
     border-width: 1px;
   }
 
   .skills-box h3 {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     padding: 0;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     border: none;
   }
 
@@ -2270,8 +2279,8 @@
   }
 
   .ability-circle {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 
   /* Fase Colocación: Barcos */
@@ -2313,7 +2322,7 @@
     flex-direction: row;
     width: 100%;
     gap: 5px;
-    padding: 5px 0 0 0;
+    padding: 2px 0 0 0;
     border-top: none;
   }
 
@@ -2327,8 +2336,11 @@
 
 @media (max-width: 576px) {
   .board {
-    max-height: calc(100dvh - 190px);
+    /* Reducimos aún más el vh para asegurar que quepa con el resto de componentes en 100vh */
+    max-width: min(320px, 100%, 35vh) !important;
+    margin: 5px auto;
   }
+
 
   /* Modales más ajustados para móvil pequeño */
   .modal-card,
