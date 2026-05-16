@@ -16,11 +16,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   # ──────────────────────────────────────────────
   # 2. Base de datos MongoDB
@@ -33,11 +28,6 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   # ──────────────────────────────────────────────
   # 3. Backend API (Motor de datos y persistencia)
@@ -51,7 +41,7 @@ services:
     container_name: clmm-backend
     restart: always
     ports:
-      - "8081:8081"   # Expuesto localmente para debug; en producción se puede eliminar
+      - "8081:8081"
     environment:
       - SERVER_PORT=8081
       - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
@@ -60,20 +50,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_DATA_MONGODB_URI=mongodb://mongo-db:27017/batalla_naval_stats
       - SPRING_DATA_MONGODB_DATABASE=batalla_naval_stats
-      # CLAVE INTERNA — debe ser IDÉNTICA a la del Middleware y a application.properties
       - INTERNAL_API_KEY=ClmmInternalSecretKey2026_NoCompartir
-      - SPRING_APPLICATION_JSON={"internal.api.key":"ClmmInternalSecretKey2026_NoCompartir"}
     depends_on:
-      mysql-db:
-        condition: service_healthy
-      mongo-db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
-      interval: 15s
-      timeout: 5s
-      retries: 8
-      start_period: 40s
+      - mysql-db
+      - mongo-db
 
   # ──────────────────────────────────────────────
   # 4. Middleware (Seguridad, Lógica y Socket.IO)
@@ -87,30 +67,20 @@ services:
     container_name: clmm-middleware
     restart: always
     ports:
-      - "8080:8080"   # API REST y JWT — entrada principal del frontend
-      - "8082:8082"   # Socket.IO (Netty) — partidas en tiempo real
+      - "8080:8080"
+      - "8082:8082"
     environment:
       - SERVER_PORT=8080
+      - BACKEND_API_URL=http://backend-api:8081
       - APP_FRONTEND_URL=https://warhammer-battleship-clmm.polandcentral.cloudapp.azure.com
       - SOCKETIO_PORT=8082
-      # CLAVE INTERNA — debe ser IDÉNTICA a la del Backend y a application.properties
       - INTERNAL_API_KEY=ClmmInternalSecretKey2026_NoCompartir
-      # SPRING_APPLICATION_JSON tiene máxima prioridad en Spring Boot y garantiza
-      # que internal.api.key y backend.api.url lleguen aunque el relaxed binding falle
-      - SPRING_APPLICATION_JSON={"internal.api.key":"ClmmInternalSecretKey2026_NoCompartir","backend.api.url":"http://backend-api:8081"}
     depends_on:
-      backend-api:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/personajes || exit 1" ]
-      interval: 15s
-      timeout: 5s
-      retries: 8
-      start_period: 50s
+      - backend-api
 
   # ──────────────────────────────────────────────
   # 5. Frontend Angular (Nginx)
-  #    Puerto 80 — accesible desde Azure
+  #    Puerto 80 — accesible desde Azure (NSG)
   # ──────────────────────────────────────────────
   frontend:
     build:
@@ -119,10 +89,9 @@ services:
     container_name: clmm-frontend
     restart: always
     ports:
-      - "80:80"   # Puerto 80 abierto en Azure NSG
+      - "80:80"
     depends_on:
-      middleware:
-        condition: service_healthy
+      - middleware
 
 # ──────────────────────────────────────────────
 # Volúmenes persistentes
