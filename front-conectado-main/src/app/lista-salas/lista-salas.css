@@ -1,9 +1,6 @@
 .lista-salas-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,7 +9,8 @@
   color: #e5d3b3;
   padding: 40px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .lista-salas-wrapper::before {
@@ -538,4 +536,20 @@
   background: rgba(220, 53, 69, 0.2);
   border-color: #dc3545;
   color: #ff6b6b;
+}
+
+/* Responsive adjustments for scroll blocking */
+@media (max-width: 1024px) {
+  .lista-salas-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+  }
 }

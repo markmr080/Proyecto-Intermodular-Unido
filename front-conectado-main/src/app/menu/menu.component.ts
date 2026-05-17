@@ -121,6 +121,11 @@ export class MenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      this.checkScrollLock();
+      window.addEventListener('resize', this.onResize);
+    }
+
     // Conectar al socket pasando el token para evitar rechazos
     const token = this.authService.getToken();
     console.log('[Menu] Iniciando conexión socket...');
@@ -181,6 +186,27 @@ export class MenuComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      window.removeEventListener('resize', this.onResize);
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+  }
+
+  onResize = () => {
+    this.checkScrollLock();
+  };
+
+  checkScrollLock() {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      if (window.innerWidth <= 1024) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }
+    }
   }
 
   reconectarAPartida(): void {

@@ -28,6 +28,11 @@ export class ListaSalas implements OnInit, OnDestroy {
   private refreshInterval: any;
 
   ngOnInit() {
+    if (typeof window !== 'undefined') {
+      this.checkScrollLock();
+      window.addEventListener('resize', this.onResize);
+    }
+
     const user = this.authService.getCurrentUser();
     if (user) {
       this.socketService.registrarUsuario(user.username);
@@ -61,6 +66,29 @@ export class ListaSalas implements OnInit, OnDestroy {
     }
     this.destroy$.next();
     this.destroy$.complete();
+
+
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      window.removeEventListener('resize', this.onResize);
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+  }
+
+  onResize = () => {
+    this.checkScrollLock();
+  };
+
+  checkScrollLock() {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      if (window.innerWidth <= 1024) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }
+    }
   }
 
   refreshRoomList() {
