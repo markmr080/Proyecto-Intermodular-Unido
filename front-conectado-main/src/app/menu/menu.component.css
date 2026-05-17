@@ -1,7 +1,8 @@
 /* --- Wrapper and Background --- */
 .menu-wrapper {
   position: relative;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: url('/imagenes/fondoHundirLaFlota.png') center/cover no-repeat;
@@ -63,8 +64,8 @@
   text-transform: uppercase;
   letter-spacing: 5px;
   cursor: pointer;
-  box-shadow: 
-    0 0 30px rgba(212, 175, 55, 0.4), 
+  box-shadow:
+    0 0 30px rgba(212, 175, 55, 0.4),
     inset 0 0 15px rgba(255, 255, 255, 0.6),
     0 10px 20px rgba(0, 0, 0, 0.5);
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
@@ -75,7 +76,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3), -1px -1px 2px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3), -1px -1px 2px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -87,12 +88,10 @@
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0) 100%);
   transform: skewX(-25deg);
   transition: none;
   pointer-events: none;
@@ -103,14 +102,19 @@
 }
 
 @keyframes shine-sweep {
-  0% { left: -100%; }
-  100% { left: 150%; }
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 150%;
+  }
 }
 
 .btn-play-massive:hover {
   transform: scale(1.08) translateY(-3px);
-  box-shadow: 
-    0 0 50px rgba(212, 175, 55, 0.9), 
+  box-shadow:
+    0 0 50px rgba(212, 175, 55, 0.9),
     inset 0 0 20px rgba(255, 255, 255, 0.8),
     0 15px 30px rgba(0, 0, 0, 0.6);
   filter: brightness(1.1);
@@ -188,7 +192,8 @@
 }
 
 .mobile-logo {
-  max-width: 220px; /* Reducido un poco */
+  max-width: 220px;
+  /* Reducido un poco */
   height: auto;
   filter: drop-shadow(0 0 15px rgba(184, 145, 88, 0.5));
 }
@@ -381,7 +386,7 @@
 
 .menu-cruz-visual {
   display: grid;
-  grid-template-areas: 
+  grid-template-areas:
     ". top ."
     "left center right"
     ". bottom .";
@@ -395,11 +400,25 @@
   height: 10px !important;
 }
 
-.menu-cruz-visual .center { grid-area: center; }
-.menu-cruz-visual .top { grid-area: top; }
-.menu-cruz-visual .bottom { grid-area: bottom; }
-.menu-cruz-visual .left { grid-area: left; }
-.menu-cruz-visual .right { grid-area: right; }
+.menu-cruz-visual .center {
+  grid-area: center;
+}
+
+.menu-cruz-visual .top {
+  grid-area: top;
+}
+
+.menu-cruz-visual .bottom {
+  grid-area: bottom;
+}
+
+.menu-cruz-visual .left {
+  grid-area: left;
+}
+
+.menu-cruz-visual .right {
+  grid-area: right;
+}
 
 .ship-indicator[data-size="4"] .segment {
   background: linear-gradient(135deg, #f39c12, #d35400);
@@ -768,18 +787,54 @@
   }
 
   @media (max-width: 768px) {
+
+    html,
+    body {
+      overflow: hidden !important;
+      height: 100% !important;
+      margin: 0;
+      padding: 0;
+      position: fixed;
+      width: 100%;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    .menu-wrapper {
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
+      overflow: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .menu-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+
     .top-navbar {
       display: none !important;
     }
+
     .mobile-logo-container {
       display: flex;
-      margin-top: 5vh; /* Bajar un poco más el logo */
-      margin-bottom: 2vh;
+      margin-top: 2vh;
+      margin-bottom: 1vh;
     }
   }
 
   .character-gallery {
-    margin-top: 5vh; /* Bajar los personajes de sitio */
+    margin-top: 2vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
   }
 
   .nav-left {
@@ -820,9 +875,17 @@
   }
 
   .menu-container {
-    padding: 10px 0 40px 0;
+    padding: 0;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
+    overflow: hidden;
+    height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .menu-container::-webkit-scrollbar {
+    display: none;
   }
 
   /* Arrow-based Carousel for character cards on mobile */
