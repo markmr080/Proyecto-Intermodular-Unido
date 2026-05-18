@@ -147,6 +147,31 @@ public class SocketService {
             }
         });
 
+        server.addEventListener("expulsar-jugador", Map.class, (cliente, data, ackRequest) -> {
+            String codigoSala = (String) data.get("codigoSala");
+            String targetId = (String) data.get("targetId");
+            lobbyManager.getRoom(codigoSala).ifPresent(sala -> {
+                if (targetId.equals(sala.getJugador2())) {
+                    sala.setJugador2(null);
+                    sala.setNombreJugador2(null);
+                    sala.setAvatarJugador2(null);
+                    sala.setEstado("ESPERANDO");
+
+                    // 1. Notificar a la sala
+                    server.getRoomOperations(codigoSala).sendEvent("jugador-expulsado", targetId);
+
+                    // 2. Hacer que el cliente expulsado salga de la sala del socket
+                    UUID targetSocketId = userSockets.get(targetId);
+                    if (targetSocketId != null) {
+                        com.corundumstudio.socketio.SocketIOClient targetClient = server.getClient(targetSocketId);
+                        if (targetClient != null) {
+                            targetClient.leaveRoom(codigoSala);
+                        }
+                    }
+                }
+            });
+        });
+
         server.addEventListener("iniciar-partida", Map.class, (cliente, data, ackRequest) -> {
             String codigoSala = (String) data.get("codigoSala");
             server.getRoomOperations(codigoSala).sendEvent("partida-iniciada", codigoSala);

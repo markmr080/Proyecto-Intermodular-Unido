@@ -6,7 +6,6 @@ import com.cifpaviles.proyectofinal.CLMM.api.model.entity.UsuarioEntity;
 import com.cifpaviles.proyectofinal.CLMM.api.repository.mysql.UsuarioRepository;
 import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IUsuarioService;
 import com.cifpaviles.proyectofinal.CLMM.api.service.interfaces.IEstadisticasService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,26 +16,11 @@ public class UsuarioService implements IUsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final IEstadisticasService estadisticasService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, IEstadisticasService estadisticasService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+            IEstadisticasService estadisticasService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.estadisticasService = estadisticasService;
-    }
-
-    @PostConstruct
-    public void crearUsuarioSistema() {
-        // RF-01: El username debe ser exactamente "middleware_admin"
-        if (!usuarioRepository.existsByUsername("middleware_admin")) {
-            UsuarioEntity admin = new UsuarioEntity();
-            admin.setUsername("middleware_admin");
-            admin.setEmail("admin@sistema.internal");
-            // Esta clave es la que usará el furgón (Angular) para identificarse
-            admin.setPasswordHash(passwordEncoder.encode("clave_secreta_del_middleware_2026"));
-            admin.setRole("ADMIN");
-
-            usuarioRepository.save(admin);
-            System.out.println("✅ Entidad 'middleware_admin' creada en MySQL (Persistencia transaccional).");
-        }
     }
 
     @Override
@@ -79,7 +63,8 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public void enviarCorreoRecuperacion(String email, String token) {
         // Delegado al Middleware
-        System.out.println("API Backend: Petición de recuperación recibida. El envío de correo es gestionado por el Middleware.");
+        System.out.println(
+                "API Backend: Petición de recuperación recibida. El envío de correo es gestionado por el Middleware.");
     }
 
     @Override
@@ -128,7 +113,6 @@ public class UsuarioService implements IUsuarioService {
         return new com.cifpaviles.proyectofinal.CLMM.api.model.dto.UserProfileDTO(
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfilePicture()
-        );
+                user.getProfilePicture());
     }
 }

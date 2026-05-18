@@ -138,7 +138,10 @@ export class Partida implements OnInit, OnDestroy {
     this.socketService.jugadorExpulsado$
       .pipe(takeUntil(this.destroy$))
       .subscribe(userId => {
-        if (this.player2 && this.player2.name === userId) {
+        if (user && user.username === userId) {
+          alert('Has sido expulsado de la sala.');
+          this.router.navigate(['/lista-salas']);
+        } else if (this.player2 && this.player2.name === userId) {
           console.log('Jugador expulsado con éxito');
           this.player2 = null;
         }

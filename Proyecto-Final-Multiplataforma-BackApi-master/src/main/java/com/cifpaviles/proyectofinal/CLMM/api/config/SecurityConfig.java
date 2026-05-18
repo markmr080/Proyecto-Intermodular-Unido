@@ -26,8 +26,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(internalApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated() // ← ya NO es permitAll
-                );
+                        .anyRequest().authenticated());
         return http.build();
     }
 }
